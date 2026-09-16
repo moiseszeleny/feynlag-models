@@ -1,8 +1,18 @@
 {
   "sm": {
-    "children": [],
+    "children": [
+      "sm_singlet_z2"
+    ],
     "maturity_level": 3,
     "name": "Standard Model (one Higgs doublet, one full fermion generation)",
     "parents": []
+  },
+  "sm_singlet_z2": {
+    "children": [],
+    "maturity_level": 3,
+    "name": "SM + real singlet scalar (Z2-symmetric, spontaneously broken)",
+    "parents": [
+      "sm"
+    ]
   }
 }

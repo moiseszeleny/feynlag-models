@@ -67,3 +67,36 @@ def only_failures(report, names):
     """
     failing = sorted(term.name for term, _check, _d in report.failures)
     return failing == sorted(names), failing
+
+
+# --------------------------------------------------------------- scalar blocks
+def scalar_mass_block(model, fields, charged=False):
+    """Scalar mass matrix ``∂²V/∂φ_i∂φ_j`` at the vacuum, safe for real VEV'd scalars.
+
+    Reproduces ``Model.mass_matrix`` but evaluates the vacuum point with a
+    *single* shift. ``Model.mass_matrix`` calls ``Vacuum.at_vacuum`` on an
+    already-shifted matrix; for a **real** scalar with a VEV the fluctuation
+    symbol *is* the component, so the second shift evaluates the block at
+    ``S = 2 v_S`` (FEYNLAG_GAPS.md, FG-1). For complex fields both routes agree
+    (pinned by the tests of ``models/sm``).
+    """
+    from feynlag import build_mass_matrix
+    V = model.potential
+    vac = model.vacuum
+    V_shifted = vac.shift(V)
+    fields = list(fields)
+    if charged:
+        dummies = {sp.conjugate(f): sp.Dummy(f"{f.name}_conj") for f in fields}
+        M = build_mass_matrix(V_shifted.xreplace(dummies), list(dummies.values()), fields)
+        M = M.applyfunc(lambda e: e.xreplace({d: c for c, d in dummies.items()}))
+    else:
+        M = build_mass_matrix(V_shifted, fields)
+    zero = {f: 0 for f in vac.fluctuations}
+    for s in vac.scalars:
+        for comp in s.components:
+            zero[comp] = 0
+            zero[sp.conjugate(comp)] = 0
+    M = M.applyfunc(lambda e: sp.expand(e.xreplace(zero)))
+    if model._tadpole_solutions:
+        M = M.applyfunc(lambda e: sp.expand(e.subs(model._tadpole_solutions)))
+    return M.applyfunc(lambda e: sp.factor(e) if e != 0 else sp.S.Zero)
