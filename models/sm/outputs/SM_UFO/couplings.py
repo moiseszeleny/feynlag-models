@@ -1,0 +1,27 @@
+# This file was automatically created by feynlag
+import cmath
+from object_library import all_couplings, Coupling
+from function_library import (complexconjugate, re, im, csc, sec, acsc, asec, cot)
+
+
+GC_1 = Coupling(name='GC_1', value='-6*complex(0,1)*lam', order={'QED': 2})
+GC_2 = Coupling(name='GC_2', value='-6*complex(0,1)*lam*v', order={'QED': 1})
+GC_3 = Coupling(name='GC_3', value='(1/2)*complex(0,1)*gw**2', order={'QED': 2})
+GC_4 = Coupling(name='GC_4', value='4*complex(0,1)*((1/8)*g1**2 + (1/8)*gw**2)', order={'QED': 2})
+GC_5 = Coupling(name='GC_5', value='(1/2)*complex(0,1)*gw**2*v', order={'QED': 1})
+GC_6 = Coupling(name='GC_6', value='(1/2)*complex(0,1)*v*(g1**2 + gw**2)', order={'QED': 1})
+GC_7 = Coupling(name='GC_7', value='-complex(0,1)*g1*gw/cmath.sqrt(g1**2 + gw**2)', order={'QED': 1})
+GC_8 = Coupling(name='GC_8', value='-complex(0,1)*gw**2/cmath.sqrt(g1**2 + gw**2)', order={'QED': 1})
+GC_9 = Coupling(name='GC_9', value='-1/3*complex(0,1)*g1*gw/cmath.sqrt(g1**2 + gw**2)', order={'QED': 1})
+GC_10 = Coupling(name='GC_10', value='(1/6)*complex(0,1)*(-g1**2 - 3*gw**2)/cmath.sqrt(g1**2 + gw**2)', order={'QED': 1})
+GC_11 = Coupling(name='GC_11', value='(1/3)*complex(0,1)*g1**2/cmath.sqrt(g1**2 + gw**2)', order={'QED': 1})
+GC_12 = Coupling(name='GC_12', value='(1/2)*complex(0,1)*(g1**2 - gw**2)/cmath.sqrt(g1**2 + gw**2)', order={'QED': 1})
+GC_13 = Coupling(name='GC_13', value='complex(0,1)*g1**2/cmath.sqrt(g1**2 + gw**2)', order={'QED': 1})
+GC_14 = Coupling(name='GC_14', value='(2/3)*complex(0,1)*g1*gw/cmath.sqrt(g1**2 + gw**2)', order={'QED': 1})
+GC_15 = Coupling(name='GC_15', value='(1/6)*complex(0,1)*(-g1**2 + 3*gw**2)/cmath.sqrt(g1**2 + gw**2)', order={'QED': 1})
+GC_16 = Coupling(name='GC_16', value='-2/3*complex(0,1)*g1**2/cmath.sqrt(g1**2 + gw**2)', order={'QED': 1})
+GC_17 = Coupling(name='GC_17', value='-1/2*cmath.sqrt(2)*complex(0,1)*yb', order={'QED': 1})
+GC_18 = Coupling(name='GC_18', value='-1/2*cmath.sqrt(2)*complex(0,1)*yt', order={'QED': 1})
+GC_19 = Coupling(name='GC_19', value='-1/2*cmath.sqrt(2)*complex(0,1)*ytau', order={'QED': 1})
+GC_20 = Coupling(name='GC_20', value='(1/2)*cmath.sqrt(2)*complex(0,1)*gw', order={'QED': 1})
+GC_21 = Coupling(name='GC_21', value='(1/2)*complex(0,1)*cmath.sqrt(g1**2 + gw**2)', order={'QED': 1})

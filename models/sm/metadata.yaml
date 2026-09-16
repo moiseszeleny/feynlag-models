@@ -1,0 +1,66 @@
+schema_version: 1
+id: sm
+name: "Standard Model (one Higgs doublet, one full fermion generation)"
+parents: []
+problem_addressed: |
+  Root of the genealogy. Not a solution to anything: the reference theory every
+  extension in this library is measured against. Its known shortcomings are the
+  problems the children address (neutrino masses, an extended scalar sector,
+  scalar mixing as a portal). [physics judgment]
+new_fields: []
+new_symmetries: []
+free_parameters:
+  - {name: gw,  tex: "g",        mass_dim: 0, role: gauge coupling SU(2)_L}
+  - {name: g1,  tex: "g'",       mass_dim: 0, role: gauge coupling U(1)_Y}
+  - {name: gs,  tex: "g_s",      mass_dim: 0, role: gauge coupling SU(3)_c}
+  - {name: v,   tex: "v",        mass_dim: 1, role: Higgs VEV}
+  - {name: lam, tex: "\\lambda", mass_dim: 0, role: Higgs quartic (fixed from MH at the benchmark)}
+  - {name: MT,  tex: "m_t",      mass_dim: 1, role: top mass (fixes y_t)}
+  - {name: MB,  tex: "m_b",      mass_dim: 1, role: bottom mass (fixes y_b)}
+  - {name: MTA, tex: "m_\\tau",  mass_dim: 1, role: tau mass (fixes y_tau)}
+benchmark:
+  # Inputs of the benchmark point, not measurements. gw, g1, v follow from the
+  # stock MadGraph electroweak scheme (alpha_EW^-1, G_F, M_Z) = (132.50698,
+  # 1.16639e-5, 91.1876) exactly as feynlag's docs/benchmark.md and
+  # scripts/export_sm_ufo.py compute them; gs = sqrt(4 pi alpha_s) with
+  # alpha_s = 0.118; masses and widths are round PDG-like values.
+  gw: 0.65322889878251
+  g1: 0.3491928465111313
+  gs: 1.2177157847767197
+  v: 246.2184581018163
+  MH: 125.0
+  MT: 173.0
+  MB: 4.7
+  MTA: 1.777
+  WZ: 2.4952
+  WW: 2.0850
+  WH: 0.00407
+  WT: 1.4915
+key_results:
+  - {statement: "μ² = λ v² (tadpole), m_h² = 2 λ v²", test: "tests/test_l0_l1.py::test_tadpole_and_higgs_mass"}
+  - {statement: "m_W = g v/2, m_Z = √(g²+g'²) v/2, m_γ = 0", test: "tests/test_l0_l1.py::test_gauge_masses"}
+  - {statement: "three Goldstone bosons for three massive gauge bosons", test: "tests/test_l0_l1.py::test_goldstone_count"}
+  - {statement: "hWW = i g m_W g^{μν}, hZZ = i g_Z m_Z g^{μν}, h f f = −i m_f/v", test: "tests/test_l2_literature.py::test_hVV_and_hff"}
+  - {statement: "Z f f = i g_Z γ^μ (T³ P_L − Q s_W²), W ℓ ν = i g/√2 γ^μ P_L", test: "tests/test_l2_literature.py::test_gauge_currents"}
+maturity_level: 3
+maturity_evidence:
+  L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
+  L1: ["tests/test_l0_l1.py::test_tadpole_and_higgs_mass", "tests/test_l0_l1.py::test_gauge_masses",
+       "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_masses"]
+  L2: ["tests/test_l2_literature.py::test_hVV_and_hff", "tests/test_l2_literature.py::test_gauge_currents",
+       "tests/test_l2_literature.py::test_higgs_self_couplings", "tests/test_l2_literature.py::test_charge_and_hermiticity_pairing"]
+  L3: ["tests/test_l3_ufo.py::test_ufo_roundtrip"]
+  L4: []
+literature_checks:
+  - {quantity: "hWW, hZZ, hff, hhh, hhhh Feynman rules", ref: peskin1995, where: "Chapter 20/21 SM Feynman rules (TODO(verify) figure numbers)", test: "tests/test_l2_literature.py::test_hVV_and_hff"}
+  - {quantity: "Z and W fermion currents", ref: pdg_ew_review, where: "Electroweak model and constraints on new physics review, Eqs. for the neutral/charged current couplings (TODO(verify) equation numbers)", test: "tests/test_l2_literature.py::test_gauge_currents"}
+  - {quantity: "h³ = −3i m_h²/v, h⁴ = −3i m_h²/v²", ref: feynlag_tests, where: "tests/test_scalar_pipeline_sm.py (pinned in the feynlag suite at the pinned commit)", test: "tests/test_l2_literature.py::test_higgs_self_couplings"}
+references:
+  - {key: peskin1995, authors: "M. E. Peskin, D. V. Schroeder", title: "An Introduction to Quantum Field Theory", venue: "Addison-Wesley (1995)", arxiv: null, inspire: null, doi: null}
+  - {key: pdg_ew_review, authors: "Particle Data Group (J. Erler, A. Freitas)", title: "Electroweak Model and Constraints on New Physics (review in the Review of Particle Physics)", venue: "Prog. Theor. Exp. Phys. (biennial)", arxiv: null, inspire: null, doi: null}
+  - {key: feynlag_tests, authors: "M. Zeleny", title: "feynlag test suite (pinned commit, see pyproject.toml)", venue: "https://github.com/moiseszeleny/feynlag", arxiv: null, inspire: null, doi: null}
+  - {key: feynlag_benchmark, authors: "M. Zeleny", title: "feynlag docs/benchmark.md — MadGraph round-trip of the exported SM UFO", venue: "https://github.com/moiseszeleny/feynlag", arxiv: null, inspire: null, doi: null}
+feynlag_gaps: []
+outputs: {ufo: "outputs/SM_UFO", latex: "outputs/vertices.tex", spectrum: "outputs/spectrum.md", stamp: "outputs/STAMP.json"}
+last_reviewed: 2026-09-16
+reviewed_by: "Moises Zeleny (with Claude)"
