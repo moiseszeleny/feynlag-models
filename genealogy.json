@@ -1,6 +1,15 @@
 {
+  "seesaw_type1": {
+    "children": [],
+    "maturity_level": 2,
+    "name": "Type-I seesaw (SM + one right-handed neutrino with a Majorana mass)",
+    "parents": [
+      "sm"
+    ]
+  },
   "sm": {
     "children": [
+      "seesaw_type1",
       "sm_singlet_z2"
     ],
     "maturity_level": 3,

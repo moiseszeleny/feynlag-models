@@ -1,0 +1,12 @@
+{
+  "model": "seesaw_type1",
+  "generated": "2026-09-16T23:26:04+00:00",
+  "feynlag_models_version": "0.1.0",
+  "repo_commit": "94d8f20c5b2491a06dfbc94a124b18d5ef3f4ca9",
+  "repo_dirty": true,
+  "feynlag_version": "0.1.0",
+  "feynlag_commit": "92b5d909714ac01754c0e7c16f19871471122f07",
+  "sympy_version": "1.14.0",
+  "python": "3.13.2",
+  "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39"
+}
