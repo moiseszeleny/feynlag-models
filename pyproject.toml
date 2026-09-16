@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "feynlag-models"
+version = "0.1.0"
+description = "A verified library of minimal Standard Model extensions built with feynlag"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Moises Zeleny", email = "moiseszeleny@gmail.com" }]
+dependencies = [
+    # Exact pins: this repository is a verification record, not a library.
+    "feynlag @ git+https://github.com/moiseszeleny/feynlag.git@92b5d909714ac01754c0e7c16f19871471122f07",
+    "sympy==1.14.0",
+    "pyyaml==6.0.2",
+    "jsonschema==4.23.0",
+    "mpmath==1.3.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.5", "pytest-timeout==2.3.1"]
+
+[tool.setuptools.packages.find]
+include = ["feynlag_models*", "models*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "models"]
+markers = [
+    "slow: MadGraph or otherwise long-running checks (manual / release only)",
+]
+timeout = 1800

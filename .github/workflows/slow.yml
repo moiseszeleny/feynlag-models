@@ -1,0 +1,21 @@
+name: slow
+
+# MadGraph cross-section checks (L4). Manual or on release only: each launch
+# compiles Fortran and takes minutes.
+on:
+  workflow_dispatch: {}
+  release:
+    types: [published]
+
+jobs:
+  madgraph:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install (locked)
+        run: uv sync --all-extras --locked --python 3.12
+      - name: Slow tests
+        env:
+          MG5_HOME: ${{ vars.MG5_HOME }}
+        run: uv run pytest -q -m slow -rs

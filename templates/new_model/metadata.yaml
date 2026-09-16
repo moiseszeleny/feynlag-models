@@ -1,0 +1,46 @@
+schema_version: 1
+id: new_model
+name: "SM + <what>"
+parents: [sm]
+problem_addressed: |
+  <one paragraph; mark physics judgment>
+new_fields:
+  - {name: X, symbol: "X", spin: 0, su3: 1, su2: 1, u1y: 0, extra_charges: {}, real: true, chirality: null, generations: 1}
+new_symmetries:
+  - {name: Z2, kind: discrete, acts_on: [X], status: exact, broken_by: ""}
+free_parameters:
+  - {name: lam_X, tex: "\\lambda_X", mass_dim: 0, role: coupling}
+benchmark:
+  # Inputs of the benchmark point, not measurements. gw, g1, v follow from the
+  # stock MadGraph electroweak scheme (alpha_EW^-1, G_F, M_Z) = (132.50698,
+  # 1.16639e-5, 91.1876) exactly as feynlag's docs/benchmark.md and
+  # scripts/export_sm_ufo.py compute them; gs = sqrt(4 pi alpha_s) with
+  # alpha_s = 0.118; masses and widths are round PDG-like values.
+  gw: 0.65322889878251
+  g1: 0.3491928465111313
+  gs: 1.2177157847767197
+  v: 246.2184581018163
+  MH: 125.0
+  MT: 173.0
+  MB: 4.7
+  MTA: 1.777
+  WZ: 2.4952
+  WW: 2.0850
+  WH: 0.00407
+  WT: 1.4915
+key_results:
+  - {statement: "<formula>", test: "tests/test_levels.py::test_l1_spectrum"}
+maturity_level: 0
+maturity_evidence:
+  L0: ["tests/test_levels.py::test_l0_validate"]
+  L1: []
+  L2: []
+  L3: []
+  L4: []
+literature_checks: []
+references:
+  - {key: someone2020, authors: "A. Author", title: "TODO(verify)", venue: null, arxiv: null, inspire: null, doi: null}
+feynlag_gaps: []
+outputs: {ufo: null, latex: "outputs/vertices.tex", spectrum: "outputs/spectrum.md", stamp: "outputs/STAMP.json"}
+last_reviewed: 2026-09-16
+reviewed_by: "<name>"

@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this model library, please cite it as below."
+title: "feynlag-models: a verified library of minimal Standard Model extensions"
+authors:
+  - family-names: Zeleny
+    given-names: Moises
+    email: moiseszeleny@gmail.com
+version: 0.1.0
+date-released: 2026-09-16
+license: MIT
+repository-code: "https://github.com/moiseszeleny/feynlag-models"
+keywords: [particle-physics, BSM, Feynman-rules, UFO, sympy, feynlag]
