@@ -11,7 +11,8 @@ import sympy as sp
 
 from feynlag import (
     Bilinear, ExternalParameter, InternalParameter, Model, ParameterSet, SU3,
-    WeylFermion, conjugate_pair, diracPL, diracPR, electroweak_scaffold,
+    WeylFermion, conjugate_pair, diracPL, diracPR, electroweak_gauge,
+    electroweak_scaffold,
     fermion_gauge_current, to_physical_basis,
 )
 from feynlag.export.ufo import UFOParticle
@@ -42,9 +43,14 @@ def pieces(benchmark=None, higgs=True):
             (:func:`yukawa_terms`).
     """
     bench = benchmark_point() if benchmark is None else dict(benchmark)
-    ew = electroweak_scaffold(gw=bench["gw"], g1=bench["g1"], v=bench["v"],
-                              mh=bench["MH"])
-    SU2L, U1Y = ew.SU2L, ew.U1Y
+    if higgs:
+        ew = electroweak_scaffold(gw=bench["gw"], g1=bench["g1"], v=bench["v"],
+                                  mh=bench["MH"])
+        SU2L, U1Y, gw_p, g1_p, W, B = ew.SU2L, ew.U1Y, ew.gw, ew.g1, ew.W, ew.B
+    else:
+        ew = None
+        SU2L, U1Y, gw_p, g1_p = electroweak_gauge(gw=bench["gw"], g1=bench["g1"])
+        W, B = SU2L.bosons("W"), U1Y.bosons("B")
     gs = ExternalParameter("gs", bench["gs"], positive=True)
     SU3c = SU3("SU3c", coupling=gs)
     G = SU3c.bosons("G")
@@ -72,10 +78,10 @@ def pieces(benchmark=None, higgs=True):
     MB = ExternalParameter("MB", bench["MB"], positive=True, unit_dim=1)
     MTA = ExternalParameter("MTA", bench["MTA"], positive=True, unit_dim=1)
 
-    params = [ew.gw, ew.g1, gs, MT, MB, MTA]
-    fields = [ew.W, ew.B, G, Ll, eR, QL, uR, dR]
-    p = SMPieces(SU2L=SU2L, U1Y=U1Y, SU3c=SU3c, gw=ew.gw, g1=ew.g1, gs=gs,
-                 W=ew.W, B=ew.B, G=G, idx=(i, j), fermions=fermions,
+    params = [gw_p, g1_p, gs, MT, MB, MTA]
+    fields = [W, B, G, Ll, eR, QL, uR, dR]
+    p = SMPieces(SU2L=SU2L, U1Y=U1Y, SU3c=SU3c, gw=gw_p, g1=g1_p, gs=gs,
+                 W=W, B=B, G=G, idx=(i, j), fermions=fermions,
                  params=params, fields=fields, terms=[], benchmark=bench)
     p.masses = dict(MT=MT, MB=MB, MTA=MTA)
 

@@ -10,7 +10,8 @@
   "sm": {
     "children": [
       "seesaw_type1",
-      "sm_singlet_z2"
+      "sm_singlet_z2",
+      "thdm_type2"
     ],
     "maturity_level": 3,
     "name": "Standard Model (one Higgs doublet, one full fermion generation)",
@@ -20,6 +21,14 @@
     "children": [],
     "maturity_level": 3,
     "name": "SM + real singlet scalar (Z2-symmetric, spontaneously broken)",
+    "parents": [
+      "sm"
+    ]
+  },
+  "thdm_type2": {
+    "children": [],
+    "maturity_level": 3,
+    "name": "Two-Higgs-doublet model, type II, CP-conserving, softly broken Z2",
     "parents": [
       "sm"
     ]

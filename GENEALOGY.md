@@ -7,12 +7,15 @@ graph TD
     seesaw_type1["seesaw_type1<br/>L2"]
     sm["sm<br/>L3"]
     sm_singlet_z2["sm_singlet_z2<br/>L3"]
+    thdm_type2["thdm_type2<br/>L3"]
     sm --> seesaw_type1
     sm --> sm_singlet_z2
+    sm --> thdm_type2
 ```
 
 | id | name | parents | children | maturity |
 |---|---|---|---|---|
 | `seesaw_type1` | Type-I seesaw (SM + one right-handed neutrino with a Majorana mass) | sm | — | L2 |
-| `sm` | Standard Model (one Higgs doublet, one full fermion generation) | — | seesaw_type1, sm_singlet_z2 | L3 |
+| `sm` | Standard Model (one Higgs doublet, one full fermion generation) | — | seesaw_type1, sm_singlet_z2, thdm_type2 | L3 |
 | `sm_singlet_z2` | SM + real singlet scalar (Z2-symmetric, spontaneously broken) | sm | — | L3 |
+| `thdm_type2` | Two-Higgs-doublet model, type II, CP-conserving, softly broken Z2 | sm | — | L3 |

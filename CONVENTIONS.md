@@ -46,16 +46,16 @@ any item must state the map in its card.
 - UFO fermion couplings are the raw Lagrangian coefficients; the writer applies the `i`.
 
 ## Names and PDG codes
-| state | symbol | PDG | note |
-|---|---|---|---|
-| CP-even Higgs (SM-like) | `h` / `h1` | 25 | |
-| second CP-even | `H` (2HDM), `h2` (singlet) | 35 | |
-| CP-odd | `A0` | 36 | |
-| charged Higgs | `Hp`/`Hm` | 37 | |
-| neutral / charged Goldstone | `G0`, `Gp`/`Gm` | 250, 251 | as in the FeynRules SM |
-| Z, photon, W | `Z`, `A`, `Wp`/`Wm` | 23, 22, 24 | |
-| heavy Majorana neutrino | `N` | 9900012 | HeavyN-UFO style code — TODO(verify) |
-| leptons / quarks | `ta-`, `vt`, `t`, `b` | 15, 16, 6, 5 | |
+| state | symbol | UFO name | PDG | note |
+|---|---|---|---|---|
+| CP-even Higgs (SM-like) | `h` / `h1` | `h` | 25 | |
+| second CP-even | `H` (2HDM), `h2` (singlet) | `h2` | 35 | FeynRules-2HDM-style lowercase names avoid case clashes in MadGraph |
+| CP-odd | `A0` | `h3` | 36 | |
+| charged Higgs | `Hp`/`Hm` | `h+`/`h-` | 37 | |
+| neutral / charged Goldstone | `G0`, `Gp`/`Gm` | `G0`, `G+`/`G-` | 250, 251 | as in the FeynRules SM; dropped from unitary-gauge exports |
+| Z, photon, W | `Z`, `A`, `Wp`/`Wm` | `Z`, `a`, `W+`/`W-` | 23, 22, 24 | |
+| heavy Majorana neutrino | `N` | — (not exportable, FG-3) | 9900012 | HeavyN-UFO style code — TODO(verify) |
+| leptons / quarks | `ta`, `vt`, `t`, `b` | `ta-`, `vt`, `t`, `b` | 15, 16, 6, 5 | |
 
 Parameter names are snake ASCII and UFO-safe (`lam_HS`, `vS`, `m12sq`, `tanb`).
 Model ids match `^[a-z0-9_]+$` and equal their directory names.
