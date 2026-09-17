@@ -61,10 +61,12 @@ benchmark:
   placeholders: [MU, MD, MS]
 key_results:
   - {statement: "anomaly-free and gauge invariant with three generations and a complex Y_d", test: "tests/test_l0_l1.py::test_validate_invariance_and_anomalies"}
-maturity_level: 0
+  - {statement: "M_u, M_e diagonal; M_d = V diag(m_d, m_s, m_b), diagonalised by d'_L = V d_L", test: "tests/test_l0_l1.py::test_fermion_masses"}
+maturity_level: 1
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
-  L1: []
+  L1: ["tests/test_l0_l1.py::test_tadpole_and_higgs_mass", "tests/test_l0_l1.py::test_gauge_masses",
+       "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_masses"]
   L2: []
   L3: []
   L4: []
@@ -101,7 +103,8 @@ references:
     url: "https://github.com/moiseszeleny/feynlag"
     commit: "fe2208c87e80119b85ea479fbd074c1f925b81e5"
     verified_against: source_code
-feynlag_gaps: []
+feynlag_gaps:
+  - {id: FG-4, test: "tests/test_l0_l1.py::test_feynlag_fermion_mass_matrix_integer_flavour_gap"}
 outputs:
   ufo: null
   latex: "outputs/vertices.tex"
