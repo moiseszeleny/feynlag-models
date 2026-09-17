@@ -24,7 +24,7 @@
   },
   "sm_ckm": {
     "children": [],
-    "maturity_level": 1,
+    "maturity_level": 2,
     "name": "Standard Model with three generations and CKM quark mixing",
     "parents": [
       "sm"

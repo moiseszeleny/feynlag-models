@@ -62,17 +62,64 @@ benchmark:
 key_results:
   - {statement: "anomaly-free and gauge invariant with three generations and a complex Y_d", test: "tests/test_l0_l1.py::test_validate_invariance_and_anomalies"}
   - {statement: "M_u, M_e diagonal; M_d = V diag(m_d, m_s, m_b), diagonalised by d'_L = V d_L", test: "tests/test_l0_l1.py::test_fermion_masses"}
-maturity_level: 1
+  - {statement: "V = R23 U13(δ) R12 (PDG standard parametrization), V†V = 1", test: "tests/test_l2_literature.py::test_ckm_standard_parametrization_and_unitarity"}
+  - {statement: "W+ ū_i d_j = i (g/√2) V_ij γ^μ P_L, equal to feynlag's direct CKM insertion", test: "tests/test_l2_literature.py::test_charged_current_ckm"}
+  - {statement: "GIM derived: no tree-level Z, γ, h, G0 coupling between different down flavours", test: "tests/test_l2_literature.py::test_gim_no_tree_level_fcnc"}
+  - {statement: "J = Im(V_us V_cb V*_ub V*_cs) = c12 c23 c13² s12 s23 s13 sin δ", test: "tests/test_l2_literature.py::test_jarlskog_invariant"}
+maturity_level: 2
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
   L1: ["tests/test_l0_l1.py::test_tadpole_and_higgs_mass", "tests/test_l0_l1.py::test_gauge_masses",
        "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_masses"]
-  L2: []
+  L2: ["tests/test_l2_literature.py::test_ckm_standard_parametrization_and_unitarity",
+       "tests/test_l2_literature.py::test_charged_current_ckm",
+       "tests/test_l2_literature.py::test_gim_no_tree_level_fcnc",
+       "tests/test_l2_literature.py::test_jarlskog_invariant",
+       "tests/test_l2_literature.py::test_ckm_magnitudes_at_benchmark",
+       "tests/test_l2_literature.py::test_charge_and_hermiticity_pairing"]
   L3: []
   L4: []
 slow_evidence: []
-literature_checks: []
-discrepancies: []
+literature_checks:
+  - quantity: "CKM matrix in the standard parametrization"
+    ref: pdg2024_ckm
+    location: {equation: "(12.3)", section: "12.1", note: "first form (product of three rotations), built independently in the test"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-ckm-matrix, dated 31 May 2024)"
+    checked_on: 2026-09-17
+    test: "tests/test_l2_literature.py::test_ckm_standard_parametrization_and_unitarity"
+  - quantity: "charged-current W couplings to quarks with V_CKM"
+    ref: pdg2024_ckm
+    location: {equation: "(12.2)", note: "reproduced up to the global sign of g, see discrepancy D-1"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-ckm-matrix, dated 31 May 2024)"
+    checked_on: 2026-09-17
+    test: "tests/test_l2_literature.py::test_charged_current_ckm"
+  - quantity: "absence of tree-level down-type FCNCs from CKM unitarity"
+    ref: pdg2024_ckm
+    location: {section: "12.1", note: "unitarity relations sum_i V_ij V*_ik = delta_jk; the cancellation itself is derived in the test"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-ckm-matrix, dated 31 May 2024)"
+    checked_on: 2026-09-17
+    test: "tests/test_l2_literature.py::test_gim_no_tree_level_fcnc"
+  - quantity: "Jarlskog invariant: definition and fit value J = (3.12 +0.13 -0.12) x 10^-5"
+    ref: pdg2024_ckm
+    location: {section: "12.1 (definition); 12.5.1 text preceding Eq. (12.28) (value)", note: "closed form in the angles derived in the test, not quoted"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-ckm-matrix, dated 31 May 2024)"
+    checked_on: 2026-09-17
+    test: "tests/test_l2_literature.py::test_jarlskog_invariant"
+  - quantity: "|V_ij| from the benchmark angles against the global-fit magnitudes"
+    ref: pdg2024_ckm
+    location: {equation: "(12.27), (12.28)"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-ckm-matrix, dated 31 May 2024)"
+    checked_on: 2026-09-17
+    test: "tests/test_l2_literature.py::test_ckm_magnitudes_at_benchmark"
+discrepancies:
+  - id: D-1
+    quantity: "overall sign of the W charged current"
+    ref: pdg2024_ckm
+    location: {equation: "(12.2)"}
+    ours: "L ⊃ +(g/√2) ū_L γ^μ W+_μ V d_L + h.c. (feynlag D_μ = ∂_μ − i g T·A)"
+    theirs: "L ⊃ −(g/√2) ū_L γ^μ W+_μ V_CKM d_L + h.c."
+    status: convention
+    note: "The same g → −g covariant-derivative convention as models/sm discrepancy D-1. No observable depends on it; V_ij agree exactly."
 references:
   - key: pdg2024_ckm
     kind: review
