@@ -21,7 +21,7 @@ L2 literature-checked (symbolic and numeric) · L3 UFO round-trip · L4 MadGraph
 
 ```bash
 uv sync --all-extras
-uv run pytest -q -m "not slow"                 # 56 passed, 3 strict xfails (documented gaps)
+uv run pytest -q -m "not slow"                 # 71 passed, 3 strict xfails (documented gaps/discrepancies)
 uv run python scripts/build_outputs.py --check
 uv run python scripts/build_genealogy.py --check
 ```

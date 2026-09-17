@@ -5,7 +5,10 @@
     "name": "Type-I seesaw (SM + one right-handed neutrino with a Majorana mass)",
     "parents": [
       "sm"
-    ]
+    ],
+    "relations": {
+      "sm": "extends"
+    }
   },
   "sm": {
     "children": [
@@ -15,7 +18,8 @@
     ],
     "maturity_level": 3,
     "name": "Standard Model (one Higgs doublet, one full fermion generation)",
-    "parents": []
+    "parents": [],
+    "relations": {}
   },
   "sm_singlet_z2": {
     "children": [],
@@ -23,7 +27,10 @@
     "name": "SM + real singlet scalar (Z2-symmetric, spontaneously broken)",
     "parents": [
       "sm"
-    ]
+    ],
+    "relations": {
+      "sm": "extends"
+    }
   },
   "thdm_type2": {
     "children": [],
@@ -31,6 +38,9 @@
     "name": "Two-Higgs-doublet model, type II, CP-conserving, softly broken Z2",
     "parents": [
       "sm"
-    ]
+    ],
+    "relations": {
+      "sm": "replaces higgs"
+    }
   }
 }

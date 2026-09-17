@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 id: sm
 name: "Standard Model (one Higgs doublet, one full fermion generation)"
 parents: []
@@ -19,23 +19,21 @@ free_parameters:
   - {name: MB,  tex: "m_b",      mass_dim: 1, role: bottom mass (fixes y_b)}
   - {name: MTA, tex: "m_\\tau",  mass_dim: 1, role: tau mass (fixes y_tau)}
 benchmark:
-  # Inputs of the benchmark point, not measurements. gw, g1, v follow from the
-  # stock MadGraph electroweak scheme (alpha_EW^-1, G_F, M_Z) = (132.50698,
-  # 1.16639e-5, 91.1876) exactly as feynlag's docs/benchmark.md and
-  # scripts/export_sm_ufo.py compute them; gs = sqrt(4 pi alpha_s) with
-  # alpha_s = 0.118; masses and widths are round PDG-like values.
-  gw: 0.65322889878251
-  g1: 0.3491928465111313
-  gs: 1.2177157847767197
-  v: 246.2184581018163
-  MH: 125.0
-  MT: 173.0
-  MB: 4.7
-  MTA: 1.777
-  WZ: 2.4952
-  WW: 2.0850
-  WH: 0.00407
-  WT: 1.4915
+  description: "Inputs, not measurements. gw, g1, v follow from the stock MadGraph electroweak scheme (alpha_EW^-1, G_F, M_Z) = (132.50698, 1.16639e-5, 91.1876) exactly as feynlag's docs/benchmark.md and scripts/export_sm_ufo.py compute them; gs = sqrt(4 pi alpha_s) with alpha_s = 0.118; masses and widths are round PDG-like values."
+  inputs:
+    gw: 0.65322889878251
+    g1: 0.3491928465111313
+    gs: 1.2177157847767197
+    v: 246.2184581018163
+    MH: 125.0
+    MT: 173.0
+    MB: 4.7
+    MTA: 1.777
+    WZ: 2.4952
+    WW: 2.0850
+    WH: 0.00407
+    WT: 1.4915
+  placeholders: []
 key_results:
   - {statement: "μ² = λ v² (tadpole), m_h² = 2 λ v²", test: "tests/test_l0_l1.py::test_tadpole_and_higgs_mass"}
   - {statement: "m_W = g v/2, m_Z = √(g²+g'²) v/2, m_γ = 0", test: "tests/test_l0_l1.py::test_gauge_masses"}
@@ -51,16 +49,87 @@ maturity_evidence:
        "tests/test_l2_literature.py::test_higgs_self_couplings", "tests/test_l2_literature.py::test_charge_and_hermiticity_pairing"]
   L3: ["tests/test_l3_ufo.py::test_ufo_roundtrip"]
   L4: []
+slow_evidence: []
 literature_checks:
-  - {quantity: "hWW, hZZ, hff, hhh, hhhh Feynman rules", ref: peskin1995, where: "Chapter 20/21 SM Feynman rules (TODO(verify) figure numbers)", test: "tests/test_l2_literature.py::test_hVV_and_hff"}
-  - {quantity: "Z and W fermion currents", ref: pdg_ew_review, where: "Electroweak model and constraints on new physics review, Eqs. for the neutral/charged current couplings (TODO(verify) equation numbers)", test: "tests/test_l2_literature.py::test_gauge_currents"}
-  - {quantity: "h³ = −3i m_h²/v, h⁴ = −3i m_h²/v²", ref: feynlag_tests, where: "tests/test_scalar_pipeline_sm.py (pinned in the feynlag suite at the pinned commit)", test: "tests/test_l2_literature.py::test_higgs_self_couplings"}
+  - quantity: "hWW, hZZ, hhWW, hhZZ couplings and the Higgs–fermion Yukawa m_f/v"
+    ref: pdg2024_ew
+    location: {equation: "(10.2) first term, (10.4), (10.5b), (10.5c)", section: "10.1"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-standard-model)"
+    checked_on: 2026-09-16
+    test: "tests/test_l2_literature.py::test_hVV_and_hff"
+  - quantity: "photon, Z and W fermion currents"
+    ref: pdg2024_ew
+    location: {equation: "(10.2), (10.3a)-(10.3c), (10.6), (10.7a), (10.7b)", note: "reproduced up to the global sign of the gauge couplings, see discrepancy D-1"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-standard-model)"
+    checked_on: 2026-09-16
+    test: "tests/test_l2_literature.py::test_gauge_currents"
+  - quantity: "h³ = −3i m_h²/v, h⁴ = −3i m_h²/v²"
+    ref: feynlag_tests
+    location: {note: "tests/test_scalar_pipeline_sm.py (identical at the pinned commit)"}
+    source_version: "feynlag@92b5d90"
+    checked_on: 2026-09-16
+    test: "tests/test_l2_literature.py::test_higgs_self_couplings"
+discrepancies:
+  - id: D-1
+    quantity: "overall sign of every gauge coupling to fermions"
+    ref: pdg2024_ew
+    location: {equation: "(10.2), (10.6)"}
+    ours: "L ⊃ +e Q ψ̄γψ A + g_Z ψ̄γ(T³P_L − Q s_W²)ψ Z + (g/√2) ψ̄γP_Lψ W (feynlag D_μ = ∂_μ − i g T·A)"
+    theirs: "L ⊃ −e Q ψ̄γψ A − (g/2c_W) ψ̄γ(g_V − g_A γ5)ψ Z − (g/2√2) ψ̄γ(1−γ5)ψ W"
+    status: convention
+    note: "Equivalent to g → −g, g' → −g' (the covariant-derivative sign; PDG's is inferred from its Eq. 10.2, it is not written in the review). No observable depends on it. Magnitudes and relative signs agree exactly."
 references:
-  - {key: peskin1995, authors: "M. E. Peskin, D. V. Schroeder", title: "An Introduction to Quantum Field Theory", venue: "Addison-Wesley (1995)", arxiv: null, inspire: null, doi: null}
-  - {key: pdg_ew_review, authors: "Particle Data Group (J. Erler, A. Freitas)", title: "Electroweak Model and Constraints on New Physics (review in the Review of Particle Physics)", venue: "Prog. Theor. Exp. Phys. (biennial)", arxiv: null, inspire: null, doi: null}
-  - {key: feynlag_tests, authors: "M. Zeleny", title: "feynlag test suite (pinned commit, see pyproject.toml)", venue: "https://github.com/moiseszeleny/feynlag", arxiv: null, inspire: null, doi: null}
-  - {key: feynlag_benchmark, authors: "M. Zeleny", title: "feynlag docs/benchmark.md — MadGraph round-trip of the exported SM UFO", venue: "https://github.com/moiseszeleny/feynlag", arxiv: null, inspire: null, doi: null}
+  - key: pdg2024_ew
+    kind: review
+    authors: "Particle Data Group (S. Navas et al.); review by J. Erler, A. Freitas"
+    title: "Review of Particle Physics — 10. Electroweak Model and Constraints on New Physics"
+    venue: "Phys. Rev. D 110 (2024) 030001"
+    year: 2024
+    arxiv: null
+    inspire: "2817040"
+    doi: "10.1103/PhysRevD.110.030001"
+    url: "https://pdg.lbl.gov/2024/reviews/rpp2024-rev-standard-model.pdf"
+    verified_against: published
+    conventions_map:
+      - {theirs: "λ²/2 (quartic, Eq. 10.1), M_H = λ v", ours: "λ, m_h² = 2 λ v²", note: "λ_PDG² = 2 λ_ours"}
+      - {theirs: "g, g' in L_F (Eq. 10.2)", ours: "−gw, −g1", note: "global sign convention, discrepancy D-1"}
+      - {theirs: "Z = −B s_W + W³ c_W, A = B c_W + W³ s_W (Eq. 10.3)", ours: "(Z, A) = R(−θ_W)(W³, B)", note: "identical"}
+  - key: peskin1995
+    kind: book
+    authors: "M. E. Peskin, D. V. Schroeder"
+    title: "An Introduction to Quantum Field Theory"
+    venue: "Addison-Wesley, Reading (1995)"
+    year: 1995
+    arxiv: null
+    inspire: "407703"
+    doi: "10.1201/9780429503559"
+    verified_against: inspire_record
+  - key: feynlag_tests
+    kind: software
+    authors: "M. Zeleny"
+    title: "feynlag test suite"
+    url: "https://github.com/moiseszeleny/feynlag"
+    commit: "92b5d909714ac01754c0e7c16f19871471122f07"
+    verified_against: source_code
+  - key: feynlag_benchmark
+    kind: software
+    authors: "M. Zeleny"
+    title: "feynlag docs/benchmark.md — MadGraph round-trip of the exported SM UFO"
+    url: "https://github.com/moiseszeleny/feynlag/blob/main/docs/benchmark.md"
+    commit: "92b5d909714ac01754c0e7c16f19871471122f07"
+    verified_against: source_code
 feynlag_gaps: []
-outputs: {ufo: "outputs/SM_UFO", latex: "outputs/vertices.tex", spectrum: "outputs/spectrum.md", stamp: "outputs/STAMP.json"}
+outputs:
+  ufo: "outputs/SM_UFO"
+  ufo_scope:
+    gauge: unitary
+    vertex_classes: [FFS, FFV, SSS, SSSS, VVS, VVSS, VVV]
+    omitted:
+      - "VVVV: quartic gauge self-couplings in the rotated W/Z/photon basis"
+      - "gluon and QCD vertices (quarks carry Identity colour flow only)"
+      - "vertices with Goldstone legs (unitary gauge)"
+  latex: "outputs/vertices.tex"
+  spectrum: "outputs/spectrum.md"
+  stamp: "outputs/STAMP.json"
 last_reviewed: 2026-09-16
 reviewed_by: "Moises Zeleny (with Claude)"

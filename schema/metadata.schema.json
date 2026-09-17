@@ -1,33 +1,99 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/moiseszeleny/feynlag-models/schema/metadata.schema.json",
-  "title": "feynlag-models metadata.yaml (schema version 1)",
+  "title": "feynlag-models metadata.yaml (schema version 2)",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "id", "name", "parents", "problem_addressed",
                "new_fields", "new_symmetries", "free_parameters", "benchmark",
-               "key_results", "maturity_level", "maturity_evidence",
-               "literature_checks", "references", "feynlag_gaps", "outputs",
-               "last_reviewed", "reviewed_by"],
-  "properties": {
-    "schema_version": {"const": 1},
+               "key_results", "maturity_level", "maturity_evidence", "slow_evidence",
+               "literature_checks", "discrepancies", "references", "feynlag_gaps",
+               "outputs", "last_reviewed", "reviewed_by"],
+  "$defs": {
     "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "rational": {"type": "string", "pattern": "^-?\\d+(/\\d+)?$"},
+    "test": {"type": "string", "pattern": "^tests/[^:]+\\.py::[A-Za-z_][A-Za-z0-9_:]*$"},
+    "location": {
+      "type": "object", "additionalProperties": false,
+      "minProperties": 1,
+      "anyOf": [{"required": ["equation"]}, {"required": ["table"]},
+                {"required": ["section"]}, {"required": ["note"]}],
+      "properties": {
+        "equation": {"type": "string"},
+        "table": {"type": "string"},
+        "section": {"type": "string"},
+        "note": {"type": "string"}
+      }
+    },
+    "charge": {
+      "type": "object", "additionalProperties": false,
+      "required": ["group", "kind", "charge"],
+      "properties": {
+        "group": {"type": "string"},
+        "kind": {"enum": ["gauge", "discrete", "global"]},
+        "charge": {"$ref": "#/$defs/rational"}
+      }
+    },
+    "reference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["key", "kind", "authors", "title", "verified_against"],
+      "properties": {
+        "key": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["article", "book", "review", "software"]},
+        "authors": {"type": "string"},
+        "title": {"type": "string"},
+        "venue": {"type": ["string", "null"]},
+        "year": {"type": ["integer", "null"]},
+        "arxiv": {"type": ["string", "null"]},
+        "inspire": {"type": ["string", "null"], "pattern": "^\\d+$"},
+        "doi": {"type": ["string", "null"], "pattern": "^10\\."},
+        "url": {"type": ["string", "null"]},
+        "commit": {"type": ["string", "null"], "pattern": "^[0-9a-f]{7,40}$"},
+        "verified_against": {"enum": ["arxiv_text", "published", "inspire_record", "source_code", "none"]},
+        "conventions_map": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["theirs", "ours"],
+            "properties": {"theirs": {"type": "string"}, "ours": {"type": "string"}, "note": {"type": "string"}}
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "schema_version": {"const": 2},
+    "id": {"$ref": "#/$defs/id"},
     "name": {"type": "string", "minLength": 1},
-    "parents": {"type": "array", "items": {"type": "string", "pattern": "^[a-z0-9_]+$"}, "uniqueItems": true},
+    "parents": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "relation"],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "relation": {"enum": ["extends", "replaces_sector"]},
+          "sector": {"type": "string"}
+        },
+        "if": {"properties": {"relation": {"const": "replaces_sector"}}},
+        "then": {"required": ["sector"]}
+      }
+    },
     "problem_addressed": {"type": "string", "minLength": 1},
     "new_fields": {
       "type": "array",
       "items": {
         "type": "object", "additionalProperties": false,
-        "required": ["name", "spin", "su3", "su2", "u1y", "generations"],
+        "required": ["name", "spin", "su3", "su2", "u1y", "extra_charges", "generations"],
         "properties": {
           "name": {"type": "string"},
           "symbol": {"type": "string"},
-          "spin": {"enum": [0, "1/2", 1]},
+          "spin": {"enum": ["0", "1/2", "1"]},
           "su3": {"type": "integer"},
           "su2": {"type": "integer"},
-          "u1y": {"type": ["number", "string"]},
-          "extra_charges": {"type": "object", "additionalProperties": {"type": ["number", "string", "integer"]}},
+          "u1y": {"$ref": "#/$defs/rational"},
+          "extra_charges": {"type": "array", "items": {"$ref": "#/$defs/charge"}},
           "real": {"type": "boolean"},
           "chirality": {"enum": ["L", "R", "Majorana", null]},
           "generations": {"type": "integer", "minimum": 1}
@@ -61,13 +127,30 @@
         }
       }
     },
-    "benchmark": {"type": "object", "additionalProperties": {"type": "number"}},
+    "benchmark": {
+      "type": "object", "additionalProperties": false,
+      "required": ["inputs", "placeholders"],
+      "properties": {
+        "description": {"type": "string"},
+        "inputs": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "number"}},
+        "placeholders": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "derived_from": {
+          "type": "object", "additionalProperties": false,
+          "required": ["description", "physical"],
+          "properties": {
+            "description": {"type": "string"},
+            "physical": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "number"}},
+            "test": {"$ref": "#/$defs/test"}
+          }
+        }
+      }
+    },
     "key_results": {
       "type": "array",
       "items": {
         "type": "object", "additionalProperties": false,
         "required": ["statement", "test"],
-        "properties": {"statement": {"type": "string"}, "test": {"type": "string"}}
+        "properties": {"statement": {"type": "string"}, "test": {"$ref": "#/$defs/test"}}
       }
     },
     "maturity_level": {"type": "integer", "minimum": 0, "maximum": 4},
@@ -75,54 +158,100 @@
       "type": "object", "additionalProperties": false,
       "required": ["L0", "L1", "L2", "L3", "L4"],
       "properties": {
-        "L0": {"type": "array", "items": {"type": "string"}},
-        "L1": {"type": "array", "items": {"type": "string"}},
-        "L2": {"type": "array", "items": {"type": "string"}},
-        "L3": {"type": "array", "items": {"type": "string"}},
-        "L4": {"type": "array", "items": {"type": "string"}}
+        "L0": {"type": "array", "items": {"$ref": "#/$defs/test"}},
+        "L1": {"type": "array", "items": {"$ref": "#/$defs/test"}},
+        "L2": {"type": "array", "items": {"$ref": "#/$defs/test"}},
+        "L3": {"type": "array", "items": {"$ref": "#/$defs/test"}},
+        "L4": {"type": "array", "items": {"$ref": "#/$defs/test"}}
+      }
+    },
+    "slow_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["process", "sqrt_s_GeV", "generator", "generator_version",
+                     "feynlag_xsec_pb", "reference_xsec_pb", "reference_model",
+                     "mc_error_pb", "date", "test"],
+        "properties": {
+          "process": {"type": "string"},
+          "sqrt_s_GeV": {"type": "number"},
+          "generator": {"type": "string"},
+          "generator_version": {"type": "string"},
+          "feynlag_xsec_pb": {"type": "number"},
+          "reference_xsec_pb": {"type": "number"},
+          "reference_model": {"type": "string"},
+          "mc_error_pb": {"type": "number"},
+          "date": {"$ref": "#/$defs/date"},
+          "test": {"$ref": "#/$defs/test"}
+        }
       }
     },
     "literature_checks": {
       "type": "array",
       "items": {
         "type": "object", "additionalProperties": false,
-        "required": ["quantity", "ref", "where", "test"],
+        "required": ["quantity", "ref", "location", "source_version", "checked_on", "test"],
         "properties": {
           "quantity": {"type": "string"},
-          "ref": {"type": "string"},
-          "where": {"type": "string"},
-          "test": {"type": "string"}
+          "ref": {"$ref": "#/$defs/id"},
+          "location": {"$ref": "#/$defs/location"},
+          "source_version": {"type": "string"},
+          "checked_on": {"$ref": "#/$defs/date"},
+          "test": {"$ref": "#/$defs/test"}
         }
       }
     },
-    "references": {
+    "discrepancies": {
       "type": "array",
       "items": {
         "type": "object", "additionalProperties": false,
-        "required": ["key", "authors", "title"],
+        "required": ["id", "quantity", "ref", "location", "ours", "theirs", "status", "note"],
         "properties": {
-          "key": {"type": "string", "pattern": "^[a-z0-9_]+$"},
-          "authors": {"type": "string"},
-          "title": {"type": "string"},
-          "venue": {"type": ["string", "null"]},
-          "arxiv": {"type": ["string", "null"]},
-          "inspire": {"type": ["string", "null"]},
-          "doi": {"type": ["string", "null"]}
+          "id": {"type": "string", "pattern": "^D-\\d+$"},
+          "quantity": {"type": "string"},
+          "ref": {"$ref": "#/$defs/id"},
+          "location": {"$ref": "#/$defs/location"},
+          "ours": {"type": "string"},
+          "theirs": {"type": "string"},
+          "status": {"enum": ["open", "resolved", "convention"]},
+          "test": {"$ref": "#/$defs/test"},
+          "note": {"type": "string"}
         }
       }
     },
-    "feynlag_gaps": {"type": "array", "items": {"type": "string"}},
+    "references": {"type": "array", "items": {"$ref": "#/$defs/reference"}},
+    "feynlag_gaps": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^FG-\\d+$"},
+          "test": {"$ref": "#/$defs/test"}
+        }
+      }
+    },
     "outputs": {
       "type": "object", "additionalProperties": false,
-      "required": ["stamp"],
+      "required": ["ufo", "stamp"],
       "properties": {
         "ufo": {"type": ["string", "null"]},
+        "ufo_scope": {
+          "type": "object", "additionalProperties": false,
+          "required": ["gauge", "vertex_classes", "omitted"],
+          "properties": {
+            "gauge": {"enum": ["unitary", "feynman", "r_xi"]},
+            "vertex_classes": {"type": "array", "minItems": 1,
+                               "items": {"enum": ["SSS", "SSSS", "VSS", "VVS", "VVSS", "VVV", "VVVV", "FFS", "FFV", "FFFF"]}},
+            "omitted": {"type": "array", "items": {"type": "string"}}
+          }
+        },
         "latex": {"type": ["string", "null"]},
         "spectrum": {"type": ["string", "null"]},
         "stamp": {"type": "string"}
       }
     },
-    "last_reviewed": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "last_reviewed": {"$ref": "#/$defs/date"},
     "reviewed_by": {"type": "string"}
   }
 }

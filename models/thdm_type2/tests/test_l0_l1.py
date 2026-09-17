@@ -108,3 +108,19 @@ def test_fermion_masses(thdm):
     for name, (L, bar, fld, M) in cases.items():
         m = fermion_mass_matrix(L, bar, fld, thdm.model.vacuum, 1, (i, j), gamma=diracPR)[0, 0]
         assert_dual_equal(m.subs(res), M.s, msg=f"m_{name}")
+
+
+def test_benchmark_matches_physical_inputs(thdm):
+    """The λ_i in metadata.benchmark.inputs are the inversion of
+    benchmark.derived_from.physical; feynlag must re-derive that physical point."""
+    import math
+    from feynlag_models import MODELS_DIR
+    from feynlag_models import metadata as md
+    phys = md.load(MODELS_DIR / "thdm_type2")["benchmark"]["derived_from"]["physical"]
+    e, vals = thdm.extra, thdm.values()
+    for name in ("MH0", "MHH", "MA0", "MHp"):
+        assert abs(vals[e[name].s] - phys[name]) < 1e-4, (name, vals[e[name].s], phys[name])
+    assert abs(vals[e["tanb"].s] - phys["tanb"]) < 1e-12
+    assert abs(vals[e["m12sq"].s] - phys["m12sq"]) < 1e-9
+    cba = math.cos(vals[e["beta"].s] - vals[e["alpha"].s])
+    assert abs(cba - phys["cos_beta_minus_alpha"]) < 1e-5, cba

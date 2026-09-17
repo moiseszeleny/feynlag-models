@@ -1,7 +1,7 @@
 # Next steps — `seesaw_type1`
 
 ## 1. Natural extensions
-- `seesaw_type1_3gen`: three ν_R, Casas–Ibarra parametrisation (arXiv:hep-ph/0103065 — TODO(verify)), numeric Takagi of the 6×6 block.
+- `seesaw_type1_3gen`: three ν_R, Casas–Ibarra parametrisation (Nucl. Phys. B 618 (2001) 171, arXiv:hep-ph/0103065), numeric Takagi of the 6×6 block.
 - `inverse_seesaw`: add a singlet `S_L` with a small `μ S_Lᵀ C S_L`; `V` unsuppressed at TeV `M`.
 - `seesaw_type2` (scalar triplet, `Y = 1`) and `seesaw_type3` (fermion triplet, `Y = 0`): different `feynlag` reps, same Takagi machinery.
 - Singlet-scalar origin of `M_R` (`y_N S ν_Rᵀ C ν_R`): the child of `sm_singlet_z2` and this model (Majoron if the U(1)_L is global).
@@ -27,8 +27,8 @@
 - `Γ(N → ℓ W, ν Z, ν h)`: tree-level FFV/FFS widths that feynlag's `DecayCalculator` can compute for Dirac particles; the Majorana factor-of-2 bookkeeping is not validated there.
 
 ## 5. Key references
-1. P. Minkowski, Phys. Lett. B 67 (1977) 421 — TODO(verify).
-2. M. Gell-Mann, P. Ramond, R. Slansky, in *Supergravity* (North-Holland, 1979); T. Yanagida, KEK proceedings (1979) — TODO(verify).
-3. R. N. Mohapatra, G. Senjanović, Phys. Rev. Lett. 44 (1980) 912 — TODO(verify).
-4. A. Atre, T. Han, S. Pascoli, B. Zhang, *The Search for Heavy Majorana Neutrinos*, arXiv:0901.3589 (JHEP 05 (2009) 030 — TODO(verify)).
-5. J. A. Casas, A. Ibarra, *Oscillating neutrinos and μ → e γ*, arXiv:hep-ph/0103065 — TODO(verify).
+1. P. Minkowski, *μ → eγ at a rate of one out of 10⁹ muon decays?*, Phys. Lett. B 67 (1977) 421.
+2. M. Gell-Mann, P. Ramond, R. Slansky, *Complex Spinors and Unified Theories*, Conf. Proc. C 790927 (1979) 315, arXiv:1306.4669; T. Yanagida, *Horizontal gauge symmetry and masses of neutrinos*, Conf. Proc. C 7902131 (1979) 95.
+3. R. N. Mohapatra, G. Senjanović, *Neutrino Mass and Spontaneous Parity Nonconservation*, Phys. Rev. Lett. 44 (1980) 912.
+4. A. Atre, T. Han, S. Pascoli, B. Zhang, *The Search for Heavy Majorana Neutrinos*, JHEP 05 (2009) 030, arXiv:0901.3589.
+5. J. A. Casas, A. Ibarra, *Oscillating neutrinos and μ → e, γ*, Nucl. Phys. B 618 (2001) 171, arXiv:hep-ph/0103065.

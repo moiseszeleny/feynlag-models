@@ -11,6 +11,8 @@ gauge self-couplings in the rotated basis, Goldstone vertices (unitary gauge),
 Majorana-fermion vertices.
 """
 
+from pathlib import Path
+
 import sympy as sp
 
 from feynlag import (DiracGamma, cubic_couplings, diracPL, diracPR,
@@ -115,3 +117,17 @@ def export_ufo(bundle, path, model_name):
               fermion_vertices=fermion_vertices)
     report = verify_ufo_numeric(path)
     return path, report, skipped
+
+
+_LORENTZ_CLASS = {"FFSL": "FFS", "FFSR": "FFS", "FFVL": "FFV", "FFVR": "FFV"}
+
+
+def exported_vertex_classes(path):
+    """Vertex classes present in a written UFO, read from its ``vertices.py``."""
+    import re
+    names = set(re.findall(r"L\.([A-Z]+\d*)", (Path(path) / "vertices.py").read_text()))
+    classes = set()
+    for n in names:
+        base = _LORENTZ_CLASS.get(n, re.sub(r"\d+$", "", n))
+        classes.add("FFFF" if base.startswith("FFFF") else base)
+    return classes

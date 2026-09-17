@@ -30,5 +30,5 @@ this card makes no claim beyond tree level. [physics judgment]
 
 ## 5. Key references
 1. M. E. Peskin, D. V. Schroeder, *An Introduction to Quantum Field Theory*, Addison-Wesley (1995) — SM Feynman rules.
-2. Particle Data Group, *Review of Particle Physics*, "Electroweak Model and Constraints on New Physics" review.
+2. Particle Data Group (S. Navas et al.), *Review of Particle Physics*, Phys. Rev. D 110 (2024) 030001 — Sec. 10, "Electroweak Model and Constraints on New Physics" (J. Erler, A. Freitas); Eqs. (10.1)–(10.7) read on 2026-09-16.
 3. feynlag, `docs/benchmark.md` — MadGraph round-trip of the exported SM UFO (`e⁺e⁻ → μ⁺μ⁻`, `e⁺e⁻ → W⁺W⁻`).

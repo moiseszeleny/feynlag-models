@@ -27,7 +27,7 @@ PARENT = None
 
 
 def benchmark_point(model_id=ID):
-    return dict(md.load(MODELS_DIR / model_id)["benchmark"])
+    return md.benchmark_inputs(MODELS_DIR / model_id)
 
 
 # ------------------------------------------------------------------ pieces

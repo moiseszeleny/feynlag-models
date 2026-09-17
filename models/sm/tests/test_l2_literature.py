@@ -15,8 +15,9 @@ def _rule(rules, *legs):
 
 
 def test_hVV_and_hff(sm):
-    """hWW = i g m_W g^{μν}, hZZ = i g_Z m_Z g^{μν}, hhVV; h f f̄ = −i m_f/v
-    (Peskin–Schroeder SM Feynman rules; feynlag pins hWW = i g² v/2)."""
+    """hWW = i g m_W g^{μν}, hZZ = i g_Z m_Z g^{μν}, hhVV; h f f̄ = −i m_f/v.
+    PDG 2024 EW review: L_HV of Eq. (10.4) with M_W, M_Z of Eqs. (10.5b,c), and the
+    Yukawa term −(m_i H/v) ψ̄ψ of Eq. (10.2)."""
     b, p = sm.bosons, sm.pieces
     g, gp, v = p.gw.s, p.g1.s, p.ew.v.s
     mW, mZ = g * v / 2, sp.sqrt(g**2 + gp**2) * v / 2
@@ -40,7 +41,9 @@ def test_hVV_and_hff(sm):
 
 def test_gauge_currents(sm):
     """Z f f̄: i g_Z γ^μ (T³ − Q s_W²) per chirality; γ f f̄: i e Q γ^μ;
-    W ν̄ ℓ: i g/√2 γ^μ P_L (PDG electroweak review)."""
+    W ν̄ ℓ: i g/√2 γ^μ P_L. PDG 2024 EW review Eqs. (10.2), (10.3), (10.6), (10.7):
+    g_V − g_A γ5 = 2(T³ P_L − Q s_W²) and (1 − γ5) = 2 P_L reproduce these up to the global
+    sign g → −g of the gauge couplings (metadata discrepancy D-1, a convention)."""
     b, p = sm.bosons, sm.pieces
     g, gp = p.gw.s, p.g1.s
     gZ = sp.sqrt(g**2 + gp**2)

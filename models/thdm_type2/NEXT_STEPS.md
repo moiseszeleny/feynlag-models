@@ -32,7 +32,7 @@
 - Widths `W_HH, W_A0, W_Hp` are placeholders in the UFO card.
 
 ## 5. Key references
-1. G. C. Branco, P. M. Ferreira, L. Lavoura, M. N. Rebelo, M. Sher, J. P. Silva, *Theory and phenomenology of two-Higgs-doublet models*, arXiv:1106.0034 (Phys. Rept. 516 (2012) 1 — TODO(verify)).
-2. J. F. Gunion, H. E. Haber, *The CP-conserving two-Higgs-doublet model: the approach to the decoupling limit*, arXiv:hep-ph/0207010 (Phys. Rev. D 67 (2003) 075019 — TODO(verify)).
-3. J. F. Gunion, H. E. Haber, G. Kane, S. Dawson, *The Higgs Hunter's Guide*, Front. Phys. 80 (2000) — TODO(verify).
-4. M. Misiak, M. Steinhauser, *Weak radiative decays of the B meson and bounds on M_H± in the Two-Higgs-Doublet Model*, arXiv:1702.04571 — TODO(verify).
+1. G. C. Branco, P. M. Ferreira, L. Lavoura, M. N. Rebelo, M. Sher, J. P. Silva, *Theory and phenomenology of two-Higgs-doublet models*, Phys. Rept. 516 (2012) 1, arXiv:1106.0034.
+2. J. F. Gunion, H. E. Haber, *The CP-conserving two-Higgs-doublet model: the approach to the decoupling limit*, Phys. Rev. D 67 (2003) 075019, arXiv:hep-ph/0207010.
+3. J. F. Gunion, H. E. Haber, G. Kane, S. Dawson, *The Higgs Hunter's Guide*, Front. Phys. 80 (2000) 1.
+4. M. Misiak, M. Steinhauser, *Weak radiative decays of the B meson and bounds on M_H± in the Two-Higgs-Doublet Model*, Eur. Phys. J. C 77 (2017) 201, arXiv:1702.04571.

@@ -36,6 +36,6 @@ must be updated with Run-2 combinations before being used in a paper.
 - Unitary-gauge UFO only; quartic gauge couplings and gluon vertices not exported (see `models/sm/NEXT_STEPS.md`).
 
 ## 5. Key references
-1. T. Robens, T. Stefaniak, *Status of the Higgs Singlet Extension of the Standard Model after LHC Run 1*, arXiv:1501.02234 (Eur. Phys. J. C 75 (2015) 104 — TODO(verify) journal details).
-2. G. M. Pruna, T. Robens, *The Higgs Singlet extension parameter space in the light of the LHC discovery*, arXiv:1303.1150 (Phys. Rev. D 88 (2013) 115012 — TODO(verify)).
-3. V. Barger, P. Langacker, M. McCaskey, M. Ramsey-Musolf, G. Shaughnessy, *LHC phenomenology of an extended Standard Model with a real scalar singlet*, Phys. Rev. D 77 (2008) 035005, arXiv:0706.4311 — TODO(verify) (general xSM with cubic terms).
+1. T. Robens, T. Stefaniak, *Status of the Higgs Singlet Extension of the Standard Model after LHC Run 1*, Eur. Phys. J. C 75 (2015) 104, arXiv:1501.02234, doi:10.1140/epjc/s10052-015-3323-y.
+2. G. M. Pruna, T. Robens, *The Higgs Singlet extension parameter space in the light of the LHC discovery*, Phys. Rev. D 88 (2013) 115012, arXiv:1303.1150.
+3. V. Barger, P. Langacker, M. McCaskey, M. Ramsey-Musolf, G. Shaughnessy, *LHC phenomenology of an extended Standard Model with a real scalar singlet*, Phys. Rev. D 77 (2008) 035005, arXiv:0706.4311 (general xSM with cubic terms).

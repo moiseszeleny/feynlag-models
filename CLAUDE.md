@@ -43,8 +43,17 @@ Physics Codebases article, so **verification is the differentiator**.
 - `models/<id>/model.py` exposes `ID`, `PARENT`, and `build(benchmark=None) -> ModelBundle`.
   Children are written as **parent + delta**: call `models.sm.model.pieces(...)`
   and add/replace fields, terms, parameters before assembling the `Model`.
-- `models/<id>/metadata.yaml` follows `schema/metadata.schema.json`; the
-  `benchmark` block is the *only* numeric point tests and outputs use.
+- `models/<id>/metadata.yaml` follows `schema/metadata.schema.json` (schema
+  version 2), checked by `feynlag_models.metadata.validate`; the
+  `benchmark.inputs` block is the *only* numeric point tests and outputs use
+  (`metadata.benchmark_inputs`). Rules the validator enforces: evidence tests exist
+  and are not xfails; open discrepancies and feynlag gaps with a test point at a
+  strict xfail; references cited by literature checks at L2+ carry an INSPIRE id or
+  DOI (software: url + commit); `ufo_scope` accompanies `outputs.ufo` and matches
+  the committed UFO; `slow_evidence` is required exactly at L4.
+- Record every sign/normalisation difference with a paper in `discrepancies`
+  (`status: convention` when it is only a convention) and the symbol dictionary in
+  that reference's `conventions_map`; do not leave them in test docstrings only.
 - `models/<id>/README.md` (physics card) has the fixed sections listed in
   `templates/new_model/README.md`; `NEXT_STEPS.md` likewise.
 - `models/<id>/outputs/` is generated only by `scripts/build_outputs.py`

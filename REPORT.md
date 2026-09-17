@@ -12,7 +12,7 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 | `seesaw_type1` | **L2** | 10 tests | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
 | `thdm_type2` | **L3** | 14 passed + 1 strict xfail | GH Eqs. (6)–(17), Branco Eq. (16)/Table 2; benchmark inverted from (125, 300, 300, 320) GeV re-derived exactly by feynlag |
 
-Fast suite: `56 passed, 3 xfailed` (115 s). `scripts/build_outputs.py --check` and
+Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the schema v2 section for the current count. `scripts/build_outputs.py --check` and
 `scripts/build_genealogy.py --check` pass (outputs reproducible modulo `STAMP.json`).
 
 ## Failing / skipped / xfail tests (none weakened)
@@ -54,20 +54,42 @@ Additional limitations recorded in the cards (not gaps stopping an item): unitar
 quartic gauge self-couplings in the rotated basis and gluon vertices are not exported; widths of new
 scalars are placeholder inputs; one generation, no CKM.
 
-## Schema changes recommended before scaling
+## Schema changes — implemented as schema version 2 (2026-09-16)
 
-1. `literature_checks[].where` → structured `{equation, table, source_version, checked_on}` instead of free text; make `checked_on` mandatory.
-2. Add a top-level `discrepancies:` list (`{quantity, ref, where, status: open|resolved, test}`) — the Branco relative-sign case shows this is needed.
-3. Add `conventions_map:` (`{their_symbol: our_symbol, note}`) per reference; today it lives in test docstrings.
-4. `benchmark` → `{inputs: {...}, derived_from: {...}, placeholders: [WH2, ...]}` so inverted physical points and placeholder widths are machine-readable.
-5. `references[]`: make `inspire` or `doi` mandatory at L2+, add `verified_against: arxiv_v2_text|published`.
-6. `parents[]` → `[{id, relation: extends|replaces_sector}]` (the 2HDM replaces the Higgs sector).
-7. `maturity_evidence` should list known `xfail` gap tests explicitly (`gap_tests:`), and `outputs` should carry `ufo_scope` (gauge, exported vertex classes).
-8. `new_fields[].u1y` as a string rational always (`"1/2"`), and `extra_charges` values typed.
-9. Consider `slow_evidence:` for L4 (MadGraph run id, process, numbers) so L4 claims are auditable.
+All nine recommendations are in `schema/metadata.schema.json` (v2) and enforced by
+`feynlag_models/metadata.py::validate`; `tests/test_repo.py` has one negative test per rule.
+
+1. `literature_checks[].location` is structured (`equation|table|section|note`) with required
+   `source_version` (exact arXiv version read) and `checked_on`.
+2. `discrepancies[]` (`open|resolved|convention`); an open one with a test must point at a strict xfail.
+3. `references[].conventions_map` holds the symbol dictionaries that used to live in test docstrings.
+4. `benchmark = {inputs, placeholders, derived_from?}`; the 2HDM physical point is now a test
+   (`test_benchmark_matches_physical_inputs`), and placeholder widths are machine-readable.
+5. References carry `kind` and `verified_against`; those cited by literature checks at L2+ need an
+   INSPIRE id or DOI (software: url + commit). All ids and journal details came from INSPIRE API
+   records on 2026-09-16; every reference-detail `TODO(verify)` is gone.
+6. `parents[] = {id, relation, sector?}`; the genealogy labels edges (`sm -->|replaces higgs| thdm_type2`).
+7. `feynlag_gaps[] = {id, test?}` (id must be a row of `FEYNLAG_GAPS.md`, test a strict xfail);
+   `outputs.ufo_scope` is required with a UFO and checked against the committed UFO's `vertices.py`.
+8. `u1y` and charges are rational strings; `extra_charges` is a typed list `{group, kind, charge}`.
+9. `slow_evidence[]` is required exactly at L4 (empty for all four models).
+
+What the migration surfaced:
+- **SM, D-1 (convention):** the PDG 2024 EW review, Eqs. (10.2)/(10.6), has the opposite global sign
+  for every gauge coupling to fermions (equivalent to g → −g). The SM L2 checks now cite PDG
+  equation numbers read from the review instead of an unread textbook.
+- **2HDM, D-2 (open):** Branco et al. Eqs. (5)–(6) as extracted give `m_A²`, `m_H±²` prefactors
+  that differ from Gunion–Haber Eqs. (10)–(11); possibly a PDF-extraction artefact.
+- **Singlet, D-1 (convention):** α = −θ, now recorded instead of living only in a docstring.
+
+Suite after the migration: `71 passed, 1 skipped, 3 xfailed` (the skip is the UFO-scope check for
+`seesaw_type1`, which declares no UFO). `TODO(verify)` markers: 43 → 30; the remaining ones are
+experimental bounds in `NEXT_STEPS.md` tables, the open 2HDM sign question, and the heavy-neutrino
+PDG code.
 
 ## What to do next
 
 - Decide whether FG-1/FG-2 get fixed in feynlag (the strict xfails flip automatically when they are).
 - Attempt L4 for `sm_singlet_z2` (`e⁺e⁻ → Z h1` vs stock `sm` × cos²θ) with the MG5 at `~/.local/mg5dl`.
-- Resolve the Branco Eq. (16) sign question and the Eqs. (5)–(6) normalisation against the published text.
+- Resolve 2HDM discrepancies D-1 (Branco Eq. 16 sign) and D-2 (Eqs. 5–6 prefactors) against the published text.
+- Fill the experimental-bound tables in each `NEXT_STEPS.md` from current PDG / ATLAS / CMS sources.

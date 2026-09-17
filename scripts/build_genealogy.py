@@ -17,16 +17,24 @@ from feynlag_models import metadata as md  # noqa: E402
 from feynlag_models.registry import model_dirs  # noqa: E402
 
 
+def _relation(parent):
+    """Edge label: ``extends`` or ``replaces <sector>``."""
+    if parent["relation"] == "replaces_sector":
+        return f"replaces {parent['sector']}"
+    return parent["relation"]
+
+
 def genealogy():
     metas = {}
     for d in model_dirs():
         metas[d.name] = md.load(d)
     nodes = {}
     for mid, m in metas.items():
-        for p in m["parents"]:
+        for p in md.parent_ids(m):
             if p not in metas:
                 raise SystemExit(f"{mid}: parent {p!r} is not a model")
-        nodes[mid] = {"name": m["name"], "parents": list(m["parents"]),
+        nodes[mid] = {"name": m["name"], "parents": md.parent_ids(m),
+                      "relations": {p["id"]: _relation(p) for p in m["parents"]},
                       "children": [], "maturity_level": m["maturity_level"]}
     for mid, n in nodes.items():
         for p in n["parents"]:
@@ -57,10 +65,11 @@ def render_md(nodes):
         lines.append(f'    {mid}["{mid}<br/>L{n["maturity_level"]}"]')
     for mid, n in sorted(nodes.items()):
         for p in n["parents"]:
-            lines.append(f"    {p} --> {mid}")
+            lines.append(f"    {p} -->|{n['relations'][p]}| {mid}")
     lines += ["```", "", "| id | name | parents | children | maturity |", "|---|---|---|---|---|"]
     for mid, n in sorted(nodes.items()):
-        lines.append(f"| `{mid}` | {n['name']} | {', '.join(n['parents']) or '—'} | "
+        parents = ", ".join(f"{p} ({n['relations'][p]})" for p in n["parents"])
+        lines.append(f"| `{mid}` | {n['name']} | {parents or '—'} | "
                      f"{', '.join(sorted(n['children'])) or '—'} | L{n['maturity_level']} |")
     return "\n".join(lines) + "\n"
 

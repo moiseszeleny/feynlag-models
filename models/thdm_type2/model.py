@@ -31,7 +31,7 @@ PARENT = "sm"
 
 
 def benchmark_point():
-    return dict(md.load(MODELS_DIR / ID)["benchmark"])
+    return md.benchmark_inputs(MODELS_DIR / ID)
 
 
 def build(benchmark=None):
