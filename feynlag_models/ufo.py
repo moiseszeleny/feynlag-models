@@ -53,10 +53,15 @@ def flatten_fermion_vertices(table, dirac_specs, bosons, drop=()):
         color_of[d.particle] = color_of[d.antiparticle] = d.color
         ignored |= d.ignored_bases
     merged, skipped = {}, []
+    def spec_key(leg):
+        # flavour-resolved specs are keyed by (base, integer index)
+        flavoured = (leg.base, leg.indices[0])
+        return flavoured if flavoured in base_map else leg.base
+
     for (bar, gamma, fld), by_n in table.items():
-        bar_base, fld_base = bar.base, fld.base
-        if bar_base in ignored or fld_base in ignored:
+        if bar.base in ignored or fld.base in ignored:
             continue
+        bar_base, fld_base = spec_key(bar), spec_key(fld)
         if bar_base not in base_map or fld_base not in base_map:
             skipped.append((bar, gamma, fld))
             continue

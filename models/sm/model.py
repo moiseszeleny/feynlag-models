@@ -32,7 +32,20 @@ def benchmark_point(model_id=ID):
 
 # ------------------------------------------------------------------ pieces
 
-def pieces(benchmark=None, higgs=True):
+#: mass-parameter names per flavour, (up, down, charged lepton) rows
+MASS_NAMES = {1: (("MT",), ("MB",), ("MTA",)),
+              3: (("MU", "MC", "MT"), ("MD", "MS", "MB"), ("ME", "MMU", "MTA"))}
+YUKAWA_NAMES = {1: (("yt",), ("yb",), ("ytau",)),
+                3: (("yu", "yc", "yt"), ("yd", "ys", "yb"), ("ye", "ymu", "ytau"))}
+
+
+def flavours(p):
+    """Flavour indices used in the Lagrangian: the symbolic ``i`` for one
+    generation (unchanged SM), the integers ``0, 1, 2`` for three."""
+    return [p.idx[0]] if p.generations == 1 else list(range(p.generations))
+
+
+def pieces(benchmark=None, higgs=True, generations=1):
     """Declaration layer of the SM.
 
     Args:
@@ -41,7 +54,11 @@ def pieces(benchmark=None, higgs=True):
             Yukawas. A model that replaces the Higgs sector (2HDM) passes
             ``False`` and supplies its own doublets and Yukawas
             (:func:`yukawa_terms`).
+        generations: 1 (third generation only, the SM card) or 3 (every
+            flavour, diagonal Yukawas; a child inserts quark mixing).
     """
+    if generations not in (1, 3):
+        raise ValueError("generations must be 1 or 3")
     bench = benchmark_point() if benchmark is None else dict(benchmark)
     if higgs:
         ew = electroweak_scaffold(gw=bench["gw"], g1=bench["g1"], v=bench["v"],
@@ -57,68 +74,82 @@ def pieces(benchmark=None, higgs=True):
 
     i, j = sp.symbols("i j", integer=True)
     Ll = WeylFermion("Ll", reps={SU2L: 2, U1Y: -sp.Rational(1, 2)},
-                     chirality="L", nflavors=1, component_names=["nuL", "eL"])
-    eR = WeylFermion("eR", reps={U1Y: -1}, chirality="R", nflavors=1,
+                     chirality="L", nflavors=generations, component_names=["nuL", "eL"])
+    eR = WeylFermion("eR", reps={U1Y: -1}, chirality="R", nflavors=generations,
                      component_names=["eR"])
     QL = WeylFermion("QL", reps={SU2L: 2, U1Y: sp.Rational(1, 6), SU3c: 3},
-                     chirality="L", nflavors=1,
+                     chirality="L", nflavors=generations,
                      component_names=["uL_1", "uL_2", "uL_3",
                                       "dL_1", "dL_2", "dL_3"])
     uR = WeylFermion("uR", reps={U1Y: sp.Rational(2, 3), SU3c: 3},
-                     chirality="R", nflavors=1,
+                     chirality="R", nflavors=generations,
                      component_names=["uR_1", "uR_2", "uR_3"])
     dR = WeylFermion("dR", reps={U1Y: -sp.Rational(1, 3), SU3c: 3},
-                     chirality="R", nflavors=1,
+                     chirality="R", nflavors=generations,
                      component_names=["dR_1", "dR_2", "dR_3"])
     fermions = dict(Ll=Ll, eR=eR, QL=QL, uR=uR, dR=dR)
 
     # fermion mass inputs (externals) — the Yukawas are internals defined by
     # whichever Higgs sector the model has
-    MT = ExternalParameter("MT", bench["MT"], positive=True, unit_dim=1)
-    MB = ExternalParameter("MB", bench["MB"], positive=True, unit_dim=1)
-    MTA = ExternalParameter("MTA", bench["MTA"], positive=True, unit_dim=1)
+    mass_names = [n for row in MASS_NAMES[generations] for n in row]
+    masses = {n: ExternalParameter(n, bench[n], positive=True, unit_dim=1)
+              for n in mass_names}
 
-    params = [gw_p, g1_p, gs, MT, MB, MTA]
+    params = [gw_p, g1_p, gs, *masses.values()]
     fields = [W, B, G, Ll, eR, QL, uR, dR]
     p = SMPieces(SU2L=SU2L, U1Y=U1Y, SU3c=SU3c, gw=gw_p, g1=g1_p, gs=gs,
                  W=W, B=B, G=G, idx=(i, j), fermions=fermions,
-                 params=params, fields=fields, terms=[], benchmark=bench)
-    p.masses = dict(MT=MT, MB=MB, MTA=MTA)
+                 params=params, fields=fields, terms=[], benchmark=bench,
+                 generations=generations)
+    p.masses = masses
 
-    current = (fermion_gauge_current(Ll, i) + fermion_gauge_current(eR, i)
-               + fermion_gauge_current(QL, i) + fermion_gauge_current(uR, i)
-               + fermion_gauge_current(dR, i))
+    current = sum(fermion_gauge_current(F, k)
+                  for k in flavours(p) for F in (Ll, eR, QL, uR, dR))
     p.add_term(current, "gauge", "fermion_gauge_currents")
 
     if higgs:
         p.ew = ew
-        p.params = [ew.gw, ew.g1, gs, ew.v, ew.lam, ew.mu2, MT, MB, MTA]
+        p.params = [ew.gw, ew.g1, gs, ew.v, ew.lam, ew.mu2, *masses.values()]
         p.fields = [ew.H, ew.W, ew.B, G, Ll, eR, QL, uR, dR]
         from feynlag.models import higgs_lagrangian
         for sector, expr in higgs_lagrangian(ew.H, ew.lam, ew.mu2).items():
             p.add_term(expr, sector, f"higgs_{sector}")
-        # y_f = √2 m_f / v   (single generation, CONVENTIONS.md)
-        yt = InternalParameter("yt", sp.sqrt(2) * MT.s / ew.v.s)
-        yb = InternalParameter("yb", sp.sqrt(2) * MB.s / ew.v.s)
-        ytau = InternalParameter("ytau", sp.sqrt(2) * MTA.s / ew.v.s)
-        p.params += [yt, yb, ytau]
-        p.yukawa_params = dict(yt=yt, yb=yb, ytau=ytau)
-        p.yukawa = yukawa_terms(p, ew.H, ew.H, ytau.s, yb.s, yt.s)
+        # y_f = √2 m_f / v   (diagonal in flavour, CONVENTIONS.md)
+        ys = {}
+        for yrow, mrow in zip(YUKAWA_NAMES[generations], MASS_NAMES[generations]):
+            for yn, mn in zip(yrow, mrow):
+                ys[yn] = InternalParameter(yn, sp.sqrt(2) * masses[mn].s / ew.v.s)
+        p.params += list(ys.values())
+        p.yukawa_params = ys
+        yu, yd, ye = (diagonal_yukawa(ys, row) for row in YUKAWA_NAMES[generations])
+        p.yukawa = yukawa_terms(p, ew.H, ew.H, ye, yd, yu)
         for name, expr in p.yukawa.items():
             p.add_term(expr, "yukawa", name)
     return p
 
 
-def yukawa_terms(p, Hd, Hu, ye, yd, yu):
-    """The single-generation Yukawa Lagrangian, one term per fermion.
+def diagonal_yukawa(ys, names):
+    """A single-generation coupling symbol, or a diagonal 3×3 ``Matrix``."""
+    if len(names) == 1:
+        return ys[names[0]].s
+    return sp.diag(*(ys[n].s for n in names))
 
-    ``−y_e L̄ H_d e_R − y_d Q̄ H_d d_R − y_u Q̄ H̃_u u_R + h.c.`` with
-    ``H̃ = (H⁰*, −H⁺*)`` written inline (CONVENTIONS.md). ``Hd``/``Hu`` are the
+
+def yukawa_terms(p, Hd, Hu, ye, yd, yu):
+    """The Yukawa Lagrangian, one term per fermion type.
+
+    ``−Y_e^{ab} L̄_a H_d e_R^b − Y_d^{ab} Q̄_a H_d d_R^b − Y_u^{ab} Q̄_a H̃_u u_R^b + h.c.``
+    with ``H̃ = (H⁰*, −H⁺*)`` written inline (CONVENTIONS.md). ``Hd``/``Hu`` are the
     doublets coupling to down-type/leptons and up-type quarks (both ``H`` in
-    the SM; ``H1``/``H2`` in a type-II 2HDM). The couplings ``ye, yd, yu`` are
-    real SymPy symbols.
+    the SM; ``H1``/``H2`` in a type-II 2HDM).
+
+    One generation: ``ye, yd, yu`` are real SymPy symbols and the terms carry
+    the symbolic flavour index. Three generations: they are 3×3 matrices
+    (possibly complex, e.g. ``Y_d = V diag(y)``) and the flavour sums are
+    written out with integer indices; the h.c. carries ``conjugate(Y^{ab})``.
+    The returned names are ``yukawa_tau/b/t`` (one generation) or
+    ``yukawa_lepton/down/up`` (three).
     """
-    i = p.idx[0]
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
     Gp_d, H0_d = Hd.components
     Gp_u, H0_u = Hu.components
@@ -128,42 +159,106 @@ def yukawa_terms(p, Hd, Hu, ye, yd, yu):
     qL_u, qL_d = QL.components[:3], QL.components[3:]
     qLbar_u, qLbar_d = QL.bar_components[:3], QL.bar_components[3:]
 
-    def colour_sum(bars, gamma, fields):
-        return sum(Bilinear(bars[c][i], gamma, fields[c][i]) for c in range(3))
+    if p.generations == 1:
+        i = p.idx[0]
+        pairs = lambda Y: [(i, i, Y)]                       # noqa: E731
+    else:
+        pairs = lambda Y: [(a, b, Y[a, b]) for a in range(3)   # noqa: E731
+                           for b in range(3) if Y[a, b] != 0]
 
-    L_e = -(ye * Gp_d * Bilinear(nuLbar[i], diracPR, eRc[i])
-            + ye * H0_d * Bilinear(eLbar[i], diracPR, eRc[i]))
-    L_e += -(ye * sp.conjugate(Gp_d) * Bilinear(eRbar[i], diracPL, nuL[i])
-             + ye * sp.conjugate(H0_d) * Bilinear(eRbar[i], diracPL, eL[i]))
+    def colour_sum(bars, gamma, fields, a, b):
+        return sum(Bilinear(bars[c][a], gamma, fields[c][b]) for c in range(3))
 
-    L_d = -(yd * Gp_d * colour_sum(qLbar_u, diracPR, dR.components)
-            + yd * H0_d * colour_sum(qLbar_d, diracPR, dR.components))
-    L_d += -(yd * sp.conjugate(Gp_d) * colour_sum(dR.bar_components, diracPL, qL_u)
-             + yd * sp.conjugate(H0_d) * colour_sum(dR.bar_components, diracPL, qL_d))
+    L_e = L_d = L_u = sp.S.Zero
+    for a, b, y in pairs(ye):
+        yc = y if p.generations == 1 else sp.conjugate(y)
+        L_e += -(y * Gp_d * Bilinear(nuLbar[a], diracPR, eRc[b])
+                 + y * H0_d * Bilinear(eLbar[a], diracPR, eRc[b]))
+        L_e += -(yc * sp.conjugate(Gp_d) * Bilinear(eRbar[b], diracPL, nuL[a])
+                 + yc * sp.conjugate(H0_d) * Bilinear(eRbar[b], diracPL, eL[a]))
+    for a, b, y in pairs(yd):
+        yc = y if p.generations == 1 else sp.conjugate(y)
+        L_d += -(y * Gp_d * colour_sum(qLbar_u, diracPR, dR.components, a, b)
+                 + y * H0_d * colour_sum(qLbar_d, diracPR, dR.components, a, b))
+        L_d += -(yc * sp.conjugate(Gp_d) * colour_sum(dR.bar_components, diracPL, qL_u, b, a)
+                 + yc * sp.conjugate(H0_d) * colour_sum(dR.bar_components, diracPL, qL_d, b, a))
+    for a, b, y in pairs(yu):
+        yc = y if p.generations == 1 else sp.conjugate(y)
+        L_u += -(y * sp.conjugate(H0_u) * colour_sum(qLbar_u, diracPR, uR.components, a, b)
+                 + y * (-sp.conjugate(Gp_u)) * colour_sum(qLbar_d, diracPR, uR.components, a, b))
+        L_u += -(yc * H0_u * colour_sum(uR.bar_components, diracPL, qL_u, b, a)
+                 + yc * (-Gp_u) * colour_sum(uR.bar_components, diracPL, qL_d, b, a))
+    if p.generations == 1:
+        return {"yukawa_tau": L_e, "yukawa_b": L_d, "yukawa_t": L_u}
+    return {"yukawa_lepton": L_e, "yukawa_down": L_d, "yukawa_up": L_u}
 
-    L_u = -(yu * sp.conjugate(H0_u) * colour_sum(qLbar_u, diracPR, uR.components)
-            + yu * (-sp.conjugate(Gp_u)) * colour_sum(qLbar_d, diracPR, uR.components))
-    L_u += -(yu * H0_u * colour_sum(uR.bar_components, diracPL, qL_u)
-             + yu * (-Gp_u) * colour_sum(uR.bar_components, diracPL, qL_d))
-    return {"yukawa_tau": L_e, "yukawa_b": L_d, "yukawa_t": L_u}
+
+#: three-generation UFO names, PDG codes and widths (FeynRules SM names)
+_GEN3 = dict(
+    up=(("u", 2), ("c", 4), ("t", 6)),
+    down=(("d", 1), ("s", 3), ("b", 5)),
+    lepton=(("e-", 11), ("mu-", 13), ("ta-", 15)),
+    neutrino=(("ve", 12), ("vm", 14), ("vt", 16)),
+)
 
 
-def dirac_specs(p, masses=("MT", "MB", "MTA")):
-    """The four Dirac fermions of one generation (ν_τ left-handed only)."""
+def dirac_specs(p, masses=("MT", "MB", "MTA"), down_left=None):
+    """The Dirac fermions (neutrinos left-handed only).
+
+    One generation: t, b, τ, ν_τ keyed by ``IndexedBase`` (symbolic flavour
+    index). Three generations: all twelve, each ``DiracSpec`` carrying its
+    integer ``flavor``. ``down_left`` optionally replaces the left-handed
+    down-quark colour components (a child that rotates ``d_L`` to the mass
+    basis passes the mass-basis handles); ``masses`` is ignored for three
+    generations (``MASS_NAMES`` is used).
+    """
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
+    dL = list(down_left) if down_left is not None else list(QL.components[3:])
+    if p.generations == 3:
+        return _dirac_specs_3(Ll, eR, QL, uR, dR, dL)
     t, tb, b, bb = sp.symbols("t tbar b bbar")
     ta, tap, vt, vtb = sp.symbols("ta tap vt vtbar")
     return [
         DiracSpec("t", QL.components[0], uR.components[0], t, tb, 6, sp.Rational(2, 3),
                   masses[0], "t~", color=3, width="WT",
                   copies=(*QL.components[1:3], *uR.components[1:])),
-        DiracSpec("b", QL.components[3], dR.components[0], b, bb, 5, -sp.Rational(1, 3),
+        DiracSpec("b", dL[0], dR.components[0], b, bb, 5, -sp.Rational(1, 3),
                   masses[1], "b~", color=3,
-                  copies=(*QL.components[4:], *dR.components[1:])),
+                  copies=(*dL[1:], *dR.components[1:])),
         DiracSpec("ta-", Ll.components[1], eR.components[0], ta, tap, 15, -1,
                   masses[2], "ta+"),
         DiracSpec("vt", Ll.components[0], None, vt, vtb, 16, 0, "ZERO", "vt~"),
     ]
+
+
+def _dirac_specs_3(Ll, eR, QL, uR, dR, dL):
+    up_m, down_m, lep_m = MASS_NAMES[3]
+    specs = []
+
+    def anti(name):
+        return name[:-1] + "+" if name.endswith("-") else name + "~"
+
+    def syms(name):
+        stem = name.rstrip("-")
+        return sp.symbols(f"{stem} {stem}bar")
+
+    for k in range(3):
+        name, pdg = _GEN3["up"][k]
+        specs.append(DiracSpec(name, QL.components[0], uR.components[0], *syms(name), pdg,
+                               sp.Rational(2, 3), up_m[k], anti(name), color=3,
+                               width="WT" if name == "t" else "ZERO",
+                               copies=(*QL.components[1:3], *uR.components[1:]), flavor=k))
+        name, pdg = _GEN3["down"][k]
+        specs.append(DiracSpec(name, dL[0], dR.components[0], *syms(name), pdg,
+                               -sp.Rational(1, 3), down_m[k], anti(name), color=3,
+                               copies=(*dL[1:], *dR.components[1:]), flavor=k))
+        name, pdg = _GEN3["lepton"][k]
+        specs.append(DiracSpec(name, Ll.components[1], eR.components[0], *syms(name), pdg,
+                               -1, lep_m[k], anti(name), flavor=k))
+        name, pdg = _GEN3["neutrino"][k]
+        specs.append(DiracSpec(name, Ll.components[0], None, *syms(name), pdg,
+                               0, "ZERO", anti(name), flavor=k))
+    return specs
 
 
 def ew_boson_particles(b, h_mass="MH", h_width="WH"):

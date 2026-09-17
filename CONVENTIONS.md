@@ -88,10 +88,18 @@ R(\theta) = \begin{pmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta 
   $c^2 + s^2 = 1$.
 
 ## Fermions
-- One generation per model, with third-generation names $t, b, \tau, \nu_\tau$. Dirac fermions
-  are two Weyl fields (`tL`/`tR`, …). Yukawas are
+- One generation per model unless the model says otherwise, with third-generation names
+  $t, b, \tau, \nu_\tau$. Dirac fermions are two Weyl fields (`tL`/`tR`, …). Yukawas are
   $`-y\,\bar\psi_L\Phi\psi_R + \text{h.c.}`$ with $\tilde\Phi = (\Phi^{0*}, -\Phi^{+*})$.
   The Dirac mass is $m_f = y_f v/\sqrt2$ (SM, seesaw, singlet) or $y_f v_i/\sqrt2$ (2HDM).
+- **Three generations** (`sm.pieces(generations=3)`, used by `sm_ckm`): flavour indices are the
+  integers $0, 1, 2$, the Yukawa matrices enter as $`-Y^{ab}\,\bar\psi_{L a}\Phi\psi_{R b} + \text{h.c.}`$,
+  and $Y_u$, $Y_e$ are diagonal. Quark mixing lives in the down sector:
+  $`Y_d = V\,\mathrm{diag}(y_d, y_s, y_b)`$ and the mass basis is $d_L' = V d_L$, so the charged
+  current is $`\bar u_{L i} V_{ij} d_{L j}`$. Rows of $V$ are $u, c, t$ and columns are $d, s, b$.
+- **CKM matrix**: feynlag's `standard_ckm`, the PDG standard parametrization (PDG 2024 CKM review,
+  Eq. 12.3) in `th12`, `th13`, `th23` ($\theta_{ij}$, first quadrant) and `deltaCP` ($\delta$), with
+  complex internals `Vud` … `Vtb`. Leptons have no mixing (neutrinos are massless).
 - The Majorana mass is $`-\tfrac12 M_R\,\nu_R^T C\nu_R + \text{h.c.}`$ In the seesaw basis
   $n = (\nu_L, \nu_R^c)$:
 
@@ -127,6 +135,7 @@ i\,\frac{\partial^n \mathcal L}{\partial\phi_1\cdots\partial\phi_n}\bigg\vert_0
 | $Z$, photon, $W$ | $Z$, $A$, $W^\pm$ | `Z`, `A`, `Wp`, `Wm` | `Z`, `a`, `W+`, `W-` | 23, 22, 24 | |
 | heavy Majorana neutrino | $N$ | `chiL[k]`, `chiR[k]` | none (not exportable, FG-3) | 9900012 | HeavyN-UFO style code — TODO(verify) |
 | leptons / quarks | $\tau$, $\nu_\tau$, $t$, $b$ | `ta`, `vt`, `t`, `b` | `ta-`, `vt`, `t`, `b` | 15, 16, 6, 5 | |
+| three generations | $u, c, t$; $d, s, b$; $e, \mu, \tau$; $\nu_e, \nu_\mu, \nu_\tau$ | same, `mu`, `ve`, `vm` | `u c t`, `d s b`, `e- mu- ta-`, `ve vm vt` | 2, 4, 6; 1, 3, 5; 11, 13, 15; 12, 14, 16 | FeynRules SM names |
 
 Parameter names are snake ASCII and UFO-safe (`lam_HS`, `vS`, `m12sq`, `tanb`).
 Model ids match `^[a-z0-9_]+$` and equal their directory names.
