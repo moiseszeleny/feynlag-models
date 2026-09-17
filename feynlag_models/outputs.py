@@ -11,6 +11,8 @@ from .ufo import export_ufo
 DEFAULT_TEX = {
     "gw": "g", "g1": "g'", "gs": "g_s", "v": "v", "lam": r"\lambda",
     "MT": "m_t", "MB": "m_b", "MTA": r"m_\tau",
+    "MU": "m_u", "MC": "m_c", "MD": "m_d", "MS": "m_s", "ME": "m_e", "MMU": r"m_\mu",
+    "th12": r"\theta_{12}", "th13": r"\theta_{13}", "th23": r"\theta_{23}", "deltaCP": r"\delta",
     "v1": "v_1", "v2": "v_2", "alpha": r"\alpha", "beta": r"\beta", "theta": r"\theta",
     "tanb": r"\tan\beta", "m12sq": "m_{12}^2", "mD": "m_D", "MR": "M_R", "yv": r"y_\nu",
     "lamS": r"\lambda_S", "lamHS": r"\lambda_{HS}", "vS": "v_S",

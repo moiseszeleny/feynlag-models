@@ -2,7 +2,8 @@
 
 ## 1. Natural extensions
 - `sm_singlet_z2` (real singlet, scalar mixing), `seesaw_type1` (heavy Majorana $\nu$), `thdm_type2` (second doublet) — in this repository.
-- Proposed children: `sm_ckm` (three generations + CKM via feynlag's mass-basis insertion, `feynlag.standard_ckm`), `sm_qcd_ufo` (gluon vertices exported with colour tensors).
+- `sm_ckm` (three generations, CKM mixing through a unitary $d_L$ rotation built on `feynlag.standard_ckm`), in this repository.
+- Proposed child: `sm_qcd_ufo` (gluon vertices exported with colour tensors).
 
 ## 2. Observables and current bounds
 | observable | value / bound | source | checked on |
@@ -26,7 +27,7 @@ this card makes no claim beyond tree level. [physics judgment]
   carry `Identity(1,2)` colour flow so the model imports, but hadron-collider use needs the
   gluon sector (feynlag supports it; not wired here).
 - Loops ($h \to \gamma\gamma$, $h \to gg$) exist in feynlag's `pheno.loop` as imported effective vertices, not as derived rules.
-- Only one generation; no CKM (feynlag's CKM insertion route exists, see `examples/sm_ckm.py`).
+- Only one generation here; the three-generation root with CKM mixing is `sm_ckm`.
 
 ## 5. Key references
 1. M. E. Peskin, D. V. Schroeder, *An Introduction to Quantum Field Theory*, Addison-Wesley (1995) — SM Feynman rules.

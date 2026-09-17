@@ -39,6 +39,9 @@ class DiracSpec:
     #: further colour copies (IndexedBases) whose vertices duplicate the first
     #: slot and are therefore skipped silently by the UFO flattener
     copies: tuple = ()
+    #: integer flavour index when several generations share one IndexedBase;
+    #: ``None`` for the single-generation models (symbolic flavour index)
+    flavor: int = None
 
     @property
     def ignored_bases(self):
@@ -51,14 +54,16 @@ class DiracSpec:
 
     @property
     def bases(self):
-        """``{IndexedBase: symbol}`` for both field and bar legs."""
+        """``{IndexedBase: symbol}`` for both field and bar legs; the keys are
+        ``(IndexedBase, flavor)`` pairs when ``flavor`` is set."""
         from feynlag import bar_partner
         out = {}
         for base in (self.left, self.right):
             if base is None:
                 continue
-            out[base] = self.particle
-            out[bar_partner(base)] = self.antiparticle
+            key = (lambda b: b) if self.flavor is None else (lambda b: (b, self.flavor))
+            out[key(base)] = self.particle
+            out[key(bar_partner(base))] = self.antiparticle
         return out
 
     def ufo_particle(self):
@@ -90,6 +95,7 @@ class SMPieces:
     ew: object = None                   # ElectroweakScaffold when higgs=True
     benchmark: dict = field(default_factory=dict)
     discrete_groups: list = field(default_factory=list)
+    generations: int = 1                # 1 (third generation only) or 3
 
     @property
     def gauge_groups(self):
@@ -97,6 +103,14 @@ class SMPieces:
 
     def add_term(self, expr, sector, name):
         self.terms.append((expr, sector, name))
+
+    def replace_term(self, name, expr):
+        """Swap the expression of the term called ``name`` (sector kept)."""
+        for k, (_expr, sector, n) in enumerate(self.terms):
+            if n == name:
+                self.terms[k] = (expr, sector, name)
+                return
+        raise KeyError(name)
 
     def lagrangian(self):
         from feynlag import Lagrangian

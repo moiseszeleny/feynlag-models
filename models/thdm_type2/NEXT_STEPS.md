@@ -6,7 +6,7 @@
 - `thdm_cpv`: complex $m_{12}^2$ and $\lambda_5$ give CP violation in the scalar sector ($3\times3$ neutral mixing; feynlag's $2\times2$ analytic route no longer applies, so diagonalisation is numeric).
 - `n2hdm`: 2HDM + real singlet (combines with `sm_singlet_z2`).
 - `thdm_s3`, a 3HDM with $S_3$ (feynlag `examples/thdm_s3.py`).
-- Three generations with CKM in the charged-Higgs vertex ($V_{ud}$ of Branco Eq. 16) via feynlag's mass-basis insertion.
+- Three generations with CKM in the charged-Higgs vertex ($V_{ud}$ of Branco Eq. 16), reusing `sm.pieces(generations=3)` and the unitary $d_L$ rotation of `sm_ckm`.
 
 ## 2. Observables and current bounds
 | observable | value / bound | source | checked on |

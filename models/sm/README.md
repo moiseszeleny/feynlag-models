@@ -58,4 +58,4 @@ and bottom Yukawas via $t\bar t h$ and $h \to b\bar b$. Benchmark inputs in `met
 PDG-like numbers, not measurements; see `NEXT_STEPS.md` for sources. [physics judgment]
 
 ## Genealogy
-Parents: none. Children: `sm_singlet_z2`, `seesaw_type1`, `thdm_type2` (see `GENEALOGY.md`).
+Parents: none. Children: `sm_ckm`, `sm_singlet_z2`, `seesaw_type1`, `thdm_type2` (see `GENEALOGY.md`).

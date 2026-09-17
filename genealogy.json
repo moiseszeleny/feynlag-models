@@ -13,6 +13,7 @@
   "sm": {
     "children": [
       "seesaw_type1",
+      "sm_ckm",
       "sm_singlet_z2",
       "thdm_type2"
     ],
@@ -20,6 +21,17 @@
     "name": "Standard Model (one Higgs doublet, one full fermion generation)",
     "parents": [],
     "relations": {}
+  },
+  "sm_ckm": {
+    "children": [],
+    "maturity_level": 3,
+    "name": "Standard Model with three generations and CKM quark mixing",
+    "parents": [
+      "sm"
+    ],
+    "relations": {
+      "sm": "extends"
+    }
   },
   "sm_singlet_z2": {
     "children": [],

@@ -1,0 +1,168 @@
+schema_version: 2
+id: sm_ckm
+name: "Standard Model with three generations and CKM quark mixing"
+parents:
+  - {id: sm, relation: extends}
+problem_addressed: |
+  The SM root carries one generation, so it has no quark mixing and no CP
+  violation. This model restores the full flavour structure of the SM: three
+  generations, with the CKM matrix in the charged current and no flavour-changing
+  neutral currents at tree level (GIM). It is the parent that flavour-dependent
+  extensions build on. Neutrinos stay massless, so lepton mixing is unphysical. [physics judgment]
+new_fields:
+  - {name: Ll, symbol: "L_L", spin: "1/2", su3: 1, su2: 2, u1y: "-1/2", extra_charges: [], real: false, chirality: L, generations: 3}
+  - {name: eR, symbol: "e_R", spin: "1/2", su3: 1, su2: 1, u1y: "-1", extra_charges: [], real: false, chirality: R, generations: 3}
+  - {name: QL, symbol: "Q_L", spin: "1/2", su3: 3, su2: 2, u1y: "1/6", extra_charges: [], real: false, chirality: L, generations: 3}
+  - {name: uR, symbol: "u_R", spin: "1/2", su3: 3, su2: 1, u1y: "2/3", extra_charges: [], real: false, chirality: R, generations: 3}
+  - {name: dR, symbol: "d_R", spin: "1/2", su3: 3, su2: 1, u1y: "-1/3", extra_charges: [], real: false, chirality: R, generations: 3}
+new_symmetries: []
+free_parameters:
+  - {name: MU,      tex: "m_u",      mass_dim: 1, role: up mass (fixes y_u)}
+  - {name: MC,      tex: "m_c",      mass_dim: 1, role: charm mass (fixes y_c)}
+  - {name: MD,      tex: "m_d",      mass_dim: 1, role: down mass (fixes y_d)}
+  - {name: MS,      tex: "m_s",      mass_dim: 1, role: strange mass (fixes y_s)}
+  - {name: ME,      tex: "m_e",      mass_dim: 1, role: electron mass (fixes y_e)}
+  - {name: MMU,     tex: "m_\\mu",   mass_dim: 1, role: muon mass (fixes y_mu)}
+  - {name: th12,    tex: "\\theta_{12}", mass_dim: 0, role: CKM mixing angle}
+  - {name: th13,    tex: "\\theta_{13}", mass_dim: 0, role: CKM mixing angle}
+  - {name: th23,    tex: "\\theta_{23}", mass_dim: 0, role: CKM mixing angle}
+  - {name: deltaCP, tex: "\\delta",      mass_dim: 0, role: CKM CP phase}
+benchmark:
+  description: >-
+    Inputs, not measurements. The electroweak block, MT, MB, MTA and the widths are
+    those of models/sm. MC, ME, MMU are the defaults of MadGraph 5 v3.7.2 models/sm/parameters.py.
+    MU, MD, MS are round placeholders (that MadGraph model has massless u, d, s).
+    The CKM inputs are the central values of PDG 2024 Eq. (12.28): s12, s13, s23 are
+    the sines of the angles (th_ij = asin s_ij) and deltaCP is the phase in radians.
+    feynlag's standard_ckm defaults (0.22500, 0.003675, 0.04182, 1.144) are overridden.
+  inputs:
+    gw: 0.65322889878251
+    g1: 0.3491928465111313
+    gs: 1.2177157847767197
+    v: 246.2184581018163
+    MH: 125.0
+    MU: 0.002
+    MC: 1.27
+    MT: 173.0
+    MD: 0.005
+    MS: 0.1
+    MB: 4.7
+    ME: 0.000511
+    MMU: 0.10566
+    MTA: 1.777
+    s12: 0.22501
+    s13: 0.003732
+    s23: 0.04183
+    deltaCP: 1.147
+    WZ: 2.4952
+    WW: 2.0850
+    WH: 0.00407
+    WT: 1.4915
+  placeholders: [MU, MD, MS]
+key_results:
+  - {statement: "anomaly-free and gauge invariant with three generations and a complex Y_d", test: "tests/test_l0_l1.py::test_validate_invariance_and_anomalies"}
+  - {statement: "M_u, M_e diagonal; M_d = V diag(m_d, m_s, m_b), diagonalised by d'_L = V d_L", test: "tests/test_l0_l1.py::test_fermion_masses"}
+  - {statement: "V = R23 U13(δ) R12 (PDG standard parametrization), V†V = 1", test: "tests/test_l2_literature.py::test_ckm_standard_parametrization_and_unitarity"}
+  - {statement: "W+ ū_i d_j = i (g/√2) V_ij γ^μ P_L, equal to feynlag's direct CKM insertion", test: "tests/test_l2_literature.py::test_charged_current_ckm"}
+  - {statement: "GIM derived: no tree-level Z, γ, h, G0 coupling between different down flavours", test: "tests/test_l2_literature.py::test_gim_no_tree_level_fcnc"}
+  - {statement: "J = Im(V_us V_cb V*_ub V*_cs) = c12 c23 c13² s12 s23 s13 sin δ", test: "tests/test_l2_literature.py::test_jarlskog_invariant"}
+maturity_level: 3
+maturity_evidence:
+  L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
+  L1: ["tests/test_l0_l1.py::test_tadpole_and_higgs_mass", "tests/test_l0_l1.py::test_gauge_masses",
+       "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_masses"]
+  L2: ["tests/test_l2_literature.py::test_ckm_standard_parametrization_and_unitarity",
+       "tests/test_l2_literature.py::test_charged_current_ckm",
+       "tests/test_l2_literature.py::test_gim_no_tree_level_fcnc",
+       "tests/test_l2_literature.py::test_jarlskog_invariant",
+       "tests/test_l2_literature.py::test_ckm_magnitudes_at_benchmark",
+       "tests/test_l2_literature.py::test_charge_and_hermiticity_pairing"]
+  L3: ["tests/test_l3_ufo.py::test_ufo_roundtrip"]
+  L4: []
+slow_evidence: []
+literature_checks:
+  - quantity: "CKM matrix in the standard parametrization"
+    ref: pdg2024_ckm
+    location: {equation: "(12.3)", section: "12.1", note: "first form (product of three rotations), built independently in the test"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-ckm-matrix, dated 31 May 2024)"
+    checked_on: 2026-09-17
+    test: "tests/test_l2_literature.py::test_ckm_standard_parametrization_and_unitarity"
+  - quantity: "charged-current W couplings to quarks with V_CKM"
+    ref: pdg2024_ckm
+    location: {equation: "(12.2)", note: "reproduced up to the global sign of g, see discrepancy D-1"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-ckm-matrix, dated 31 May 2024)"
+    checked_on: 2026-09-17
+    test: "tests/test_l2_literature.py::test_charged_current_ckm"
+  - quantity: "absence of tree-level down-type FCNCs from CKM unitarity"
+    ref: pdg2024_ckm
+    location: {section: "12.1", note: "unitarity relations sum_i V_ij V*_ik = delta_jk; the cancellation itself is derived in the test"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-ckm-matrix, dated 31 May 2024)"
+    checked_on: 2026-09-17
+    test: "tests/test_l2_literature.py::test_gim_no_tree_level_fcnc"
+  - quantity: "Jarlskog invariant: definition and fit value J = (3.12 +0.13 -0.12) x 10^-5"
+    ref: pdg2024_ckm
+    location: {section: "12.1 (definition); 12.5.1 text preceding Eq. (12.28) (value)", note: "closed form in the angles derived in the test, not quoted"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-ckm-matrix, dated 31 May 2024)"
+    checked_on: 2026-09-17
+    test: "tests/test_l2_literature.py::test_jarlskog_invariant"
+  - quantity: "|V_ij| from the benchmark angles against the global-fit magnitudes"
+    ref: pdg2024_ckm
+    location: {equation: "(12.27), (12.28)"}
+    source_version: "PDG 2024 review, revised April 2024 (PDF rpp2024-rev-ckm-matrix, dated 31 May 2024)"
+    checked_on: 2026-09-17
+    test: "tests/test_l2_literature.py::test_ckm_magnitudes_at_benchmark"
+discrepancies:
+  - id: D-1
+    quantity: "overall sign of the W charged current"
+    ref: pdg2024_ckm
+    location: {equation: "(12.2)"}
+    ours: "L ⊃ +(g/√2) ū_L γ^μ W+_μ V d_L + h.c. (feynlag D_μ = ∂_μ − i g T·A)"
+    theirs: "L ⊃ −(g/√2) ū_L γ^μ W+_μ V_CKM d_L + h.c."
+    status: convention
+    note: "The same g → −g covariant-derivative convention as models/sm discrepancy D-1. No observable depends on it; V_ij agree exactly."
+references:
+  - key: pdg2024_ckm
+    kind: review
+    authors: "Particle Data Group (S. Navas et al.); review by A. Ceccucci, Z. Ligeti, Y. Sakai"
+    title: "Review of Particle Physics — 12. CKM Quark-Mixing Matrix"
+    venue: "Phys. Rev. D 110 (2024) 030001"
+    year: 2024
+    arxiv: null
+    inspire: "2817040"
+    doi: "10.1103/PhysRevD.110.030001"
+    url: "https://pdg.lbl.gov/2024/reviews/rpp2024-rev-ckm-matrix.pdf"
+    verified_against: published
+    conventions_map:
+      - {theirs: "s_ij, c_ij, δ (Eq. 12.3)", ours: "sin(th_ij), cos(th_ij), deltaCP", note: "identical"}
+      - {theirs: "V_CKM = V_L^u V_L^d† (Eq. 12.2)", ours: "V_L^u = 1, d'_L = V d_L (V_L^d = V†)", note: "the up-diagonal weak basis"}
+      - {theirs: "Y^d (Eq. 12.1)", ours: "Y_d = V diag(y_d, y_s, y_b), V_R^d = 1", note: "identical up to the right-handed basis choice"}
+      - {theirs: "g in Eq. (12.2)", ours: "−gw", note: "global sign convention, discrepancy D-1"}
+  - key: madgraph_sm
+    kind: software
+    authors: "J. Alwall et al. (MadGraph5_aMC@NLO)"
+    title: "MadGraph5_aMC@NLO v3.7.2 release (local install), models/sm/parameters.py (default MC, Me, MM)"
+    url: "https://launchpad.net/mg5amcnlo"
+    verified_against: source_code
+  - key: feynlag_ckm
+    kind: software
+    authors: "M. Zeleny"
+    title: "feynlag flavor.standard_ckm and tests/test_ckm.py (the direct-insertion route)"
+    url: "https://github.com/moiseszeleny/feynlag"
+    commit: "fe2208c87e80119b85ea479fbd074c1f925b81e5"
+    verified_against: source_code
+feynlag_gaps:
+  - {id: FG-4, test: "tests/test_l0_l1.py::test_feynlag_fermion_mass_matrix_integer_flavour_gap"}
+outputs:
+  ufo: "outputs/SM_CKM_UFO"
+  ufo_scope:
+    gauge: unitary
+    vertex_classes: [FFS, FFV, SSS, SSSS, VVS, VVSS, VVV]
+    omitted:
+      - "VVVV: quartic gauge self-couplings in the rotated W/Z/photon basis"
+      - "gluon and QCD vertices (quarks carry Identity colour flow only)"
+      - "vertices with Goldstone legs (unitary gauge)"
+  latex: "outputs/vertices.tex"
+  spectrum: "outputs/spectrum.md"
+  stamp: "outputs/STAMP.json"
+last_reviewed: 2026-09-17
+reviewed_by: "Moises Zeleny (with Claude)"
