@@ -67,30 +67,3 @@ def only_failures(report, names):
     """
     failing = sorted(term.name for term, _check, _d in report.failures)
     return failing == sorted(names), failing
-
-
-def fermion_mass_block(L_fermionic, bar_base, field_base, vacuum, nflavors, gamma=None):
-    """Fermion mass matrix for a Lagrangian written with **integer** flavour indices.
-
-    Workaround for FEYNLAG_GAPS.md FG-4, kept outside feynlag: feynlag's
-    ``fermion_mass_matrix`` renames each term's indices to symbolic ``(i, j)``
-    with ``subs``, which for integer indices sums every flavour pair into every
-    entry and rewrites ordinary integers in the coefficients. Here each term is
-    read at its own ``(bar index, field index)``. As in feynlag, the Lagrangian
-    mass term is ``−ψ̄ M χ``, so ``M[a, b] = −coefficient``.
-    """
-    from feynlag import Bilinear, expand_bilinear
-    L0 = sp.expand(expand_bilinear(vacuum.at_vacuum(sp.expand(L_fermionic))))
-    M = sp.zeros(nflavors, nflavors)
-    for term in (L0.as_ordered_terms() if L0.is_Add else ([L0] if L0 != 0 else [])):
-        bils = list(term.atoms(Bilinear))
-        if len(bils) != 1:
-            continue
-        bil = bils[0]
-        if bil.bar.base != bar_base or bil.field.base != field_base:
-            continue
-        if gamma is not None and bil.gamma != gamma:
-            continue
-        a, b = (int(x.indices[0]) for x in (bil.bar, bil.field))
-        M[a, b] -= sp.cancel(term / bil)
-    return M

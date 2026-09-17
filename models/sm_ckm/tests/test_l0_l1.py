@@ -1,11 +1,10 @@
 """L0 (declared, invariant, anomaly-free) and L1 (tadpoles, spectrum, Goldstones)."""
 
-import pytest
 import sympy as sp
 
 from feynlag import diracPR, fermion_mass_matrix
-from feynlag_models.checks import (assert_dual_equal, fermion_mass_block,
-                                   massive_gauge_boson_count, zero_eigenvalue_count)
+from feynlag_models.checks import (assert_dual_equal, massive_gauge_boson_count,
+                                   zero_eigenvalue_count)
 
 
 def test_validate_invariance_and_anomalies(ckm):
@@ -64,11 +63,11 @@ def _mass_blocks(ckm):
 def test_fermion_masses(ckm):
     """Weak basis: M_u = diag(m_u, m_c, m_t), M_e = diag(m_e, m_μ, m_τ) and
     M_d = V diag(m_d, m_s, m_b); the left rotation V† M_d is diagonal with the
-    input masses (d'_L = V d_L, d_R unrotated). Masses read with the FG-4 workaround."""
-    vac, res = ckm.model.vacuum, ckm.params.resolve()
+    input masses (d'_L = V d_L, d_R unrotated)."""
+    vac, res, idx = ckm.model.vacuum, ckm.params.resolve(), ckm.pieces.idx
     V = ckm.extra["V_expr"]
     for name, (L, bar, fld, mnames) in _mass_blocks(ckm).items():
-        M = fermion_mass_block(L, bar, fld, vac, 3, gamma=diracPR).subs(res)
+        M = fermion_mass_matrix(L, bar, fld, vac, 3, idx, gamma=diracPR).subs(res)
         D = sp.diag(*(ckm.pieces.masses[n].s for n in mnames))
         if name == "down":
             for a in range(3):
@@ -81,15 +80,3 @@ def test_fermion_masses(ckm):
     for yn, mn in (("yu", "MU"), ("ys", "MS"), ("ymu", "MMU")):
         assert_dual_equal(ckm.params[yn].expr,
                           sp.sqrt(2) * ckm.pieces.masses[mn].s / ckm.pieces.ew.v.s, msg=yn)
-
-
-@pytest.mark.xfail(strict=True, reason="FG-4: fermion_mass_matrix mangles integer flavour indices")
-def test_feynlag_fermion_mass_matrix_integer_flavour_gap(ckm):
-    """feynlag's own ``fermion_mass_matrix`` on the diagonal up Yukawa should give
-    diag(m_u, m_c, m_t); at the pinned commit it does not (FEYNLAG_GAPS.md FG-4)."""
-    L, bar, fld, mnames = _mass_blocks(ckm)["up"]
-    i, j = ckm.pieces.idx
-    M = fermion_mass_matrix(L, bar, fld, ckm.model.vacuum, 3, (i, j), gamma=diracPR)
-    M = M.subs(ckm.params.resolve())
-    D = sp.diag(*(ckm.pieces.masses[n].s for n in mnames))
-    assert sp.simplify(M - D) == sp.zeros(3, 3)
