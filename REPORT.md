@@ -10,6 +10,7 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 | `sm` | **L3** | 10 tests | UFO round-trip with $t$, $b$, $\tau$, $\nu$ and the EW bosons; L4 not re-claimed (feynlag's own MadGraph benchmark covers EW+leptons) |
 | `sm_singlet_z2` | **L3** | 13 passed | Robens–Stefaniak Eqs. (7)–(13) reproduced ($\alpha = -\theta$, regime $\lambda_S v_S^2 \gt \lambda v^2$); gaps FG-1, FG-2 resolved |
 | `seesaw_type1` | **L2** | 10 tests | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
+| `sm_ckm` (added 2026-09-17) | **L3** | 12 passed + 1 strict xfail (FG-4) | three generations, CKM through a unitary $d_L$ rotation; PDG 2024 CKM review Eqs. (12.2), (12.3), (12.27), (12.28) and $J$; GIM derived |
 | `thdm_type2` | **L3** | 14 passed + 1 strict xfail | GH Eqs. (6)–(17), Branco Eq. (16)/Table 2; benchmark inverted from (125, 300, 300, 320) GeV re-derived exactly by feynlag |
 
 Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the schema v2 section for the current count. `scripts/build_outputs.py --check` and
@@ -40,7 +41,7 @@ Categories:
    feynlag's own pinned tests.
 5. PDG code convention for the heavy neutrino (`9900012`).
 
-## FEYNLAG_GAPS.md (three entries, two resolved)
+## FEYNLAG_GAPS.md (four entries, two resolved)
 
 - **FG-1** (resolved, feynlag PR #19) `Model.mass_matrix` double-shifted a real VEV'd scalar
   (`Scalar(real=True)` + `expand_vev`), evaluating every block at `S = 2v_S`. The workaround
@@ -48,10 +49,12 @@ Categories:
 - **FG-2** (resolved, feynlag PR #19) `check_discrete_invariance` false-failed on `Dmu`-built kinetic
   terms. `sm_singlet_z2` now validates with its `Z2` declared; `thdm_type2` checks `Z2` on every term.
 - **FG-3** No UFO export for Majorana fermions, so `seesaw_type1` stops at L2.
+- **FG-4** (open, found by `sm_ckm`) `fermion_mass_matrix` and `majorana_mass_matrix` mangle integer flavour
+  indices. `sm_ckm` reads its mass matrices with `feynlag_models.checks.fermion_mass_block` and pins the gap with a strict xfail.
 
 Additional limitations recorded in the cards (not gaps stopping an item): unitary-gauge UFO only;
 quartic gauge self-couplings in the rotated basis and gluon vertices are not exported; widths of new
-scalars are placeholder inputs; one generation, no CKM.
+scalars are placeholder inputs; every model except `sm_ckm` has one generation and no CKM.
 
 ## Schema changes — implemented as schema version 2 (2026-09-16)
 
@@ -104,6 +107,14 @@ notation Branco's Eq. (16) follows.
   formulas; whether the published version still has them is unknown.
 
 Lesson recorded: read the bracket structure in `pdftotext -layout` output before declaring a sign discrepancy.
+
+## `sm_ckm` (2026-09-17)
+
+- `sm.pieces(generations=3)`, `yukawa_terms` with matrix couplings, `dirac_specs` for twelve fermions and a
+  flavour-aware `DiracSpec.flavor` are shared code; the four existing models' outputs are byte-identical.
+- The benchmark CKM angles are PDG 2024 Eq. (12.28) central values, not feynlag's `standard_ckm` defaults
+  (0.22500, 0.003675, 0.04182, 1.144), whose PDG edition is `TODO(verify)`.
+- $m_u$, $m_d$, $m_s$ are `benchmark.placeholders`; $m_c$, $m_e$, $m_\mu$ are the MadGraph v3.7.2 `sm` defaults.
 
 ## What to do next
 

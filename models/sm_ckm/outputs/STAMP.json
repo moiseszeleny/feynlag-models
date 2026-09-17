@@ -1,0 +1,12 @@
+{
+  "model": "sm_ckm",
+  "generated": "2026-09-17T07:32:53+00:00",
+  "feynlag_models_version": "0.1.0",
+  "repo_commit": "7cc236156d127411d768e9d00f7b3be152096523",
+  "repo_dirty": true,
+  "feynlag_version": "0.1.0",
+  "feynlag_commit": "fe2208c87e80119b85ea479fbd074c1f925b81e5",
+  "sympy_version": "1.14.0",
+  "python": "3.13.2",
+  "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39"
+}

@@ -66,7 +66,7 @@ key_results:
   - {statement: "W+ ū_i d_j = i (g/√2) V_ij γ^μ P_L, equal to feynlag's direct CKM insertion", test: "tests/test_l2_literature.py::test_charged_current_ckm"}
   - {statement: "GIM derived: no tree-level Z, γ, h, G0 coupling between different down flavours", test: "tests/test_l2_literature.py::test_gim_no_tree_level_fcnc"}
   - {statement: "J = Im(V_us V_cb V*_ub V*_cs) = c12 c23 c13² s12 s23 s13 sin δ", test: "tests/test_l2_literature.py::test_jarlskog_invariant"}
-maturity_level: 2
+maturity_level: 3
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
   L1: ["tests/test_l0_l1.py::test_tadpole_and_higgs_mass", "tests/test_l0_l1.py::test_gauge_masses",
@@ -77,7 +77,7 @@ maturity_evidence:
        "tests/test_l2_literature.py::test_jarlskog_invariant",
        "tests/test_l2_literature.py::test_ckm_magnitudes_at_benchmark",
        "tests/test_l2_literature.py::test_charge_and_hermiticity_pairing"]
-  L3: []
+  L3: ["tests/test_l3_ufo.py::test_ufo_roundtrip"]
   L4: []
 slow_evidence: []
 literature_checks:
@@ -153,7 +153,14 @@ references:
 feynlag_gaps:
   - {id: FG-4, test: "tests/test_l0_l1.py::test_feynlag_fermion_mass_matrix_integer_flavour_gap"}
 outputs:
-  ufo: null
+  ufo: "outputs/SM_CKM_UFO"
+  ufo_scope:
+    gauge: unitary
+    vertex_classes: [FFS, FFV, SSS, SSSS, VVS, VVSS, VVV]
+    omitted:
+      - "VVVV: quartic gauge self-couplings in the rotated W/Z/photon basis"
+      - "gluon and QCD vertices (quarks carry Identity colour flow only)"
+      - "vertices with Goldstone legs (unitary gauge)"
   latex: "outputs/vertices.tex"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
