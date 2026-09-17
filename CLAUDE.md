@@ -48,7 +48,9 @@ Physics Codebases article, so **verification is the differentiator**.
 - `models/<id>/README.md` (physics card) has the fixed sections listed in
   `templates/new_model/README.md`; `NEXT_STEPS.md` likewise.
 - `models/<id>/outputs/` is generated only by `scripts/build_outputs.py`
-  (stamped with the repo git hash and library versions). Never hand-edit.
+  (stamped with the repo git hash and library versions). Never hand-edit. The
+  `--check` mode ignores exactly two volatile items: `STAMP.json` and the
+  `__date__` line feynlag writes into the UFO `__init__.py`.
 - `scripts/build_genealogy.py` derives the family tree from `parents` alone.
 - `templates/new_model/` is the skeleton for future models.
 

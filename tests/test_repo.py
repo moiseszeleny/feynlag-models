@@ -50,3 +50,20 @@ def test_next_steps_sections():
         text = (d / "NEXT_STEPS.md").read_text()
         for sec in required:
             assert sec in text, f"{d.name}/NEXT_STEPS.md lacks section {sec!r}"
+
+
+def test_outputs_check_ignores_ufo_date(tmp_path):
+    """The reproducibility check must tolerate the UFO ``__date__`` stamp and nothing else."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("build_outputs", ROOT / "scripts" / "build_outputs.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    src = ROOT / "models" / "sm" / "outputs" / "SM_UFO" / "__init__.py"
+    text = src.read_text()
+    assert '__date__ = "' in text
+    other_day = tmp_path / "a.py"
+    other_day.write_text(text.replace('__date__ = "2026-09-16"', '__date__ = "2031-01-01"'))
+    assert mod._same_modulo_volatile(src, other_day)
+    changed = tmp_path / "b.py"
+    changed.write_text(text.replace("gauge = [0]", "gauge = [1]"))
+    assert not mod._same_modulo_volatile(src, changed)

@@ -3,12 +3,15 @@
 Each ``models/<id>/model.py`` may define ``outputs(bundle, out_dir)`` returning
 a dict ``{relative_path: description}`` of what it wrote; this script wraps it
 with the provenance stamp. ``--check`` regenerates into a temporary directory
-and diffs against the committed files (ignoring ``STAMP.json``).
+and diffs against the committed files, ignoring the two volatile provenance
+items: ``STAMP.json`` and the ``__date__`` line feynlag's UFO writer stamps into
+the UFO ``__init__.py`` (``feynlag/export/ufo/writer.py``, ``datetime.date.today()``).
 
 Run:  uv run python scripts/build_outputs.py [--check] [<id> ...]
 """
 
 import filecmp
+import re
 import shutil
 import sys
 import tempfile
@@ -21,6 +24,18 @@ from feynlag_models.registry import load, model_ids  # noqa: E402
 from feynlag_models.stamp import write_stamp  # noqa: E402
 
 IGNORE = {"STAMP.json", "__pycache__"}
+#: lines that legitimately change between regenerations (UFO ``__date__`` stamp)
+VOLATILE_LINE = re.compile(r'^__date__ = "\d{4}-\d{2}-\d{2}"$')
+
+
+def _same_modulo_volatile(path_a, path_b):
+    """True if two text files differ only in volatile provenance lines."""
+    try:
+        lines = [[ln for ln in Path(p).read_text().splitlines() if not VOLATILE_LINE.match(ln)]
+                 for p in (path_a, path_b)]
+    except (UnicodeDecodeError, OSError):
+        return False
+    return lines[0] == lines[1]
 
 
 def build_one(model_id, out_dir):
@@ -37,7 +52,9 @@ def build_one(model_id, out_dir):
 
 def _diff_dirs(a, b):
     cmp = filecmp.dircmp(a, b, ignore=list(IGNORE))
-    diffs = list(cmp.left_only) + list(cmp.right_only) + list(cmp.diff_files)
+    diffs = list(cmp.left_only) + list(cmp.right_only)
+    diffs += [f for f in cmp.diff_files
+              if not _same_modulo_volatile(Path(a) / f, Path(b) / f)]
     for sub in cmp.subdirs.values():
         diffs += [f"{sub.left}: {d}" for d in _diff_dirs(sub.left, sub.right)]
     return diffs
