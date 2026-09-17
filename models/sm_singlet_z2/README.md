@@ -39,18 +39,18 @@ $\lambda_3 \to \lambda_{HS}$, $x \to v_S$, and their $S = (h^0 + x)/\sqrt2$.
 - The CP-even block from `Model.mass_matrix` equals Robens–Stefaniak Eq. (7)
   **[feynlag-verified: `test_mass_matrix_eq7`]**:
 
-  ```math
-  M^2 = \begin{pmatrix} 2\lambda v^2 & \lambda_{HS} v v_S \\ \lambda_{HS} v v_S & 2\lambda_S v_S^2 \end{pmatrix}.
-  ```
+```math
+M^2 = \begin{pmatrix} 2\lambda v^2 & \lambda_{HS} v v_S \\ \lambda_{HS} v v_S & 2\lambda_S v_S^2 \end{pmatrix}.
+```
 
 - Mixing angle and eigenvalues (Eqs. 8–12, with $\alpha = -\theta$), valid in the benchmark regime
-  $`\lambda_S v_S^2 > \lambda v^2`$
+  $`\lambda_S v_S^2 \gt \lambda v^2`$
   **[feynlag-verified: `test_mixing_angle_eq11_eq12`, `test_mass_eigenvalues_eq8_eq9`]**:
 
-  ```math
-  \tan 2\theta = \frac{\lambda_{HS} v v_S}{\lambda v^2 - \lambda_S v_S^2},\qquad
-  m_{1,2}^2 = \lambda v^2 + \lambda_S v_S^2 \mp \sqrt{(\lambda v^2 - \lambda_S v_S^2)^2 + (\lambda_{HS} v v_S)^2}.
-  ```
+```math
+\tan 2\theta = \frac{\lambda_{HS} v v_S}{\lambda v^2 - \lambda_S v_S^2},\qquad
+m_{1,2}^2 = \lambda v^2 + \lambda_S v_S^2 \mp \sqrt{(\lambda v^2 - \lambda_S v_S^2)^2 + (\lambda_{HS} v v_S)^2}.
+```
 
 - Universal rescaling: $h_1 XX = \cos\theta \times \text{SM}$ and $h_2 XX = -\sin\theta \times \text{SM}$
   for $X = W, Z, t, b, \tau$, with the sum rule $`g_{h_1VV}^2 + g_{h_2VV}^2 = g_{hVV,\text{SM}}^2`$
@@ -68,7 +68,7 @@ The benchmark is an input point, not a fit. [physics judgment]
 
 ## Observables that test it
 Higgs signal strengths ($\mu = \cos^2\theta$ for all channels), direct searches for
-$h_2 \to WW, ZZ, hh, t\bar t$, the $W$ mass at NLO, and, for $`m_{h_2} > 2 m_{h_1}`$,
+$h_2 \to WW, ZZ, hh, t\bar t$, the $W$ mass at NLO, and, for $`m_{h_2} \gt 2 m_{h_1}`$,
 $`\text{BR}(h_2 \to h_1 h_1)`$. See `NEXT_STEPS.md` for the current allowed
 $\lvert\sin\alpha\rvert$ ranges from Robens–Stefaniak Table II. [physics judgment]
 

@@ -4,12 +4,12 @@
 - `seesaw_type1_3gen`: three $\nu_R$, Casas–Ibarra parametrisation (Nucl. Phys. B 618 (2001) 171, arXiv:hep-ph/0103065), numeric Takagi factorisation of the $6\times6$ block.
 - `inverse_seesaw`: add a singlet $S_L$ with a small $`\mu\, S_L^T C S_L`$ term, so $V$ is unsuppressed at a TeV-scale $M$.
 - `seesaw_type2` (scalar triplet, $Y = 1$) and `seesaw_type3` (fermion triplet, $Y = 0$): different `feynlag` reps, same Takagi machinery.
-- Singlet-scalar origin of $M_R$ (a $y_N S\,\nu_R^T C\nu_R$ term): the child of `sm_singlet_z2` and this model (a Majoron if $U(1)_L$ is global).
+- Singlet-scalar origin of $M_R$ (a $`y_N S\,\nu_R^T C\nu_R`$ term): the child of `sm_singlet_z2` and this model (a Majoron if $U(1)_L$ is global).
 
 ## 2. Observables and current bounds
 | observable | value / bound | source | checked on |
 |---|---|---|---|
-| $\lvert V_{\mu 4}\rvert^2$ for a 33.9 MeV neutral fermion (historical anomaly follow-up) | $< 9.2\times10^{-8}$ at 95% C.L. | Atre et al. arXiv:0901.3589v2, footnote 1 of Sec. 2.2 (their Ref. [63]) | 2026-09-16 |
+| $\lvert V_{\mu 4}\rvert^2$ for a 33.9 MeV neutral fermion (historical anomaly follow-up) | $\lt 9.2\times10^{-8}$ at 95% C.L. | Atre et al. arXiv:0901.3589v2, footnote 1 of Sec. 2.2 (their Ref. [63]) | 2026-09-16 |
 | $\lvert V_{\ell N}\rvert^2$ against $m_N$ for $1 \lesssim m_N \lesssim 100$ GeV (LHC, LEP, beam dumps) | TODO(verify) — use the current compilation (e.g. Bolton–Deppisch–Dev, arXiv:1912.03058) | ATLAS, CMS, LHCb, NA62, Belle | TODO(verify) |
 | $0\nu\beta\beta$ half-life ($m_{\beta\beta}$) | TODO(verify) — KamLAND-Zen / GERDA / LEGEND | | TODO(verify) |
 | sum of light neutrino masses | TODO(verify) — Planck + BAO | | TODO(verify) |

@@ -32,8 +32,8 @@ The potential is Branco et al. Eq. (2), equivalently Gunion–Haber Eq. (1) with
 ```math
 \begin{aligned}
 V ={}& m_{11}^2 H_1^\dagger H_1 + m_{22}^2 H_2^\dagger H_2 - m_{12}^2\left(H_1^\dagger H_2 + \text{h.c.}\right)
-      + \tfrac12\lambda_1 (H_1^\dagger H_1)^2 + \tfrac12\lambda_2 (H_2^\dagger H_2)^2 \\
-    & + \lambda_3 (H_1^\dagger H_1)(H_2^\dagger H_2) + \lambda_4 \lvert H_1^\dagger H_2\rvert^2
+      + \tfrac12\lambda_1 (H_1^\dagger H_1)^2 + \tfrac12\lambda_2 (H_2^\dagger H_2)^2
+    \\ & + \lambda_3 (H_1^\dagger H_1)(H_2^\dagger H_2) + \lambda_4 \lvert H_1^\dagger H_2\rvert^2
       + \tfrac12\lambda_5\left[(H_1^\dagger H_2)^2 + \text{h.c.}\right].
 \end{aligned}
 ```
@@ -54,35 +54,35 @@ y_b = \frac{\sqrt2 m_b}{v_1},\quad y_\tau = \frac{\sqrt2 m_\tau}{v_1},\quad y_t 
 - Mass blocks: the CP-even block equals Branco Eq. (7) and GH Eqs. (12)–(13). The CP-odd and charged blocks
   are proportional to the same matrix, with one Goldstone each **[feynlag-verified: `test_mass_blocks`]**:
 
-  ```math
-  M^2_{\text{odd}},\ M^2_{\pm} \propto \begin{pmatrix} v_2^2 & -v_1 v_2 \\ -v_1 v_2 & v_1^2 \end{pmatrix},\qquad
-  m_A^2 = \frac{m_{12}^2}{s_\beta c_\beta} - \lambda_5 v^2,\qquad
-  m_{H^\pm}^2 = m_A^2 + \tfrac12 v^2(\lambda_5 - \lambda_4)
-  ```
+```math
+M^2_{\text{odd}},\ M^2_{\pm} \propto \begin{pmatrix} v_2^2 & -v_1 v_2 \\ -v_1 v_2 & v_1^2 \end{pmatrix},\qquad
+m_A^2 = \frac{m_{12}^2}{s_\beta c_\beta} - \lambda_5 v^2,\qquad
+m_{H^\pm}^2 = m_A^2 + \tfrac12 v^2(\lambda_5 - \lambda_4)
+```
 
-  (GH Eqs. 10–11) **[feynlag-verified: `test_mA_mHp_gunion_haber_eq10_eq11`]**. The same values follow
-  from Branco's potential with plain SymPy, without feynlag
-  **[verified: `test_mA_mHp_independent_of_feynlag`]**. Branco et al.'s printed formulas (arXiv v1–v3)
-  have $-2\lambda_5$ and $-\lambda_4 - \lambda_5$ instead, which is inconsistent with their own potential
-  (discrepancy D-2, open, strict xfail `test_mA_mHp_branco_arxiv_text_eq5_6`; the published text was not
-  accessible).
+(GH Eqs. 10–11) **[feynlag-verified: `test_mA_mHp_gunion_haber_eq10_eq11`]**. The same values follow
+from Branco's potential with plain SymPy, without feynlag
+**[verified: `test_mA_mHp_independent_of_feynlag`]**. Branco et al.'s printed formulas (arXiv v1–v3)
+have $-2\lambda_5$ and $-\lambda_4 - \lambda_5$ instead, which is inconsistent with their own potential
+(discrepancy D-2, open, strict xfail `test_mA_mHp_branco_arxiv_text_eq5_6`; the published text was not
+accessible).
 - The rotations $`(H, h) = R(\alpha)(\rho_1, \rho_2)`$, $`(G^0, A) = R(\beta)(\eta_1, \eta_2)`$ and
   $`(G^+, H^+) = R(\beta)(H_1^+, H_2^+)`$ diagonalise the three blocks, leaving three Goldstones for
   $W^\pm$ and $Z$
   **[feynlag-verified: `test_spectrum_and_rotations_at_benchmark`, `test_goldstone_count_and_gauge_masses`]**.
-  feynlag's $`\alpha = \tfrac12\arctan\big(2M_{12}/(M_{11} - M_{22})\big)`$ has $\cos 2\alpha > 0$, so the
-  label $H$ is the heavier state only when $M_{11} > M_{22}$. That holds at the benchmark; GH Eq. (17)
+  feynlag's $`\alpha = \tfrac12\arctan\big(2M_{12}/(M_{11} - M_{22})\big)`$ has $\cos 2\alpha \gt 0$, so the
+  label $H$ is the heavier state only when $M_{11} \gt M_{22}$. That holds at the benchmark; GH Eq. (17)
   chooses the branch with $m_H \ge m_h$ instead. [physics judgment on conventions]
 - $hVV = \text{SM} \times \sin(\beta - \alpha)$, $HVV = \text{SM} \times \cos(\beta - \alpha)$, and there is
   no $AVV$ vertex **[feynlag-verified: `tests/test_l2_literature.py::test_hVV_HVV_sin_cos_beta_minus_alpha`]**
 - Type-II Yukawa factors (Branco Table 2), with the $\bar f\gamma_5 f$ chiral structure for $A$
   **[feynlag-verified: `test_neutral_yukawa_xi_factors_table2`]**:
 
-  ```math
-  \xi_h^u = \frac{c_\alpha}{s_\beta},\quad \xi_h^{d,\ell} = -\frac{s_\alpha}{c_\beta},\quad
-  \xi_H^u = \frac{s_\alpha}{s_\beta},\quad \xi_H^{d,\ell} = \frac{c_\alpha}{c_\beta},\quad
-  \xi_A^u = \cot\beta,\quad \xi_A^{d,\ell} = \tan\beta .
-  ```
+```math
+\xi_h^u = \frac{c_\alpha}{s_\beta},\quad \xi_h^{d,\ell} = -\frac{s_\alpha}{c_\beta},\quad
+\xi_H^u = \frac{s_\alpha}{s_\beta},\quad \xi_H^{d,\ell} = \frac{c_\alpha}{c_\beta},\quad
+\xi_A^u = \cot\beta,\quad \xi_A^{d,\ell} = \tan\beta .
+```
 
 - Charged Higgs: $`\lvert H^+\bar t b\rvert = (\sqrt2/v)(m_t\cot\beta\,P_L + m_b\tan\beta\,P_R)`$, with the
   same sign for both chiralities as in Branco Eq. (16), and

@@ -19,7 +19,7 @@ Anomaly cancellation is untouched (a total singlet) **[feynlag-verified: `tests/
 
 ## New symmetry and breaking
 No new symmetry is imposed. The SM's accidental lepton number $U(1)_L$ is **explicitly broken** by
-two units by the Majorana mass $-\tfrac12 M_R\,\nu_R^T C\nu_R + \text{h.c.}$; the physical neutrinos
+two units by the Majorana mass $`-\tfrac12 M_R\,\nu_R^T C\nu_R + \text{h.c.}`$; the physical neutrinos
 are Majorana. [physics judgment]
 
 ## New Lagrangian terms
@@ -34,9 +34,9 @@ are Majorana. [physics judgment]
   $n = (\nu_L, \nu_R^c)$ the mass matrix is symmetric
   **[feynlag-verified: `test_mass_matrix_entries`]**:
 
-  ```math
-  M_\nu = \begin{pmatrix} 0 & m_D \\ m_D & M_R \end{pmatrix}.
-  ```
+```math
+M_\nu = \begin{pmatrix} 0 & m_D \\ m_D & M_R \end{pmatrix}.
+```
 
 - Takagi factorisation $M_\nu = U D U^T$ at the benchmark: $U D U^T$ reconstructs $M_\nu$, with one
   light and one heavy state, and the closed-form singular values
@@ -45,20 +45,20 @@ are Majorana. [physics judgment]
 - Seesaw formula, as a symbolic series
   **[feynlag-verified: `tests/test_l2_literature.py::test_seesaw_formula_vs_exact_eigenvalue`]**:
 
-  ```math
-  m_\nu^{\text{exact}} = \frac{m_D^2}{M_R}\left(1 - \frac{m_D^2}{M_R^2} + \dots\right).
-  ```
+```math
+m_\nu^{\text{exact}} = \frac{m_D^2}{M_R}\left(1 - \frac{m_D^2}{M_R^2} + \dots\right).
+```
 
 - Physical couplings come through `MajoranaRotation`, which substitutes
   $\nu_L \to U^*\chi_L$ and $\nu_R \to U\chi_R$. They match Atre–Han–Pascoli–Zhang Eq. (2.5): full
   strength for the light state and a factor $V$ for $N$
   **[feynlag-verified: `test_W_coupling_eq_2_5`, `test_Z_coupling_eq_2_5`, `test_h_nu_N_coupling`]**:
 
-  ```math
-  W^-\bar e\chi_k = \frac{g}{\sqrt2}\,U_{\nu_L k},\qquad
-  Z\bar\chi_k\chi_{k'} = \frac{g_Z}{2}\,U_{\nu_L k}U_{\nu_L k'},\qquad
-  h\bar\chi_k\chi_{k'} = \frac{y_\nu}{\sqrt2}\,U_{\nu_L k}U_{\nu_R k'} .
-  ```
+```math
+W^-\bar e\chi_k = \frac{g}{\sqrt2}\,U_{\nu_L k},\qquad
+Z\bar\chi_k\chi_{k'} = \frac{g_Z}{2}\,U_{\nu_L k}U_{\nu_L k'},\qquad
+h\bar\chi_k\chi_{k'} = \frac{y_\nu}{\sqrt2}\,U_{\nu_L k}U_{\nu_R k'} .
+```
 
 - Decoupling: $`V = m_D/\sqrt{m_D^2 + m_N^2} \to 0`$ as $M_R \to \infty$, with
   $`V = m_D/M_R + \mathcal O(m_D^3/M_R^3)`$ **[feynlag-verified: `test_decoupling_M_R_to_infinity`]**

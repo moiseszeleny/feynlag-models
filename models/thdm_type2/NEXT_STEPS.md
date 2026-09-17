@@ -16,7 +16,7 @@
 | $\cos(\beta - \alpha)$ against $\tan\beta$ from Higgs signal strengths (type II) | TODO(verify) — ATLAS/CMS combined coupling fits interpreted in the 2HDM | ATLAS, CMS | TODO(verify) |
 | direct limits on $H^+ \to tb$ and $H^+ \to \tau\nu$ | TODO(verify) | ATLAS, CMS | TODO(verify) |
 | electroweak $T$ parameter constraint on $m_A - m_{H^\pm}$ | TODO(verify) — Gfitter / PDG EW review | | TODO(verify) |
-| theory: perturbative unitarity, boundedness from below (GH Eq. 4: $`\lambda_3 + \lambda_4 - \lvert\lambda_5\rvert > -\sqrt{\lambda_1\lambda_2}`$, $`\lambda_1, \lambda_2 > 0`$) | inequalities on the $\lambda_i$; not yet implemented as tests | Gunion–Haber Eq. (4) (checked 2026-09-16) | 2026-09-16 |
+| theory: perturbative unitarity, boundedness from below (GH Eq. 4: $`\lambda_3 + \lambda_4 - \lvert\lambda_5\rvert \gt -\sqrt{\lambda_1\lambda_2}`$, $`\lambda_1, \lambda_2 \gt 0`$) | inequalities on the $\lambda_i$; not yet implemented as tests | Gunion–Haber Eq. (4) (checked 2026-09-16) | 2026-09-16 |
 
 ## 3. Open theoretical questions
 - Whether the $\lambda_i$ basis or the physical basis ($`m_h, m_H, m_A, m_{H^\pm}, \tan\beta, \cos(\beta - \alpha), m_{12}^2`$) should be the UFO inputs (this pilot uses the $\lambda_i$; the physical-basis point is `benchmark.derived_from` in `metadata.yaml`).

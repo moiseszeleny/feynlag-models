@@ -36,6 +36,8 @@ def _math(expr, symbol_names):
     """Inline Markdown math for a table cell (a bare ``|`` would split the cell)."""
     tex = sp.latex(expr, symbol_names=symbol_names)
     tex = tex.replace(r"\left|", r"\left\vert ").replace(r"\right|", r"\right\vert ")
+    # GitHub double-escapes < and > inside math (CONVENTIONS.md, "Markdown")
+    tex = tex.replace("<", r" \lt ").replace(">", r" \gt ")
     return f"$`{tex}`$"
 
 

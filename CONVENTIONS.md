@@ -5,21 +5,33 @@ tests); this file fixes what the model library adds. A model that departs from
 any item must state the map in its card.
 
 ## Markdown
-- Physics is written in LaTeX: dollar-delimited inline math, and fenced code blocks
-  with the language `math` for long expressions. Code (file paths, test ids, Python and parameter identifiers,
-  commands, metadata keys) stays in backticks. When prose names a code object and
-  its physics, give both, e.g. `lamHS` ($\lambda_{HS}$).
-- Inside table cells write $\vert$ as `\vert`, never a bare `|`.
-- Keep a space or ordinary punctuation next to each inline formula; two formulas joined by a
-  dash do not render, so write a range as an inequality (`140 \le m_H \le 180`) or in words. A formula with
-  several subscripts uses the backtick-delimited form (dollar, backtick, formula, backtick,
-  dollar), which stops GitHub from reading the underscores as italics.
-- Math does not render inside `*italics*`; put a title that contains a formula in quotes instead.
-- `tests/test_markdown_math.py` rejects formula Unicode (Greek letters,
-  superscripts, $\sqrt{}$, $\dagger$, …) outside math, including inside code spans.
+Physics is written in LaTeX; code (file paths, test ids, Python and parameter identifiers,
+commands, metadata keys) stays in backticks. When prose names a code object and its physics,
+give both, e.g. `lamHS` ($\lambda_{HS}$). GitHub's Markdown pipeline mangles some TeX before
+MathJax sees it, so these rules are enforced by `tests/test_markdown_math.py`:
+
+- **Inline math** is `$…$`. Use the backtick-delimited form (dollar, backtick, formula,
+  backtick, dollar) when the formula contains a backslash followed by punctuation (`\,`, `\{`,
+  `\}`, `\;`, …; Markdown deletes the backslash) or several subscripts (GitHub may read the
+  underscores as italics).
+- **No `<` or `>` inside math**: GitHub double-escapes them. Write `\lt` and `\gt`
+  (`\le`, `\ge` are fine).
+- **Display math** is a fenced block with the language `math`, **at top level, never
+  indented**; inside a list item it renders as a code block. End the list item with its text,
+  put the block after it, and continue with ordinary text or a new item. Do not end a line of
+  the block with a double backslash (Markdown reads it as a hard line break); start the next
+  row on the same line instead (`… \\ & + …`).
+- In table cells write $\vert$ as `\vert` or `\lvert…\rvert`, never a bare `|`.
+- Keep a space or ordinary punctuation next to each inline formula. Two formulas joined by a
+  dash or preceded by a quote mark do not render: write ranges as inequalities
+  (`140 \le m_H \le 180`) or in words.
+- Math does not render inside `*italics*`; put a title that contains a formula in quotes and
+  use the backtick form.
+- No formula Unicode (Greek letters, superscripts, $\sqrt{}$, $\dagger$, …) outside math,
+  including inside code spans.
 
 ## Metric, Dirac algebra, covariant derivative
-- Metric $(+,-,-,-)$; $\{\gamma^\mu,\gamma^\nu\} = 2g^{\mu\nu}$; $\gamma_5 = i\gamma^0\gamma^1\gamma^2\gamma^3$;
+- Metric $(+,-,-,-)$; $`\{\gamma^\mu,\gamma^\nu\} = 2g^{\mu\nu}`$; $\gamma_5 = i\gamma^0\gamma^1\gamma^2\gamma^3$;
   $P_L = (1-\gamma_5)/2$, $P_R = (1+\gamma_5)/2$; $C = i\gamma^2\gamma^0$.
 - $D_\mu = \partial_\mu - i g T^a A^a_\mu$ for every gauge factor.
 - Kinetic terms $+(D_\mu\phi)^\dagger(D^\mu\phi)$, $+i\bar\psi\gamma^\mu D_\mu\psi$,
@@ -28,13 +40,13 @@ any item must state the map in its card.
 ## Scalar potentials (the Lagrangian stores $-V$ in sector `potential`)
 - **SM**:
 
-  ```math
-  V = -\mu^2 H^\dagger H + \lambda (H^\dagger H)^2,\qquad
-  H = \begin{pmatrix} G^+ \\ (v + h + i G^0)/\sqrt2 \end{pmatrix},
-  ```
+```math
+V = -\mu^2 H^\dagger H + \lambda (H^\dagger H)^2,\qquad
+H = \begin{pmatrix} G^+ \\ (v + h + i G^0)/\sqrt2 \end{pmatrix},
+```
 
-  tadpole $\mu^2 = \lambda v^2$; $m_h^2 = 2\lambda v^2$; $m_W = g v/2$,
-  $m_Z = \sqrt{g^2 + g'^2}\,v/2$.
+tadpole $\mu^2 = \lambda v^2$; $m_h^2 = 2\lambda v^2$; $m_W = g v/2$,
+$`m_Z = \sqrt{g^2 + g'^2}\,v/2`$.
 - **Real singlet ($Z_2$)**:
   $V \supset \tfrac12\mu_S^2 S^2 + \tfrac14\lambda_S S^4 + \tfrac12\lambda_{HS}(H^\dagger H)S^2$,
   with $S \to v_S + s$ (no $1/\sqrt2$ for a real field). The CP-even block is in the basis
@@ -43,20 +55,20 @@ any item must state the map in its card.
 - **2HDM (CP-conserving, softly broken $Z_2$)**, in the Gunion–Haber / Branco et al. form, all
   parameters real:
 
-  ```math
-  \begin{aligned}
-  V ={}& m_{11}^2 H_1^\dagger H_1 + m_{22}^2 H_2^\dagger H_2
-        - m_{12}^2\left(H_1^\dagger H_2 + \text{h.c.}\right)
-        + \tfrac12\lambda_1 (H_1^\dagger H_1)^2 + \tfrac12\lambda_2 (H_2^\dagger H_2)^2 \\
-      & + \lambda_3 (H_1^\dagger H_1)(H_2^\dagger H_2) + \lambda_4 \lvert H_1^\dagger H_2\rvert^2
-        + \tfrac12\lambda_5\left[(H_1^\dagger H_2)^2 + \text{h.c.}\right],
-  \end{aligned}
-  ```
+```math
+\begin{aligned}
+V ={}& m_{11}^2 H_1^\dagger H_1 + m_{22}^2 H_2^\dagger H_2
+      - m_{12}^2\left(H_1^\dagger H_2 + \text{h.c.}\right)
+      + \tfrac12\lambda_1 (H_1^\dagger H_1)^2 + \tfrac12\lambda_2 (H_2^\dagger H_2)^2
+    \\ & + \lambda_3 (H_1^\dagger H_1)(H_2^\dagger H_2) + \lambda_4 \lvert H_1^\dagger H_2\rvert^2
+      + \tfrac12\lambda_5\left[(H_1^\dagger H_2)^2 + \text{h.c.}\right],
+\end{aligned}
+```
 
-  $H_i = \big(H_i^+,\ (v_i + \rho_i + i\eta_i)/\sqrt2\big)$, $\tan\beta = v_2/v_1$,
-  $v^2 = v_1^2 + v_2^2 \approx (246\ \text{GeV})^2$.
-  $Z_2$: $H_2 \to -H_2$, and the only $Z_2$-odd term is the $m_{12}^2$ term. Type II:
-  $u_R \to -u_R$ (couples to $\tilde H_2$); $d_R$ and $e_R$ are even (couple to $H_1$).
+$H_i = \big(H_i^+,\ (v_i + \rho_i + i\eta_i)/\sqrt2\big)$, $\tan\beta = v_2/v_1$,
+$v^2 = v_1^2 + v_2^2 \approx (246\ \text{GeV})^2$.
+$Z_2$: $H_2 \to -H_2$, and the only $Z_2$-odd term is the $m_{12}^2$ term. Type II:
+$u_R \to -u_R$ (couples to $\tilde H_2$); $d_R$ and $e_R$ are even (couple to $H_1$).
 
 ## Rotations
 feynlag's `rotation_2x2(theta)` is
@@ -78,26 +90,26 @@ R(\theta) = \begin{pmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta 
 ## Fermions
 - One generation per model, with third-generation names $t, b, \tau, \nu_\tau$. Dirac fermions
   are two Weyl fields (`tL`/`tR`, …). Yukawas are
-  $-y\,\bar\psi_L\Phi\psi_R + \text{h.c.}$ with $\tilde\Phi = (\Phi^{0*}, -\Phi^{+*})$.
+  $`-y\,\bar\psi_L\Phi\psi_R + \text{h.c.}`$ with $\tilde\Phi = (\Phi^{0*}, -\Phi^{+*})$.
   The Dirac mass is $m_f = y_f v/\sqrt2$ (SM, seesaw, singlet) or $y_f v_i/\sqrt2$ (2HDM).
-- The Majorana mass is $-\tfrac12 M_R\,\nu_R^T C\nu_R + \text{h.c.}$ In the seesaw basis
+- The Majorana mass is $`-\tfrac12 M_R\,\nu_R^T C\nu_R + \text{h.c.}`$ In the seesaw basis
   $n = (\nu_L, \nu_R^c)$:
 
-  ```math
-  M_\nu = \begin{pmatrix} 0 & m_D \\ m_D^T & M_R \end{pmatrix},\qquad
-  M_\nu = U D U^T\ (D \ge 0),\qquad
-  m_\nu \approx -m_D M_R^{-1} m_D^T .
-  ```
+```math
+M_\nu = \begin{pmatrix} 0 & m_D \\ m_D^T & M_R \end{pmatrix},\qquad
+M_\nu = U D U^T\ (D \ge 0),\qquad
+m_\nu \approx -m_D M_R^{-1} m_D^T .
+```
 
 ## Feynman rules and export
 - The vertex is
 
-  ```math
-  i\,\frac{\partial^n \mathcal L}{\partial\phi_1\cdots\partial\phi_n}\bigg\vert_0
-  = i \times (\text{monomial coefficient}) \times \prod_f (\text{multiplicity of } f)!\,.
-  ```
+```math
+i\,\frac{\partial^n \mathcal L}{\partial\phi_1\cdots\partial\phi_n}\bigg\vert_0
+= i \times (\text{monomial coefficient}) \times \prod_f (\text{multiplicity of } f)!\,.
+```
 
-- Momenta are incoming, and $\partial_\mu\phi \to i\,p(\phi)_\mu\,\phi$ (feynlag's convention,
+- Momenta are incoming, and $`\partial_\mu\phi \to i\,p(\phi)_\mu\,\phi`$ (feynlag's convention,
   pinned by its VSS test).
 - UFO triple-gauge couplings built from the complex $W^\pm$ rotation are sign-flipped
   (`gAWW`, `gZWW`) at export, following the feynlag MadGraph benchmark. The flip lives in

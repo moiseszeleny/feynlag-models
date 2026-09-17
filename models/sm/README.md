@@ -43,7 +43,7 @@ The pure-gauge $-\tfrac14 F_{\mu\nu}F^{\mu\nu}$ terms are implicit in feynlag's 
 
 ## Key mechanism
 - $\mu^2 = \lambda v^2$, $m_h^2 = 2\lambda v^2$ **[feynlag-verified: `test_tadpole_and_higgs_mass`]**
-- $m_W = g v/2$, $m_Z = \sqrt{g^2 + g'^2}\,v/2$, $m_\gamma = 0$ **[feynlag-verified: `test_gauge_masses`]**
+- $m_W = g v/2$, $`m_Z = \sqrt{g^2 + g'^2}\,v/2`$, $m_\gamma = 0$ **[feynlag-verified: `test_gauge_masses`]**
 - $m_f = y_f v/\sqrt2$ **[feynlag-verified: `test_fermion_masses`]**
 - Feynman rules $hWW = i g m_W g^{\mu\nu}$, $hZZ = i g_Z m_Z g^{\mu\nu}$, $hf\bar f = -i m_f/v$,
   $Zf\bar f = i g_Z \gamma^\mu (T^3 P_L - Q s_W^2)$, $W\bar\nu\ell = i (g/\sqrt2)\gamma^\mu P_L$,

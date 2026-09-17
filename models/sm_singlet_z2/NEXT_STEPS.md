@@ -3,7 +3,7 @@
 ## 1. Natural extensions
 - `sm_singlet_dm`: same field with $\langle S\rangle = 0$ (exact $Z_2$, scalar dark matter; no mixing, and $\lambda_{HS}$ controls portal annihilation).
 - `sm_csinglet`: complex singlet with a global $U(1)$, either spontaneously broken (a Goldstone or Majoron) or softly broken.
-- `sm_singlet_z2 + seesaw_type1`: the singlet generating $M_R$ through a $y_N S\,\nu_R^T C\nu_R$ term.
+- `sm_singlet_z2 + seesaw_type1`: the singlet generating $M_R$ through a $`y_N S\,\nu_R^T C\nu_R`$ term.
 - General xSM with cubic terms ($a_1 S H^\dagger H$, $b_3 S^3$) for electroweak baryogenesis studies.
 
 ## 2. Observables and current bounds
