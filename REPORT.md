@@ -19,10 +19,10 @@ Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the sche
 
 - `sm_singlet_z2::test_feynlag_mass_matrix_real_scalar_gap` — **strict xfail**, FG-1 (feynlag bug).
 - `sm_singlet_z2::test_feynlag_discrete_kinetic_gap` — **strict xfail**, FG-2 (feynlag bug).
-- `thdm_type2::test_charged_higgs_quark_lepton_relative_sign_branco` — **strict xfail**: Branco et al.
-  Eq. (16) as extracted has a relative minus sign between the `ū d H⁺` and `ν̄ ℓ H⁺` terms; feynlag and a
-  hand derivation from the identical `Q̄H₁d_R` / `L̄H₁e_R` structures give the same sign. Needs a check
-  against the published version / their sign conventions before the article.
+- ~~`thdm_type2::test_charged_higgs_quark_lepton_relative_sign_branco`~~ — removed: the "discrepancy" was a
+  transcription error (see "2HDM discrepancies re-checked" below).
+- `thdm_type2::test_mA_mHp_branco_arxiv_text_eq5_6` — **strict xfail**: Branco et al.'s printed `m_A²`, `m_H±²`
+  prefactors (discrepancy D-2).
 - No test is skipped. No `slow` (MadGraph) test exists yet: **L4 was not attempted** for any model.
 
 ## TODO(verify) list (43 markers; `grep -rn "TODO(verify)" models CONVENTIONS.md`)
@@ -87,9 +87,28 @@ Suite after the migration: `71 passed, 1 skipped, 3 xfailed` (the skip is the UF
 experimental bounds in `NEXT_STEPS.md` tables, the open 2HDM sign question, and the heavy-neutrino
 PDG code.
 
+## 2HDM discrepancies re-checked (2026-09-16)
+
+The published Branco et al. text could not be read: ScienceDirect returned HTTP 403. The checks below use
+arXiv v1, v2 and v3 of Branco et al. and arXiv v3 of Aoki et al. (Phys. Rev. D 80 (2009) 015017), whose
+notation Branco's Eq. (16) follows.
+
+- **D-1, resolved (my error).** Eq. (16) has one minus sign in front of a bracket holding both the quark and
+  the lepton charged-Higgs terms, and Aoki Eq. (6) is identical. The pilot transcription dropped the bracket.
+  Both papers give the two terms the same sign, as feynlag does. The strict xfail became a passing test.
+- **D-3, convention (new).** Aoki Eq. (4) defines H⁺ exactly as we do, yet their Eq. (6) has the opposite
+  overall sign to a direct derivation from it. This is equivalent to H⁺ → −H⁺ and has no observable effect.
+- **D-2, open.** Branco's printed `m_A² = [m12²/(v1v2) − 2λ5] v²` and `m_+² = [m12²/(v1v2) − λ4 − λ5] v²` are
+  inline text in all three arXiv versions, so they are not an extraction artefact. They contradict the paper's
+  own potential: a plain-SymPy derivation without feynlag, Gunion–Haber Eqs. (10)–(11), and feynlag all give
+  `−λ5` and `−(λ4+λ5)/2`. The printed `m_A²` differs by exactly `λ5 v²`. A strict xfail now encodes the printed
+  formulas; whether the published version still has them is unknown.
+
+Lesson recorded: read the bracket structure in `pdftotext -layout` output before declaring a sign discrepancy.
+
 ## What to do next
 
 - Decide whether FG-1/FG-2 get fixed in feynlag (the strict xfails flip automatically when they are).
 - Attempt L4 for `sm_singlet_z2` (`e⁺e⁻ → Z h1` vs stock `sm` × cos²θ) with the MG5 at `~/.local/mg5dl`.
-- Resolve 2HDM discrepancies D-1 (Branco Eq. 16 sign) and D-2 (Eqs. 5–6 prefactors) against the published text.
+- Check 2HDM discrepancy D-2 (Branco Eqs. 5–6 prefactors) against the published Phys. Rept. text (paywalled from here).
 - Fill the experimental-bound tables in each `NEXT_STEPS.md` from current PDG / ATLAS / CMS sources.

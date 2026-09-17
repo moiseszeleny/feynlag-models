@@ -20,7 +20,7 @@
 
 ## 3. Open theoretical questions
 - Which of the `λ_i` basis or the physical basis (`m_h, m_H, m_A, m_H±, tan β, cos(β−α), m12²`) should be the UFO inputs (this pilot uses the `λ_i`; the physical-basis inversion is in the benchmark comment of `metadata.yaml`).
-- Sign conventions for `A` and `H⁺` couplings across the literature (the pilot found a relative-sign discrepancy with Branco Eq. 16, see the card).
+- Sign conventions for `A` and `H⁺` couplings across the literature: Branco Eq. (16) and Aoki Eq. (6) agree with us up to H⁺ → −H⁺ (discrepancy D-3). Branco's printed `m_A²`, `m_H±²` prefactors (discrepancy D-2) still need a check against the published Phys. Rept. text, which was paywalled on 2026-09-16.
 - Vacuum structure: charge-breaking and CP-breaking minima, panic vacua; tree-level stability conditions.
 
 ## 4. What feynlag cannot yet do for this model

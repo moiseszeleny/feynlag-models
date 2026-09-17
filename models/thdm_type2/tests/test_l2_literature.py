@@ -95,30 +95,41 @@ def _charged_couplings(thdm, ftab):
 
 
 def test_charged_higgs_yukawa_eq16(thdm, ftab):
-    """Branco et al. Eq. (16), charged part (V_ud = 1):
-    −(√2/v) ū (m_u ξ_A^u P_L + m_d ξ_A^d P_R) d H⁺ + (√2 m_ℓ ξ_A^ℓ/v) ν̄_L ℓ_R H⁺ + h.c.
-    Pinned here: the magnitudes √2 m_t cotβ/v, √2 m_b tanβ/v, √2 m_τ tanβ/v and the
-    relative sign of the two quark chiralities (equal, as in Eq. 16). The overall H⁺
-    phase is a convention. The quark–lepton relative sign is in
-    test_charged_higgs_quark_lepton_relative_sign_branco (strict xfail: discrepancy)."""
+    """Branco et al. Eq. (16), second line (V_ud = 1), read with its bracket:
+    −{ (√2/v) ū (m_u ξ_A^u P_L + m_d ξ_A^d P_R) d H⁺ + (√2 m_ℓ ξ_A^ℓ/v) ν̄_L ℓ_R H⁺ } + h.c.
+    (identical to Aoki et al. Eq. 6). Pinned here: the magnitudes √2 m_t cotβ/v, √2 m_b tanβ/v and
+    the equal sign of the two quark chiralities. The overall H⁺-line sign is a convention
+    (metadata discrepancy D-3); the quark–lepton relative sign is the next test."""
     e, p = thdm.extra, thdm.pieces
     v, be = e["v"].s, e["beta"].s
     mt, mb, mtau = (p.masses[k].s for k in ("MT", "MB", "MTA"))
     c_tb_R, c_tb_L, c_nul = _charged_couplings(thdm, ftab)
     lit_R = -sp.sqrt(2) / v * mb * sp.tan(be)          # ū P_R d
     lit_L = -sp.sqrt(2) / v * mt * sp.cot(be)          # ū P_L d
-    lit_l = sp.sqrt(2) / v * mtau * sp.tan(be)         # ν̄_L ℓ_R
     s = sp.simplify(c_tb_R / lit_R)
     assert s in (1, -1), s
     assert_dual_equal(c_tb_L, s * lit_L, msg="H+ t b P_L (relative sign to P_R)")
-    assert_dual_equal(sp.Abs(c_nul), sp.Abs(lit_l), msg="|H+ nu tau|")
+    assert_dual_equal(sp.Abs(c_nul), sp.Abs(sp.sqrt(2) / v * mtau * sp.tan(be)), msg="|H+ nu tau|")
     thdm.extra["Hp_sign_vs_branco_eq16"] = int(s)
+
+
+def test_charged_higgs_quark_lepton_relative_sign_eq16(thdm, ftab):
+    """Branco et al. Eq. (16) / Aoki et al. Eq. (6): the common minus in front of the bracket
+    multiplies BOTH the quark and the lepton term, so ν̄_L τ_R H⁺ = −√2 m_τ tanβ/v in their
+    convention, with the same overall sign s as ū P_R d H⁺ (discrepancy D-1, resolved)."""
+    e, p = thdm.extra, thdm.pieces
+    v, be = e["v"].s, e["beta"].s
+    mb, mtau = p.masses["MB"].s, p.masses["MTA"].s
+    c_tb_R, _c_tb_L, c_nul = _charged_couplings(thdm, ftab)
+    s = sp.simplify(c_tb_R / (-sp.sqrt(2) / v * mb * sp.tan(be)))
+    assert s in (1, -1), s
+    assert_dual_equal(c_nul, s * (-sp.sqrt(2) / v * mtau * sp.tan(be)), msg="H+ nu tau (Eq. 16 sign)")
 
 
 def test_charged_higgs_quark_lepton_same_sign_derived(thdm, ftab):
     """Hand derivation from L ⊃ −y_b Q̄ H1 d_R − y_τ L̄ H1 e_R with H1⁺ = cβ G⁺ − sβ H⁺:
-    both give +y sβ (ψ̄_L P_R ψ_R) H⁺, i.e. the d-quark and lepton H⁺ terms have the
-    SAME sign, +√2 m_b tanβ/v and +√2 m_τ tanβ/v (relative to our H⁺ phase)."""
+    both give +y sβ (ψ̄_L P_R ψ_R) H⁺, i.e. +√2 m_b tanβ/v and +√2 m_τ tanβ/v with our H⁺ phase
+    (the opposite overall sign to Branco/Aoki is discrepancy D-3, a convention)."""
     e, p = thdm.extra, thdm.pieces
     v, be = e["v"].s, e["beta"].s
     mb, mtau = p.masses["MB"].s, p.masses["MTA"].s
@@ -127,18 +138,51 @@ def test_charged_higgs_quark_lepton_same_sign_derived(thdm, ftab):
     assert_dual_equal(c_nul, sp.sqrt(2) / v * mtau * sp.tan(be), msg="H+ nu tau (derived)")
 
 
-@pytest.mark.xfail(strict=True, reason="Branco et al. Eq. (16) as extracted shows a relative minus sign "
-                   "between the quark and lepton H+ terms; feynlag (and the hand derivation) give the same "
-                   "sign — TODO(verify) against the published version / their sign conventions")
-def test_charged_higgs_quark_lepton_relative_sign_branco(thdm, ftab):
-    e, p = thdm.extra, thdm.pieces
-    v, be = e["v"].s, e["beta"].s
-    mb, mtau = p.masses["MB"].s, p.masses["MTA"].s
-    c_tb_R, _c_tb_L, c_nul = _charged_couplings(thdm, ftab)
-    lit_R = -sp.sqrt(2) / v * mb * sp.tan(be)
-    lit_l = sp.sqrt(2) / v * mtau * sp.tan(be)
-    s = sp.simplify(c_tb_R / lit_R)
-    assert_dual_equal(c_nul, s * lit_l, msg="H+ nu tau (Branco relative sign)")
+def _branco_potential_masses():
+    """m_A², m_H±² from Branco et al. Eq. (2) with plain SymPy (no feynlag).
+
+    Φ_a = (φ_a⁺, (v_a + ρ_a + i η_a)/√2); the conjugate of φ_a⁺ is an independent symbol so the
+    charged mass matrix is ∂²V/∂φ̄_i∂φ_j. Tadpoles ∂V/∂ρ_a = 0 fix m11², m22². Each block has one
+    Goldstone, so the physical mass² is the trace.
+    """
+    v1, v2 = sp.symbols("v1 v2", positive=True)
+    m11, m22, m12 = sp.symbols("m11sq m22sq m12sq", real=True)
+    l1, l2, l3, l4, l5 = sp.symbols("lam1:6", real=True)
+    r1, r2, e1, e2 = sp.symbols("rho1 rho2 eta1 eta2", real=True)
+    p1, p2, q1, q2 = sp.symbols("p1 p2 p1bar p2bar")
+    n1, n2 = (v1 + r1 + sp.I * e1) / sp.sqrt(2), (v2 + r2 + sp.I * e2) / sp.sqrt(2)
+    n1b, n2b = (v1 + r1 - sp.I * e1) / sp.sqrt(2), (v2 + r2 - sp.I * e2) / sp.sqrt(2)
+    P11, P22 = q1 * p1 + n1b * n1, q2 * p2 + n2b * n2
+    P12, P21 = q1 * p2 + n1b * n2, q2 * p1 + n2b * n1        # Φ1†Φ2, Φ2†Φ1
+    V = (m11 * P11 + m22 * P22 - m12 * (P12 + P21) + l1 / 2 * P11**2 + l2 / 2 * P22**2
+         + l3 * P11 * P22 + l4 * P12 * P21 + l5 / 2 * (P12**2 + P21**2))
+    zero = {r1: 0, r2: 0, e1: 0, e2: 0, p1: 0, p2: 0, q1: 0, q2: 0}
+    tad = sp.solve([sp.diff(V, r1).subs(zero), sp.diff(V, r2).subs(zero)], [m11, m22], dict=True)[0]
+    Vt = sp.expand(V.subs(tad))
+    M_odd = sp.Matrix(2, 2, lambda i, j: sp.diff(Vt, (e1, e2)[i], (e1, e2)[j]).subs(zero))
+    M_ch = sp.Matrix(2, 2, lambda i, j: sp.diff(Vt, (q1, q2)[i], (p1, p2)[j]).subs(zero))
+    syms = dict(v1=v1, v2=v2, m12=m12, l4=l4, l5=l5)
+    return sp.simplify(M_odd.trace()), sp.simplify(M_ch.trace()), syms
+
+
+def test_mA_mHp_independent_of_feynlag():
+    """Branco et al. Eq. (2) → m_A² = [m12²/(v1v2) − λ5] v², m_H±² = [m12²/(v1v2) − (λ4+λ5)/2] v²
+    (= Gunion–Haber Eqs. 10–11), derived without feynlag. Grounds discrepancy D-2."""
+    mA2, mHp2, s = _branco_potential_masses()
+    v2sum = s["v1"]**2 + s["v2"]**2
+    pref = s["m12"] / (s["v1"] * s["v2"])
+    assert_dual_equal(mA2, (pref - s["l5"]) * v2sum, msg="m_A^2 from Eq. (2)")
+    assert_dual_equal(mHp2, (pref - (s["l4"] + s["l5"]) / 2) * v2sum, msg="m_H+^2 from Eq. (2)")
+
+
+@pytest.mark.xfail(strict=True, reason="discrepancy D-2: Branco et al. arXiv v1-v3 print m_A^2 with -2 lam5 and "
+                   "m_+^2 with -lam4 - lam5, inconsistent with their own Eq. (2); published text not checked")
+def test_mA_mHp_branco_arxiv_text_eq5_6():
+    mA2, mHp2, s = _branco_potential_masses()
+    v2sum = s["v1"]**2 + s["v2"]**2
+    pref = s["m12"] / (s["v1"] * s["v2"])
+    assert_dual_equal(mA2, (pref - 2 * s["l5"]) * v2sum, msg="Branco printed m_A^2")
+    assert_dual_equal(mHp2, (pref - s["l4"] - s["l5"]) * v2sum, msg="Branco printed m_+^2")
 
 
 def test_alignment_limit_recovers_sm_h(thdm):
