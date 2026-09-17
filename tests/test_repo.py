@@ -109,14 +109,15 @@ def test_rejects_unknown_gap_id():
 
 def test_rejects_open_discrepancy_on_non_xfail_test():
     def edit(m):
-        m["discrepancies"][0]["test"] = "tests/test_l2_literature.py::test_charged_higgs_yukawa_eq16"
+        d2 = next(d for d in m["discrepancies"] if d["status"] == "open")
+        d2["test"] = "tests/test_l2_literature.py::test_charged_higgs_yukawa_eq16"
     _rejects(_tampered(edit), "must be @pytest.mark.xfail(strict=True)")
 
 
 def test_rejects_xfail_as_maturity_evidence():
     def edit(m):
         m["maturity_evidence"]["L2"].append(
-            "tests/test_l2_literature.py::test_charged_higgs_quark_lepton_relative_sign_branco")
+            "tests/test_l2_literature.py::test_mA_mHp_branco_arxiv_text_eq5_6")
     _rejects(_tampered(edit), "cannot be evidence")
 
 

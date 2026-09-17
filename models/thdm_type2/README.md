@@ -35,7 +35,10 @@ the *only* Z₂-odd term in the Lagrangian, kinetic terms included **[feynlag-ve
 - Tadpoles `m11² = m12² tβ − ½v²(λ1 cβ² + λ345 sβ²)`, `m22²` by `1↔2` (GH Eqs. 6–7) **[feynlag-verified: `test_tadpoles_gunion_haber_eq6_eq7`]**
 - Mass blocks: CP-even = Branco Eq. (7) = GH Eqs. (12)–(13); CP-odd and charged `∝ [[v2², −v1v2], [−v1v2, v1²]]`
   with one Goldstone each **[feynlag-verified: `test_mass_blocks`]**; `m_A² = m12²/(sβcβ) − λ5 v²`,
-  `m_H±² = m_A² + ½v²(λ5 − λ4)` (GH Eqs. 10–11) **[feynlag-verified: `test_mA_mHp_gunion_haber_eq10_eq11`]**
+  `m_H±² = m_A² + ½v²(λ5 − λ4)` (GH Eqs. 10–11) **[feynlag-verified: `test_mA_mHp_gunion_haber_eq10_eq11`]**;
+  the same values follow from Branco's potential with plain SymPy, no feynlag **[verified: `test_mA_mHp_independent_of_feynlag`]**.
+  Branco et al.'s printed formulas (arXiv v1–v3) have `−2λ5` and `−λ4 − λ5` instead, which is inconsistent with their own
+  potential (discrepancy D-2, open, strict xfail `test_mA_mHp_branco_arxiv_text_eq5_6`; the published text was not accessible).
 - Rotations `(H, h) = R(α)(ρ1, ρ2)`, `(G⁰, A) = R(β)(η1, η2)`, `(G⁺, H⁺) = R(β)(H1⁺, H2⁺)` diagonalise the three blocks;
   three Goldstones for `W±, Z` **[feynlag-verified: `test_spectrum_and_rotations_at_benchmark`, `test_goldstone_count_and_gauge_masses`]**.
   feynlag's `α = ½ atan(2M12/(M11−M22))` has `cos 2α > 0`; the label `H` is the heavier state only when `M11 > M22`
@@ -46,8 +49,10 @@ the *only* Z₂-odd term in the Lagrangian, kinetic terms included **[feynlag-ve
 - Charged Higgs: `|H⁺ t̄ b| = (√2/v)(m_t cotβ P_L + m_b tanβ P_R)` (same sign for both chiralities, as in Branco Eq. 16),
   `|H⁺ ν̄ τ| = (√2/v) m_τ tanβ P_R` **[feynlag-verified: `test_charged_higgs_yukawa_eq16`]**. The d-quark and lepton
   `H⁺` terms come out with the **same** sign (hand derivation from the identical `Q̄H1d_R`/`L̄H1e_R` structure agrees,
-  **[feynlag-verified: `test_charged_higgs_quark_lepton_same_sign_derived`]**), whereas Branco et al. Eq. (16) as
-  extracted shows a relative minus sign — recorded as a strict xfail, `TODO(verify)`.
+  **[feynlag-verified: `test_charged_higgs_quark_lepton_same_sign_derived`]**). Branco et al. Eq. (16) and Aoki et al.
+  Eq. (6) put one minus sign in front of a bracket holding both terms, so they agree on this relative sign
+  **[feynlag-verified: `test_charged_higgs_quark_lepton_relative_sign_eq16`]**. Their overall sign of the H⁺ line
+  is opposite to ours, which is the unobservable redefinition H⁺ → −H⁺ (metadata discrepancy D-3, a convention).
 - Alignment `cos(β−α) → 0` recovers every SM `h` coupling **[feynlag-verified: `test_alignment_limit_recovers_sm_h`]**.
 
 ## Characteristic scale

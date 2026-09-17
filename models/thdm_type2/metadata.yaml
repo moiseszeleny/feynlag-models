@@ -69,36 +69,48 @@ maturity_level: 3
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies", "tests/test_l0_l1.py::test_z2_softly_broken_only_by_m12sq"]
   L1: ["tests/test_l0_l1.py::test_tadpoles_gunion_haber_eq6_eq7", "tests/test_l0_l1.py::test_mass_blocks", "tests/test_l0_l1.py::test_spectrum_and_rotations_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_and_gauge_masses", "tests/test_l0_l1.py::test_fermion_masses", "tests/test_l0_l1.py::test_benchmark_matches_physical_inputs"]
-  L2: ["tests/test_l0_l1.py::test_mA_mHp_gunion_haber_eq10_eq11", "tests/test_l2_literature.py::test_hVV_HVV_sin_cos_beta_minus_alpha", "tests/test_l2_literature.py::test_neutral_yukawa_xi_factors_table2", "tests/test_l2_literature.py::test_charged_higgs_yukawa_eq16", "tests/test_l2_literature.py::test_charged_higgs_quark_lepton_same_sign_derived", "tests/test_l2_literature.py::test_alignment_limit_recovers_sm_h"]
+  L2: ["tests/test_l0_l1.py::test_mA_mHp_gunion_haber_eq10_eq11", "tests/test_l2_literature.py::test_hVV_HVV_sin_cos_beta_minus_alpha", "tests/test_l2_literature.py::test_neutral_yukawa_xi_factors_table2", "tests/test_l2_literature.py::test_charged_higgs_yukawa_eq16", "tests/test_l2_literature.py::test_charged_higgs_quark_lepton_same_sign_derived", "tests/test_l2_literature.py::test_charged_higgs_quark_lepton_relative_sign_eq16", "tests/test_l2_literature.py::test_mA_mHp_independent_of_feynlag", "tests/test_l2_literature.py::test_alignment_limit_recovers_sm_h"]
   L3: ["tests/test_l3_ufo.py::test_ufo_roundtrip"]
   L4: []
 slow_evidence: []
 literature_checks:
   - {quantity: "tadpole (minimum) conditions", ref: gunion2003, location: {equation: "(6), (7)", note: "with λ6 = λ7 = 0"}, source_version: "arXiv:hep-ph/0207010v5", checked_on: 2026-09-16, test: "tests/test_l0_l1.py::test_tadpoles_gunion_haber_eq6_eq7"}
-  - {quantity: "CP-even, CP-odd and charged mass blocks", ref: branco2012, location: {equation: "(5)-(7)", note: "CP-even block Eq. (7) reproduced; for the CP-odd and charged prefactors see discrepancy D-2"}, source_version: "arXiv:1106.0034v3", checked_on: 2026-09-16, test: "tests/test_l0_l1.py::test_mass_blocks"}
+  - {quantity: "CP-even mass block", ref: branco2012, location: {equation: "(7)", note: "CP-odd and charged prefactors of Eqs. (5)-(6): discrepancy D-2; the blocks are checked against Gunion–Haber in the same test"}, source_version: "arXiv:1106.0034v3", checked_on: 2026-09-16, test: "tests/test_l0_l1.py::test_mass_blocks"}
   - {quantity: "m_A², m_H±²", ref: gunion2003, location: {equation: "(10), (11)"}, source_version: "arXiv:hep-ph/0207010v5", checked_on: 2026-09-16, test: "tests/test_l0_l1.py::test_mA_mHp_gunion_haber_eq10_eq11"}
   - {quantity: "mass eigenstates (H, h) = R(α)(ρ1, ρ2), m_H ≥ m_h", ref: gunion2003, location: {equation: "(14)-(17)"}, source_version: "arXiv:hep-ph/0207010v5", checked_on: 2026-09-16, test: "tests/test_l0_l1.py::test_spectrum_and_rotations_at_benchmark"}
   - {quantity: "hVV = sin(β−α) × SM, HVV = cos(β−α) × SM, AVV = 0", ref: branco2012, location: {section: "2.1", note: "sentence following Table 2"}, source_version: "arXiv:1106.0034v3", checked_on: 2026-09-16, test: "tests/test_l2_literature.py::test_hVV_HVV_sin_cos_beta_minus_alpha"}
   - {quantity: "neutral-Higgs Yukawa ξ factors, type II", ref: branco2012, location: {equation: "(16)", table: "2 (type II column)"}, source_version: "arXiv:1106.0034v3", checked_on: 2026-09-16, test: "tests/test_l2_literature.py::test_neutral_yukawa_xi_factors_table2"}
-  - {quantity: "charged-Higgs Yukawa magnitudes and quark chirality relative sign", ref: branco2012, location: {equation: "(16)", note: "second line, V_ud → 1; quark–lepton relative sign: discrepancy D-1"}, source_version: "arXiv:1106.0034v3", checked_on: 2026-09-16, test: "tests/test_l2_literature.py::test_charged_higgs_yukawa_eq16"}
+  - {quantity: "charged-Higgs Yukawa magnitudes and quark chirality relative sign", ref: branco2012, location: {equation: "(16)", note: "second line, V_ud → 1; overall sign: discrepancy D-3"}, source_version: "arXiv:1106.0034v3", checked_on: 2026-09-16, test: "tests/test_l2_literature.py::test_charged_higgs_yukawa_eq16"}
+  - {quantity: "quark–lepton relative sign of the charged-Higgs Yukawas", ref: branco2012, location: {equation: "(16)", note: "common minus in front of the bracket; discrepancy D-1 (resolved)"}, source_version: "arXiv:1106.0034v3", checked_on: 2026-09-16, test: "tests/test_l2_literature.py::test_charged_higgs_quark_lepton_relative_sign_eq16"}
+  - {quantity: "charged-Higgs Yukawa line and type-II ξ factors", ref: aoki2009, location: {equation: "(6)", table: "II"}, source_version: "arXiv:0902.4665v3", checked_on: 2026-09-16, test: "tests/test_l2_literature.py::test_charged_higgs_quark_lepton_relative_sign_eq16"}
+  - {quantity: "m_A², m_H±² from the potential, independent of feynlag", ref: gunion2003, location: {equation: "(10), (11)", note: "derived from Branco et al. Eq. (2) with plain SymPy"}, source_version: "arXiv:hep-ph/0207010v5", checked_on: 2026-09-16, test: "tests/test_l2_literature.py::test_mA_mHp_independent_of_feynlag"}
 discrepancies:
   - id: D-1
     quantity: "relative sign of the ū d H⁺ and ν̄ ℓ H⁺ Yukawa terms"
     ref: branco2012
-    location: {equation: "(16)", note: "second line"}
-    ours: "+(√2/v) m_b tanβ (ū_L d_R) H⁺ and +(√2/v) m_τ tanβ (ν̄_L τ_R) H⁺ — same sign (feynlag and a hand derivation from the identical Q̄H1d_R / L̄H1e_R structures)"
-    theirs: "−(√2 V_ud/v) ū (m_u ξ_A^u P_L + m_d ξ_A^d P_R) d H⁺ + (√2 m_ℓ ξ_A^ℓ/v) ν̄_L ℓ_R H⁺ — opposite signs"
-    status: open
-    test: "tests/test_l2_literature.py::test_charged_higgs_quark_lepton_relative_sign_branco"
-    note: "Read from the arXiv v3 text; not yet compared with the published version or with Aoki et al., whose notation Eq. (16) follows. Could be a sign convention for the lepton doublet or a typo."
+    location: {equation: "(16)", note: "second line; same structure in Aoki et al. Eq. (6)"}
+    ours: "same sign for the two terms: +(√2/v) m_b tanβ (ū_L d_R) H⁺ and +(√2/v) m_τ tanβ (ν̄_L τ_R) H⁺"
+    theirs: "−{ (√2 V_ud/v) ū (m_u ξ_A^u P_L + m_d ξ_A^d P_R) d H⁺ + (√2 m_ℓ ξ_A^ℓ/v) ν̄_L ℓ_R H⁺ } + h.c. — also the same sign for the two terms"
+    status: resolved
+    test: "tests/test_l2_literature.py::test_charged_higgs_quark_lepton_relative_sign_eq16"
+    note: "Not a discrepancy. The pilot transcription dropped the bracket after the leading minus in Eq. (16); in the pdftotext layout of arXiv v3 the bracket opens right after the minus and closes after the lepton term, and Aoki et al. arXiv:0902.4665v3 Eq. (6) is identical. Re-checked 2026-09-16."
   - id: D-2
-    quantity: "prefactors of the CP-odd and charged mass terms"
+    quantity: "λ-dependent prefactors of m_A² and m_H±²"
     ref: branco2012
-    location: {equation: "(5), (6)", note: "and the m_A², m_+² expressions in the text"}
-    ours: "m_A² = [m12²/(v1v2) − λ5] v², m_H±² = [m12²/(v1v2) − (λ4+λ5)/2] v² (= Gunion–Haber Eqs. 10–11 and feynlag's pinned 2HDM tests)"
-    theirs: "m_A² = [m12²/(v1v2) − 2λ5] v², m_+² = [m12²/(v1v2) − λ4 − λ5] v² (as extracted from the arXiv v3 PDF)"
+    location: {equation: "(5), (6)", note: "and the inline formulas for m_+² and m_A² that follow them"}
+    ours: "m_A² = [m12²/(v1v2) − λ5] v², m_H±² = [m12²/(v1v2) − (λ4+λ5)/2] v²"
+    theirs: "m_A² = [m12²/(v1v2) − 2λ5] v², m_+² = [m12²/(v1v2) − λ4 − λ5] v²"
     status: open
-    note: "Same potential normalisation (Eq. 2). Could be a PDF text-extraction artefact (fractions lost) or a different normalisation; to be checked against the typeset equations."
+    test: "tests/test_l2_literature.py::test_mA_mHp_branco_arxiv_text_eq5_6"
+    note: "The printed formulas are inline text, identical in arXiv v1, v2 and v3, so this is not a PDF-extraction artefact. They are inconsistent with the paper's own potential, Eq. (2): a plain-SymPy derivation from Eq. (2) (test_mA_mHp_independent_of_feynlag), Gunion–Haber Eqs. (10)–(11), feynlag, and Branco's own CP-even block Eq. (7) all give the values under 'ours'. The published Phys. Rept. text could not be read (ScienceDirect returned HTTP 403 on 2026-09-16), so whether the typo survives in print is unknown."
+  - id: D-3
+    quantity: "overall sign of the charged-Higgs Yukawa line"
+    ref: aoki2009
+    location: {equation: "(4), (6)", note: "Branco et al. Eq. (16) has the same sign as Aoki Eq. (6)"}
+    ours: "+(√2/v)(m_t cotβ P_L + m_b tanβ P_R) for ū d H⁺, derived from −y Q̄Φd with H1⁺ = cβ G⁺ − sβ H⁺"
+    theirs: "−(√2/v)(m_u ξ_A^u P_L + m_d ξ_A^d P_R) with the same Eq. (4) definition of H⁺"
+    status: convention
+    note: "Equivalent to H⁺ → −H⁺, which changes no observable. Magnitudes, the chirality structure and the quark–lepton relative sign agree; the neutral h, H couplings agree including sign."
 references:
   - key: branco2012
     kind: review
@@ -127,6 +139,20 @@ references:
     conventions_map:
       - {theirs: "λ6, λ7", ours: "0", note: "exact Z2 in the quartics"}
       - {theirs: "H = cα ρ1 + sα ρ2, h = −sα ρ1 + cα ρ2 (Eq. 14)", ours: "(H, h) = R(alpha)(H10_r, H20_r)", note: "identical; GH fix the branch by m_H ≥ m_h, feynlag's alpha = ½ atan(2M12/(M11−M22)) coincides when M11 > M22 (true at the benchmark)"}
+  - key: aoki2009
+    kind: article
+    authors: "M. Aoki, S. Kanemura, K. Tsumura, K. Yagyu"
+    title: "Models of Yukawa interaction in the two Higgs doublet model, and their collider phenomenology"
+    venue: "Phys. Rev. D 80 (2009) 015017"
+    year: 2009
+    arxiv: "0902.4665"
+    inspire: "814281"
+    doi: "10.1103/PhysRevD.80.015017"
+    verified_against: arxiv_text
+    conventions_map:
+      - {theirs: "Φ_i = (ω_i⁺, (v_i + h_i − i z_i)/√2) (Eq. 3)", ours: "H_i = (H_ip, (v_i + H_i0_r + i H_i0_i)/√2)", note: "η_i = −z_i"}
+      - {theirs: "R(θ) = [[cθ, −sθ], [sθ, cθ]] with (ω1⁺, ω2⁺) = R(β)(ω⁺, H⁺) (Eqs. 4, 5)", ours: "(G⁺, H⁺) = rotation_2x2(β)(H1⁺, H2⁺) with rotation_2x2 = [[c, s], [−s, c]]", note: "the same field definition: ours is the inverse map"}
+      - {theirs: "ξ factors, Table II", ours: "identical to Branco et al. Table 2 (type II row checked)"}
   - key: hhg2000
     kind: book
     authors: "J. F. Gunion, H. E. Haber, G. L. Kane, S. Dawson"
