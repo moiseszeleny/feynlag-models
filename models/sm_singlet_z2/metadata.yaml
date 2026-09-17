@@ -52,7 +52,7 @@ key_results:
   - {statement: "every h1 (h2) coupling to SM particles = SM coupling × cos θ (−sin θ)", test: "tests/test_l2_literature.py::test_coupling_rescaling"}
 maturity_level: 3
 maturity_evidence:
-  L0: ["tests/test_l0_l1.py::test_validate_gauge_hermiticity_dimension_anomalies", "tests/test_l0_l1.py::test_z2_invariance_of_every_non_kinetic_term"]
+  L0: ["tests/test_l0_l1.py::test_validate_gauge_hermiticity_dimension_anomalies", "tests/test_l0_l1.py::test_z2_invariance_of_every_term"]
   L1: ["tests/test_l0_l1.py::test_tadpoles", "tests/test_l0_l1.py::test_cp_even_mass_matrix", "tests/test_l0_l1.py::test_spectrum_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_unchanged"]
   L2: ["tests/test_l2_literature.py::test_mass_matrix_eq7", "tests/test_l2_literature.py::test_mass_eigenvalues_eq8_eq9", "tests/test_l2_literature.py::test_mixing_angle_eq11_eq12", "tests/test_l2_literature.py::test_coupling_rescaling", "tests/test_l2_literature.py::test_lambda3_from_masses_eq13", "tests/test_l2_literature.py::test_decoupling_lamHS_to_zero"]
   L3: ["tests/test_l3_ufo.py::test_ufo_roundtrip"]
@@ -111,9 +111,7 @@ references:
     inspire: "754282"
     doi: "10.1103/PhysRevD.77.035005"
     verified_against: inspire_record
-feynlag_gaps:
-  - {id: FG-1, test: "tests/test_l0_l1.py::test_feynlag_mass_matrix_real_scalar_gap"}
-  - {id: FG-2, test: "tests/test_l0_l1.py::test_feynlag_discrete_kinetic_gap"}
+feynlag_gaps: []
 outputs:
   ufo: "outputs/SM_SINGLET_Z2_UFO"
   ufo_scope:

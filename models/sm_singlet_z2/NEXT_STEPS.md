@@ -27,9 +27,6 @@ must be updated with Run-2 combinations before being used in a paper.
 - Electroweak phase transition strength as a function of `(λ_S, λ_HS, v_S)` (needs the finite-temperature potential).
 
 ## 4. What feynlag cannot yet do for this model
-- **FG-1**: `Model.mass_matrix` double-shifts a real VEV'd scalar; this repository evaluates the blocks with
-  `feynlag_models.checks.scalar_mass_block` (public `build_mass_matrix` + one vacuum evaluation).
-- **FG-2**: the discrete-invariance check false-fails on `Dmu`-built kinetic terms; Z₂ is verified term by term on the non-kinetic sector.
 - No loops: `h2 → γγ`, `h1 → γγ` with the rescaled couplings would follow from feynlag's `pheno.loop` effective vertices only.
 - `Γ(h2 → h1 h1)` (Pruna–Robens Eq. 12) is a tree-level SSS width feynlag's `DecayCalculator` can compute; not done in this pilot.
 - No RGE running, unitarity or boundedness-from-below checks (Eqs. 4–5 of the reference) — they are simple inequalities a child could add as tests.
