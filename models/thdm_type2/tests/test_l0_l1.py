@@ -15,12 +15,10 @@ def test_validate_invariance_and_anomalies(thdm):
 
 def test_z2_softly_broken_only_by_m12sq(thdm):
     """Z2 (H2 → −H2, u_R → −u_R) holds for every potential and Yukawa term except the
-    named soft term −m12² (H1†H2 + h.c.). Kinetic (Dmu) terms are skipped: FG-2."""
+    named soft term −m12² (H1†H2 + h.c.), kinetic (Dmu) terms included."""
     Z2 = thdm.extra["Z2"]
     failing = []
     for term in thdm.model.lagrangian:
-        if term.sector == "kinetic":
-            continue
         ok, _ = check_discrete_invariance(term.expr, Z2)
         if not ok:
             failing.append(term.name)

@@ -173,8 +173,7 @@ references:
     inspire: "1513486"
     doi: "10.1140/epjc/s10052-017-4776-y"
     verified_against: inspire_record
-feynlag_gaps:
-  - {id: FG-2}
+feynlag_gaps: []
 outputs:
   ufo: "outputs/THDM_TYPE2_UFO"
   ufo_scope:

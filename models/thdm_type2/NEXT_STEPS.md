@@ -24,7 +24,6 @@
 - Vacuum structure: charge-breaking and CP-breaking minima, panic vacua; tree-level stability conditions.
 
 ## 4. What feynlag cannot yet do for this model
-- **FG-2**: the discrete-symmetry check false-fails on `Dmu` kinetic terms; Z₂ verified term by term on the non-kinetic sector.
 - No physical-basis input inversion (`InternalParameter`s for `λ_i` from masses); done by hand in the benchmark comment.
 - No boundedness-from-below / unitarity / oblique-parameter helpers (simple inequalities a child could add).
 - No loops (`h → γγ` with the `H±` loop, `B → X_s γ`); feynlag's loop module covers only the SM `gg/γγ/Zγ` effective vertices.

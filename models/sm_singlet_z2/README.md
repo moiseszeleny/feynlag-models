@@ -18,9 +18,8 @@ for hidden-sector portals and strong first-order electroweak phase transitions. 
 ## New symmetry and breaking
 A discrete Z₂ under which only `S` is odd (forbids linear and cubic singlet terms). It is
 **spontaneously broken** by `⟨S⟩ = v_S`, which is what generates the `h`–`s` mixing.
-Z₂ invariance of every potential and Yukawa term **[feynlag-verified: `tests/test_l0_l1.py::test_z2_invariance_of_every_non_kinetic_term`]**;
-feynlag's discrete check false-fails on the Higgs kinetic term (FEYNLAG_GAPS.md FG-2, strict xfail
-`test_feynlag_discrete_kinetic_gap`). A spontaneously broken discrete symmetry produces domain walls
+Z₂ invariance of every term, the `Dmu` kinetic terms included **[feynlag-verified: `tests/test_l0_l1.py::test_z2_invariance_of_every_term`]**.
+A spontaneously broken discrete symmetry produces domain walls
 in the early universe; this card takes no position on the cosmology. [physics judgment]
 
 ## New Lagrangian terms
@@ -29,7 +28,7 @@ Map to Robens–Stefaniak (arXiv:1501.02234, Eq. 3): `λ₁ → λ`, `λ₂ → 
 
 ## Key mechanism
 - Tadpoles `μ² = λ v² + ½ λ_HS v_S²`, `μ_S² = −λ_S v_S² − ½ λ_HS v²` **[feynlag-verified: `test_tadpoles`]**
-- CP-even block `M² = [[2λv², λ_HS v v_S], [λ_HS v v_S, 2λ_S v_S²]]` = Robens–Stefaniak Eq. (7) **[feynlag-verified: `test_mass_matrix_eq7`]**; obtained with the single-shift helper because `Model.mass_matrix` double-shifts a real VEV'd scalar (FG-1, strict xfail `test_feynlag_mass_matrix_real_scalar_gap`).
+- CP-even block `M² = [[2λv², λ_HS v v_S], [λ_HS v v_S, 2λ_S v_S²]]` = Robens–Stefaniak Eq. (7) **[feynlag-verified: `test_mass_matrix_eq7`]**, from `Model.mass_matrix`.
 - `tan 2θ = λ_HS v v_S/(λv² − λ_S v_S²)`; `m²_{1,2} = λv² + λ_S v_S² ∓ √((λv² − λ_S v_S²)² + (λ_HS v v_S)²)` (Eqs. 8–12, α = −θ) **[feynlag-verified: `test_mixing_angle_eq11_eq12`, `test_mass_eigenvalues_eq8_eq9`]**, in the regime `λ_S v_S² > λ v²` of the benchmark.
 - Universal rescaling: `h1 X X = cos θ × SM`, `h2 X X = −sin θ × SM` for `X = W, Z, t, b, τ`; sum rule `g²_{h1VV} + g²_{h2VV} = g²_{hVV,SM}` **[feynlag-verified: `test_coupling_rescaling`]**
 - `λ_HS = (m₂² − m₁²) sin 2α/(2 v v_S)` (Eq. 13) **[feynlag-verified: `test_lambda3_from_masses_eq13`]**; `λ_HS → 0 ⇒ θ → 0` **[feynlag-verified: `test_decoupling_lamHS_to_zero`]**

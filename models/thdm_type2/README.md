@@ -22,8 +22,7 @@ Anomalies cancel as in the SM (no new fermions) **[feynlag-verified: `tests/test
 
 ## New symmetry and breaking
 Z₂: `H2 → −H2`, `u_R → −u_R`. **Softly broken** by the dimension-two term `−m12² (H1†H2 + h.c.)`,
-the *only* Z₂-odd term in the Lagrangian **[feynlag-verified: `test_z2_softly_broken_only_by_m12sq`]**
-(kinetic terms excluded from the check because of FEYNLAG_GAPS.md FG-2). Electroweak breaking by
+the *only* Z₂-odd term in the Lagrangian, kinetic terms included **[feynlag-verified: `test_z2_softly_broken_only_by_m12sq`]**. Electroweak breaking by
 `⟨H_i⁰⟩ = v_i/√2`, `tan β = v2/v1`, `v² = v1² + v2²`.
 
 ## New Lagrangian terms

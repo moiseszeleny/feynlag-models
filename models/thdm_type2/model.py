@@ -89,8 +89,8 @@ def build(benchmark=None):
                 beta, v1, v2, m11sq, m22sq, yt, yb, ytau]
     p.discrete_groups = [Z2]
 
-    # the Model is declared WITHOUT Z2 (m12² breaks it softly and feynlag's
-    # discrete check false-fails on Dmu terms, FG-2); tests check Z2 term by term
+    # the Model is declared WITHOUT Z2 because m12² breaks it softly (so
+    # Model.validate would fail); tests check Z2 term by term
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
                   parameters=p.params, lagrangian=p.lagrangian())
     model.solve_tadpoles([m11sq, m22sq])

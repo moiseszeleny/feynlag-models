@@ -8,7 +8,7 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 | model | claimed | evidence | notes |
 |---|---|---|---|
 | `sm` | **L3** | 10 tests | UFO round-trip with t, b, τ, ν, EW bosons; L4 not re-claimed (feynlag's own MadGraph benchmark covers EW+leptons) |
-| `sm_singlet_z2` | **L3** | 13 passed + 2 strict xfail | Robens–Stefaniak Eqs. (7)–(13) reproduced (α = −θ, regime λ_S v_S² > λ v²); gaps FG-1, FG-2 |
+| `sm_singlet_z2` | **L3** | 13 passed | Robens–Stefaniak Eqs. (7)–(13) reproduced (α = −θ, regime λ_S v_S² > λ v²); gaps FG-1, FG-2 resolved |
 | `seesaw_type1` | **L2** | 10 tests | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
 | `thdm_type2` | **L3** | 14 passed + 1 strict xfail | GH Eqs. (6)–(17), Branco Eq. (16)/Table 2; benchmark inverted from (125, 300, 300, 320) GeV re-derived exactly by feynlag |
 
@@ -17,8 +17,6 @@ Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the sche
 
 ## Failing / skipped / xfail tests (none weakened)
 
-- `sm_singlet_z2::test_feynlag_mass_matrix_real_scalar_gap` — **strict xfail**, FG-1 (feynlag bug).
-- `sm_singlet_z2::test_feynlag_discrete_kinetic_gap` — **strict xfail**, FG-2 (feynlag bug).
 - ~~`thdm_type2::test_charged_higgs_quark_lepton_relative_sign_branco`~~ — removed: the "discrepancy" was a
   transcription error (see "2HDM discrepancies re-checked" below).
 - `thdm_type2::test_mA_mHp_branco_arxiv_text_eq5_6` — **strict xfail**: Branco et al.'s printed `m_A²`, `m_H±²`
@@ -42,12 +40,13 @@ Categories:
    feynlag's own pinned tests.
 5. PDG code convention for the heavy neutrino (`9900012`).
 
-## FEYNLAG_GAPS.md (three entries)
+## FEYNLAG_GAPS.md (three entries, two resolved)
 
-- **FG-1** `Model.mass_matrix` double-shifts a real VEV'd scalar (`Scalar(real=True)` + `expand_vev`):
-  every scalar block is evaluated at `S = 2v_S`. Workaround outside feynlag: `feynlag_models.checks.scalar_mass_block`.
-- **FG-2** `check_discrete_invariance` false-fails on `Dmu`-built kinetic terms even when the group does
-  not act on the field. Z₂ is verified term by term on the non-kinetic sectors.
+- **FG-1** (resolved, feynlag PR #19) `Model.mass_matrix` double-shifted a real VEV'd scalar
+  (`Scalar(real=True)` + `expand_vev`), evaluating every block at `S = 2v_S`. The workaround
+  `feynlag_models.checks.scalar_mass_block` is removed; `sm_singlet_z2` uses `Model.mass_matrix`.
+- **FG-2** (resolved, feynlag PR #19) `check_discrete_invariance` false-failed on `Dmu`-built kinetic
+  terms. `sm_singlet_z2` now validates with its `Z2` declared; `thdm_type2` checks `Z2` on every term.
 - **FG-3** No UFO export for Majorana fermions → `seesaw_type1` stops at L2.
 
 Additional limitations recorded in the cards (not gaps stopping an item): unitary-gauge UFO only;
@@ -108,7 +107,6 @@ Lesson recorded: read the bracket structure in `pdftotext -layout` output before
 
 ## What to do next
 
-- Decide whether FG-1/FG-2 get fixed in feynlag (the strict xfails flip automatically when they are).
 - Attempt L4 for `sm_singlet_z2` (`e⁺e⁻ → Z h1` vs stock `sm` × cos²θ) with the MG5 at `~/.local/mg5dl`.
 - Check 2HDM discrepancy D-2 (Branco Eqs. 5–6 prefactors) against the published Phys. Rept. text (paywalled from here).
 - Fill the experimental-bound tables in each `NEXT_STEPS.md` from current PDG / ATLAS / CMS sources.

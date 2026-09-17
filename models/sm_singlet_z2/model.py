@@ -21,7 +21,6 @@ from feynlag.export.ufo import UFOParticle
 from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import ModelBundle
-from feynlag_models.checks import scalar_mass_block
 from feynlag_models.outputs import standard_outputs
 from models.sm import model as sm
 
@@ -63,9 +62,7 @@ def build(benchmark=None):
     phys = to_physical_basis(model, ew)
 
     # --- CP-even mixing (h, s) → (h1, h2) ------------------------------------
-    # FEYNLAG_GAPS.md FG-1: Model.mass_matrix double-shifts a real VEV'd scalar;
-    # scalar_mass_block evaluates the vacuum point once.
-    M_even = scalar_mass_block(model, [phys.h, s0])
+    M_even = model.mass_matrix([phys.h, s0])
     h1, h2 = sp.symbols("h1 h2", real=True)
     theta = InternalParameter("theta")
     rot = diagonalize_orthogonal_2x2(M_even, [phys.h, s0], [h1, h2], angle=theta.s)
