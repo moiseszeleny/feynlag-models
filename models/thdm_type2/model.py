@@ -163,7 +163,7 @@ def build(benchmark=None):
 
 def outputs(bundle, out_dir):
     e = bundle.extra
-    masses = {"m_h": e["MH0"].expr, "m_H": e["MHH"].expr, "m_A": e["MA0"].expr,
-              "m_H+": e["MHp"].expr, "alpha": e["alpha"].expr, "beta": e["beta"].expr,
-              "m_W": e["MW"].expr, "m_Z": e["MZ"].expr}
+    masses = {"$m_h$": e["MH0"].expr, "$m_H$": e["MHH"].expr, "$m_A$": e["MA0"].expr,
+              r"$m_{H^\pm}$": e["MHp"].expr, r"$\alpha$": e["alpha"].expr, r"$\beta$": e["beta"].expr,
+              "$m_W$": e["MW"].expr, "$m_Z$": e["MZ"].expr}
     return standard_outputs(bundle, out_dir, "THDM_TYPE2_UFO", masses)

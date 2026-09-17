@@ -38,11 +38,11 @@ uv run python scripts/build_genealogy.py [--check]
 
 ## Architecture
 
-The flow is `SMPieces` → feynlag `Model` → `ModelBundle` → tests, outputs and UFO.
+Data flows from `SMPieces` to a feynlag `Model`, then to a `ModelBundle`, which the tests, outputs and UFO export consume.
 
 - **`models/sm/model.py` is the root and the parent of everything.**
   - `pieces(benchmark, higgs=True)` returns a `feynlag_models.bundle.SMPieces`: the gauge
-    groups, one fermion generation (t, b, τ, ν_τ, with colour), the parameter list, and
+    groups, one fermion generation ($t$, $b$, $\tau$, $\nu_\tau$, with colour), the parameter list, and
     sector-tagged Lagrangian terms, before any `Model` exists.
   - `higgs=False` omits the Higgs doublet and Yukawas, for models that replace the scalar
     sector, like the 2HDM.
@@ -51,7 +51,7 @@ The flow is `SMPieces` → feynlag `Model` → `ModelBundle` → tests, outputs 
     and `width_params` give the UFO boson particles and width inputs.
 - **Each child `models/<id>/model.py` is "parent + delta".** It calls `sm.pieces(...)`,
   appends fields, parameters and `p.add_term(expr, sector, name)`, then assembles the `Model`.
-  - `build()` then solves tadpoles, registers rotations (the Weinberg and W± rotations via
+  - `build()` then solves tadpoles, registers rotations (the Weinberg and $W^\pm$ rotations via
     feynlag's `to_physical_basis` or the primitives), and returns a `ModelBundle`.
   - The bundle holds the model, the physical `bosons` dict, the conjugate map, the charges,
     a `ParameterSet` including the mass and angle internals, the Dirac specs, the UFO
@@ -60,14 +60,14 @@ The flow is `SMPieces` → feynlag `Model` → `ModelBundle` → tests, outputs 
     `only_failures(report, ["soft_z2_breaking"])`.
   - A model may define `outputs(bundle, out_dir)`, usually via
     `feynlag_models.outputs.standard_outputs`.
-- **The numeric benchmark lives only in `metadata.yaml → benchmark.inputs`.** Models read it
+- **The numeric benchmark lives only in `metadata.yaml`, key `benchmark.inputs`.** Models read it
   via `feynlag_models.metadata.benchmark_inputs`, and `build(benchmark=dict)` overrides it.
   `bundle.values()` evaluates every parameter at that point.
 - **`feynlag_models/` is shared and model-independent.**
   - `checks.py`: `assert_dual_equal` (symbolic `simplify` plus feynlag's `numeric_equal`),
     Goldstone and massive-boson counting, and `only_failures`.
   - `ufo.py`: `export_ufo`, a unitary-gauge export. It drops Goldstone legs and applies the
-    documented sign flip of the W⁺W⁻γ/Z triple-gauge coupling. `flatten_fermion_vertices` merges
+    documented sign flip of the $W^+W^-\gamma$ and $W^+W^-Z$ couplings. `flatten_fermion_vertices` merges
     chiral keys into FFS/FFV vertices. `DiracSpec.copies` lists the redundant quark colour
     components to skip. `exported_vertex_classes` reads a written UFO.
   - `metadata.py`: the v2 validator. `registry.py`: model discovery. `stamp.py`:
@@ -92,7 +92,7 @@ The flow is `SMPieces` → feynlag `Model` → `ModelBundle` → tests, outputs 
   strict xfail. Check `FEYNLAG_GAPS.md` for open gaps and the workarounds that still apply at
   the current pin before building on the affected features.
 - **One source of truth for conventions: `CONVENTIONS.md`.** It fixes the metric, potential
-  signs, VEV normalisation, `rotation_2x2(θ) = [[c, s], [−s, c]]` with new = R·old, the
+  signs, VEV normalisation, `rotation_2x2(theta)` ($R_{11} = R_{22} = \cos\theta$, $R_{12} = -R_{21} = \sin\theta$, new $= R\cdot$ old), the
   Feynman-rule definition, and names and PDG codes. Any difference from a paper goes into
   `metadata.yaml`: an entry in `discrepancies` (`status: convention` if that is all it is)
   and a `conventions_map` on the reference. Do not leave it only in a test docstring.
@@ -139,10 +139,10 @@ the cross-checks:
   on a fixed branch. Substitute a positive dummy that encodes the benchmark regime, as
   `_branch()` does in `models/sm_singlet_z2/tests/test_l2_literature.py`. Never feed a raw
   difference to `sqrt`.
-- Substitute the angle solution *before* setting a coupling to zero (`.subs(θ, sol).subs(λ, 0)`).
+- Substitute the angle solution *before* setting a coupling to zero (`.subs(theta, sol).subs(lam, 0)`).
   The other order leaves an unsimplifiable `atan(0/…)`.
 - Write small differences in a cancellation-free form. The seesaw light mass is
-  `2m_D²/(√(M_R²+4m_D²)+M_R)`, not `(√…−M_R)/2`, so the UFO card keeps its precision.
+  $2m_D^2/\big(\sqrt{M_R^2+4m_D^2}+M_R\big)$, not $\big(\sqrt{M_R^2+4m_D^2}-M_R\big)/2$, so the UFO card keeps its precision.
 - Mass eigenvalues and angles live in `InternalParameter`s whose expressions still contain the
   angle symbol. Resolve them with `bundle.params.resolve()` or `bundle.values()`, or
   substitute `rot.angle_solution`.

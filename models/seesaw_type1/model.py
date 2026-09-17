@@ -131,7 +131,7 @@ def physical_neutrino_lagrangian(bundle):
 
 def outputs(bundle, out_dir):
     e = bundle.extra
-    masses = {"m_h": e["MH"].expr, "m_W": e["MW"].expr, "m_Z": e["MZ"].expr,
-              "m_D": e["mDsym"].expr, "m_nu (exact)": e["MN1"].expr, "m_N (exact)": e["MN2"].expr,
-              "m_nu (seesaw approx)": -e["m_light_approx"]}
+    masses = {"$m_h$": e["MH"].expr, "$m_W$": e["MW"].expr, "$m_Z$": e["MZ"].expr,
+              "$m_D$": e["mDsym"].expr, r"$m_\nu$ (exact)": e["MN1"].expr, "$m_N$ (exact)": e["MN2"].expr,
+              r"$m_\nu$ (seesaw approximation)": -e["m_light_approx"]}
     return standard_outputs(bundle, out_dir, "SEESAW_TYPE1_UFO", masses, ufo=False)

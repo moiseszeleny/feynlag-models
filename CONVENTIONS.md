@@ -4,65 +4,124 @@ Inherits every convention of `feynlag` (`CONVENTIONS.md` there, pinned by its
 tests); this file fixes what the model library adds. A model that departs from
 any item must state the map in its card.
 
+## Markdown
+- Physics is written in LaTeX: dollar-delimited inline math, and fenced code blocks
+  with the language `math` for long expressions. Code (file paths, test ids, Python and parameter identifiers,
+  commands, metadata keys) stays in backticks. When prose names a code object and
+  its physics, give both, e.g. `lamHS` ($\lambda_{HS}$).
+- Inside table cells write $\vert$ as `\vert`, never a bare `|`.
+- Keep a space or ordinary punctuation next to each inline formula; two formulas joined by a
+  dash do not render, so write a range as an inequality (`140 \le m_H \le 180`) or in words. A formula with
+  several subscripts uses the backtick-delimited form (dollar, backtick, formula, backtick,
+  dollar), which stops GitHub from reading the underscores as italics.
+- Math does not render inside `*italics*`; put a title that contains a formula in quotes instead.
+- `tests/test_markdown_math.py` rejects formula Unicode (Greek letters,
+  superscripts, $\sqrt{}$, $\dagger$, …) outside math, including inside code spans.
+
 ## Metric, Dirac algebra, covariant derivative
-- Metric `(+, −, −, −)`; `{γ^μ, γ^ν} = 2 g^{μν}`; `γ₅ = iγ⁰γ¹γ²γ³`;
-  `P_L = (1 − γ₅)/2`, `P_R = (1 + γ₅)/2`; `C = iγ²γ⁰`.
-- `D_μ = ∂_μ − i g T^a A^a_μ` for every gauge factor.
-- Kinetic terms `+(D_μφ)†(D^μφ)`, `+i ψ̄ γ^μ D_μ ψ`, `−¼ F F`; real scalar `+½ (∂S)²`.
+- Metric $(+,-,-,-)$; $\{\gamma^\mu,\gamma^\nu\} = 2g^{\mu\nu}$; $\gamma_5 = i\gamma^0\gamma^1\gamma^2\gamma^3$;
+  $P_L = (1-\gamma_5)/2$, $P_R = (1+\gamma_5)/2$; $C = i\gamma^2\gamma^0$.
+- $D_\mu = \partial_\mu - i g T^a A^a_\mu$ for every gauge factor.
+- Kinetic terms $+(D_\mu\phi)^\dagger(D^\mu\phi)$, $+i\bar\psi\gamma^\mu D_\mu\psi$,
+  $-\tfrac14 F_{\mu\nu}F^{\mu\nu}$; a real scalar has $+\tfrac12(\partial_\mu S)^2$.
 
-## Scalar potentials (the Lagrangian stores `−V` in sector `potential`)
-- **SM**: `V = −μ² H†H + λ (H†H)²`, `H = (G⁺, (v + h + i G⁰)/√2)`;
-  tadpole `μ² = λ v²`; `m_h² = 2 λ v²`; `m_W = g v/2`, `m_Z = √(g² + g′²) v/2`.
-- **Real singlet (Z₂)**: `V ⊃ +½ μ_S² S² + ¼ λ_S S⁴ + ½ λ_HS (H†H) S²`;
-  `S → v_S + s` (no `1/√2` for a real field). CP-even block in the basis `(h, s)`.
-  Mass eigenstates `(h1, h2) = R(θ)(h, s)`; `h1` is the lighter state at the benchmark.
-- **2HDM (CP-conserving, softly broken Z₂)**, Gunion–Haber / Branco et al. form:
-  `V = m11² H1†H1 + m22² H2†H2 − m12² (H1†H2 + h.c.) + ½λ1 (H1†H1)² + ½λ2 (H2†H2)²
-  + λ3 (H1†H1)(H2†H2) + λ4 |H1†H2|² + ½λ5 [(H1†H2)² + h.c.]`, all parameters real;
-  `H_i = (H_i⁺, (v_i + ρ_i + i η_i)/√2)`, `tan β = v2/v1`, `v² = v1² + v2² ≈ (246 GeV)²`.
-  Z₂: `H2 → −H2`; the only Z₂-odd term is `m12²`. Type II: `u_R → −u_R` (couples to `H̃2`),
-  `d_R`, `e_R` even (couple to `H1`).
+## Scalar potentials (the Lagrangian stores $-V$ in sector `potential`)
+- **SM**:
 
-## Rotations (feynlag `rotation_2x2(θ) = [[c, s], [−s, c]]`, `new = R · old`)
-- `(H, h) = R(α)(ρ1, ρ2)`: `H = cα ρ1 + sα ρ2`, `h = −sα ρ1 + cα ρ2`; `h` is the lighter CP-even state.
-- `(G⁰, A) = R(β)(η1, η2)`; `(G⁺, H⁺) = R(β)(H1⁺, H2⁺)`.
-- Singlet: `(h1, h2) = R(θ)(h, s)` with `tan 2θ` from the off-diagonal condition.
-- Weinberg: `(Z, A) = R(−θ_W)(W³, B)`, `tan θ_W = g′/g`; `W^± = (W¹ ∓ i W²)/√2`.
-- Every angle is verified against its defining `tan 2θ` relation, not only `c² + s² = 1`.
+  ```math
+  V = -\mu^2 H^\dagger H + \lambda (H^\dagger H)^2,\qquad
+  H = \begin{pmatrix} G^+ \\ (v + h + i G^0)/\sqrt2 \end{pmatrix},
+  ```
+
+  tadpole $\mu^2 = \lambda v^2$; $m_h^2 = 2\lambda v^2$; $m_W = g v/2$,
+  $m_Z = \sqrt{g^2 + g'^2}\,v/2$.
+- **Real singlet ($Z_2$)**:
+  $V \supset \tfrac12\mu_S^2 S^2 + \tfrac14\lambda_S S^4 + \tfrac12\lambda_{HS}(H^\dagger H)S^2$,
+  with $S \to v_S + s$ (no $1/\sqrt2$ for a real field). The CP-even block is in the basis
+  $(h, s)$. Mass eigenstates $(h_1, h_2) = R(\theta)(h, s)$; $h_1$ is the lighter state at the
+  benchmark.
+- **2HDM (CP-conserving, softly broken $Z_2$)**, in the Gunion–Haber / Branco et al. form, all
+  parameters real:
+
+  ```math
+  \begin{aligned}
+  V ={}& m_{11}^2 H_1^\dagger H_1 + m_{22}^2 H_2^\dagger H_2
+        - m_{12}^2\left(H_1^\dagger H_2 + \text{h.c.}\right)
+        + \tfrac12\lambda_1 (H_1^\dagger H_1)^2 + \tfrac12\lambda_2 (H_2^\dagger H_2)^2 \\
+      & + \lambda_3 (H_1^\dagger H_1)(H_2^\dagger H_2) + \lambda_4 \lvert H_1^\dagger H_2\rvert^2
+        + \tfrac12\lambda_5\left[(H_1^\dagger H_2)^2 + \text{h.c.}\right],
+  \end{aligned}
+  ```
+
+  $H_i = \big(H_i^+,\ (v_i + \rho_i + i\eta_i)/\sqrt2\big)$, $\tan\beta = v_2/v_1$,
+  $v^2 = v_1^2 + v_2^2 \approx (246\ \text{GeV})^2$.
+  $Z_2$: $H_2 \to -H_2$, and the only $Z_2$-odd term is the $m_{12}^2$ term. Type II:
+  $u_R \to -u_R$ (couples to $\tilde H_2$); $d_R$ and $e_R$ are even (couple to $H_1$).
+
+## Rotations
+feynlag's `rotation_2x2(theta)` is
+
+```math
+R(\theta) = \begin{pmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{pmatrix},
+\qquad \text{new} = R \cdot \text{old}.
+```
+
+- $(H, h) = R(\alpha)(\rho_1, \rho_2)$: $H = c_\alpha\rho_1 + s_\alpha\rho_2$,
+  $h = -s_\alpha\rho_1 + c_\alpha\rho_2$; $h$ is the lighter CP-even state.
+- $(G^0, A) = R(\beta)(\eta_1, \eta_2)$; $(G^+, H^+) = R(\beta)(H_1^+, H_2^+)$.
+- Singlet: $(h_1, h_2) = R(\theta)(h, s)$, with $\tan 2\theta$ from the off-diagonal condition.
+- Weinberg: $(Z, A) = R(-\theta_W)(W^3, B)$, $\tan\theta_W = g'/g$;
+  $W^\pm = (W^1 \mp i W^2)/\sqrt2$.
+- Every angle is verified against its defining $\tan 2\theta$ relation, not only
+  $c^2 + s^2 = 1$.
 
 ## Fermions
-- One generation per model (third generation names: `t, b, τ, ν_τ`); Dirac fermions are
-  two Weyl fields (`tL`/`tR`, …). Yukawas `−y ψ̄_L Φ ψ_R + h.c.`, `Φ̃ = (Φ⁰*, −Φ⁺*)`;
-  Dirac mass `m_f = y_f v/√2` (SM, seesaw, singlet) or `y_f v_i/√2` (2HDM).
-- Majorana mass `−½ M_R ν_Rᵀ C ν_R + h.c.`; seesaw basis `n = (ν_L, ν_R^c)`,
-  `M_ν = [[0, m_D], [m_Dᵀ, M_R]]`, Takagi `M_ν = U D Uᵀ` (`D ≥ 0`), light `m_ν ≈ −m_D M_R⁻¹ m_Dᵀ`.
+- One generation per model, with third-generation names $t, b, \tau, \nu_\tau$. Dirac fermions
+  are two Weyl fields (`tL`/`tR`, …). Yukawas are
+  $-y\,\bar\psi_L\Phi\psi_R + \text{h.c.}$ with $\tilde\Phi = (\Phi^{0*}, -\Phi^{+*})$.
+  The Dirac mass is $m_f = y_f v/\sqrt2$ (SM, seesaw, singlet) or $y_f v_i/\sqrt2$ (2HDM).
+- The Majorana mass is $-\tfrac12 M_R\,\nu_R^T C\nu_R + \text{h.c.}$ In the seesaw basis
+  $n = (\nu_L, \nu_R^c)$:
+
+  ```math
+  M_\nu = \begin{pmatrix} 0 & m_D \\ m_D^T & M_R \end{pmatrix},\qquad
+  M_\nu = U D U^T\ (D \ge 0),\qquad
+  m_\nu \approx -m_D M_R^{-1} m_D^T .
+  ```
 
 ## Feynman rules and export
-- Vertex = `i × ∂ⁿ L / ∂φ₁…∂φₙ |₀ = i × (monomial coefficient) × ∏_f (multiplicity of f)!`.
-- Momenta incoming; `∂_μ φ → i p(φ)_μ φ` (feynlag convention, pinned by its VSS test).
-- UFO triple-gauge couplings built from the complex `W^±` rotation are sign-flipped
-  (`gAWW`, `gZWW`) at export, following the feynlag MadGraph benchmark; the flip lives in
+- The vertex is
+
+  ```math
+  i\,\frac{\partial^n \mathcal L}{\partial\phi_1\cdots\partial\phi_n}\bigg\vert_0
+  = i \times (\text{monomial coefficient}) \times \prod_f (\text{multiplicity of } f)!\,.
+  ```
+
+- Momenta are incoming, and $\partial_\mu\phi \to i\,p(\phi)_\mu\,\phi$ (feynlag's convention,
+  pinned by its VSS test).
+- UFO triple-gauge couplings built from the complex $W^\pm$ rotation are sign-flipped
+  (`gAWW`, `gZWW`) at export, following the feynlag MadGraph benchmark. The flip lives in
   `feynlag_models/ufo.py` and nowhere else.
-- UFO fermion couplings are the raw Lagrangian coefficients; the writer applies the `i`.
+- UFO fermion couplings are the raw Lagrangian coefficients; the writer applies the $i$.
 
 ## Names and PDG codes
-| state | symbol | UFO name | PDG | note |
-|---|---|---|---|---|
-| CP-even Higgs (SM-like) | `h` / `h1` | `h` | 25 | |
-| second CP-even | `H` (2HDM), `h2` (singlet) | `h2` | 35 | FeynRules-2HDM-style lowercase names avoid case clashes in MadGraph |
-| CP-odd | `A0` | `h3` | 36 | |
-| charged Higgs | `Hp`/`Hm` | `h+`/`h-` | 37 | |
-| neutral / charged Goldstone | `G0`, `Gp`/`Gm` | `G0`, `G+`/`G-` | 250, 251 | as in the FeynRules SM; dropped from unitary-gauge exports |
-| Z, photon, W | `Z`, `A`, `Wp`/`Wm` | `Z`, `a`, `W+`/`W-` | 23, 22, 24 | |
-| heavy Majorana neutrino | `N` | — (not exportable, FG-3) | 9900012 | HeavyN-UFO style code — TODO(verify) |
-| leptons / quarks | `ta`, `vt`, `t`, `b` | `ta-`, `vt`, `t`, `b` | 15, 16, 6, 5 | |
+| state | physics symbol | code symbol | UFO name | PDG | note |
+|---|---|---|---|---|---|
+| CP-even Higgs (SM-like) | $h$, $h_1$ | `h`, `h1` | `h` | 25 | |
+| second CP-even | $H$ (2HDM), $h_2$ (singlet) | `H`, `h2` | `h2` | 35 | FeynRules-2HDM-style lowercase names avoid case clashes in MadGraph |
+| CP-odd | $A$ | `A0` | `h3` | 36 | |
+| charged Higgs | $H^\pm$ | `Hp`, `Hm` | `h+`, `h-` | 37 | |
+| neutral / charged Goldstone | $G^0$, $G^\pm$ | `G0`, `Gp`, `Gm` | `G0`, `G+`, `G-` | 250, 251 | as in the FeynRules SM; dropped from unitary-gauge exports |
+| $Z$, photon, $W$ | $Z$, $A$, $W^\pm$ | `Z`, `A`, `Wp`, `Wm` | `Z`, `a`, `W+`, `W-` | 23, 22, 24 | |
+| heavy Majorana neutrino | $N$ | `chiL[k]`, `chiR[k]` | none (not exportable, FG-3) | 9900012 | HeavyN-UFO style code — TODO(verify) |
+| leptons / quarks | $\tau$, $\nu_\tau$, $t$, $b$ | `ta`, `vt`, `t`, `b` | `ta-`, `vt`, `t`, `b` | 15, 16, 6, 5 | |
 
 Parameter names are snake ASCII and UFO-safe (`lam_HS`, `vS`, `m12sq`, `tanb`).
 Model ids match `^[a-z0-9_]+$` and equal their directory names.
 
 ## Verification discipline
-- Dual check for every physical result: `sp.simplify(a − b) == 0` **and**
+- Dual check for every physical result: `sp.simplify(a - b) == 0` **and**
   `feynlag.numeric_equal(a, b, symbols)` at random points (`feynlag_models.checks.dual_equal`).
-- Benchmark numbers come from `metadata.yaml → benchmark` only.
+- Benchmark numbers come from `metadata.yaml` `benchmark.inputs` only.
 - Every statement in a card is tagged **[feynlag-verified: test]** or **[physics judgment]**.
 - Unknown numbers, bounds, equation numbers or citations are written `TODO(verify)`.

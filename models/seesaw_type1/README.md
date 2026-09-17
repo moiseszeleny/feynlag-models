@@ -1,56 +1,81 @@
 # Type-I seesaw — physics card
 
-**id** `seesaw_type1` · **parents** `sm` · **maturity** L2 (L3 blocked: feynlag has no UFO path for Majorana fermions, FEYNLAG_GAPS.md FG-3)
+**id** `seesaw_type1` · **parents** `sm` · **maturity** L2 (L3 blocked: feynlag has no UFO path for Majorana fermions, `FEYNLAG_GAPS.md` FG-3)
 
 Tags: **[feynlag-verified: test]** = pinned by a test in `tests/`; **[physics judgment]** = not machine-checked.
 
 ## Problem addressed
 Neutrino masses. One gauge-singlet right-handed neutrino with a Dirac Yukawa and a large
-Majorana mass gives the light neutrino a tiny Majorana mass `m_ν ≈ m_D²/M_R` and a heavy
-partner `N` whose gauge and Higgs couplings are suppressed by the mixing `V ≈ m_D/M_R`. [physics judgment]
+Majorana mass gives the light neutrino a tiny Majorana mass $m_\nu \approx m_D^2/M_R$ and a heavy
+partner $N$ whose gauge and Higgs couplings are suppressed by the mixing $V \approx m_D/M_R$. [physics judgment]
 
 ## Field content
-| field | spin | SU(3)_c × SU(2)_L × U(1)_Y | extra charges | generations |
+| field | spin | $SU(3)_c \times SU(2)_L \times U(1)_Y$ | extra charges | generations |
 |---|---|---|---|---|
-| `nuR` | 1/2 (R) | (1, 1, 0) | — | 1 |
+| $\nu_R$ (`nuR`) | $\tfrac12$ (R) | $(1, 1, 0)$ | lepton number $L = 1$ | 1 |
 | + everything of `sm` | | | | |
 
 Anomaly cancellation is untouched (a total singlet) **[feynlag-verified: `tests/test_l0_l1.py::test_validate_invariance_and_anomalies`]**.
 
 ## New symmetry and breaking
-No new symmetry is imposed. The SM's accidental lepton number `U(1)_L` is **explicitly broken** by
-two units by the Majorana mass `−½ M_R ν_Rᵀ C ν_R + h.c.`; the physical neutrinos are Majorana. [physics judgment]
+No new symmetry is imposed. The SM's accidental lepton number $U(1)_L$ is **explicitly broken** by
+two units by the Majorana mass $-\tfrac12 M_R\,\nu_R^T C\nu_R + \text{h.c.}$; the physical neutrinos
+are Majorana. [physics judgment]
 
 ## New Lagrangian terms
-`L ⊃ −y_ν L̄ H̃ ν_R − ½ M_R ν_Rᵀ C ν_R + h.c.`, `H̃ = (H⁰*, −H⁺*)`, `C = iγ²γ⁰`.
+
+```math
+\mathcal L \supset -y_\nu\,\bar L_L \tilde H \nu_R - \tfrac12 M_R\,\nu_R^T C \nu_R + \text{h.c.},
+\qquad \tilde H = (H^{0*}, -H^{+*}),\qquad C = i\gamma^2\gamma^0 .
+```
 
 ## Key mechanism
-- Dirac mass `m_D = y_ν v/√2`, Majorana block `M_R`; in `n = (ν_L, ν_R^c)`,
-  `M_ν = [[0, m_D], [m_D, M_R]]` (symmetric) **[feynlag-verified: `test_mass_matrix_entries`]**
-- Takagi factorisation `M_ν = U D Uᵀ` at the benchmark: `U D Uᵀ` reconstructs `M_ν`; one light and one
-  heavy state; the closed-form singular values `m_{ν,N} = (√(M_R²+4m_D²) ∓ M_R)/2` agree
+- The Dirac mass is $m_D = y_\nu v/\sqrt2$ and the Majorana block is $M_R$. In the basis
+  $n = (\nu_L, \nu_R^c)$ the mass matrix is symmetric
+  **[feynlag-verified: `test_mass_matrix_entries`]**:
+
+  ```math
+  M_\nu = \begin{pmatrix} 0 & m_D \\ m_D & M_R \end{pmatrix}.
+  ```
+
+- Takagi factorisation $M_\nu = U D U^T$ at the benchmark: $U D U^T$ reconstructs $M_\nu$, with one
+  light and one heavy state, and the closed-form singular values
+  $`m_{\nu,N} = \big(\sqrt{M_R^2 + 4m_D^2} \mp M_R\big)/2`$ agree
   **[feynlag-verified: `test_takagi_spectrum_at_benchmark`]**
-- Seesaw formula: `m_ν(exact) = m_D²/M_R · (1 − m_D²/M_R² + …)` (symbolic series)
-  **[feynlag-verified: `tests/test_l2_literature.py::test_seesaw_formula_vs_exact_eigenvalue`]**
-- Physical couplings through `MajoranaRotation` (ν_L → U* χ_L, ν_R → U χ_R):
-  `W⁻ ē χ_k = (g/√2) U[ν_L,k]`, `Z χ̄_k χ_k′ = (g_Z/2) U[ν_L,k] U[ν_L,k′]`, `h χ̄_k χ_k′ = (y_ν/√2) U[ν_L,k] U[ν_R,k′]`
-  — full strength for the light state, `× V` for `N`, matching Atre–Han–Pascoli–Zhang Eq. (2.5)
-  **[feynlag-verified: `test_W_coupling_eq_2_5`, `test_Z_coupling_eq_2_5`, `test_h_nu_N_coupling`]**
-- Decoupling: `V = m_D/√(m_D² + m_N²) → 0` as `M_R → ∞`, `V = m_D/M_R + O(m_D³/M_R³)`
-  **[feynlag-verified: `test_decoupling_M_R_to_infinity`]**
+- Seesaw formula, as a symbolic series
+  **[feynlag-verified: `tests/test_l2_literature.py::test_seesaw_formula_vs_exact_eigenvalue`]**:
+
+  ```math
+  m_\nu^{\text{exact}} = \frac{m_D^2}{M_R}\left(1 - \frac{m_D^2}{M_R^2} + \dots\right).
+  ```
+
+- Physical couplings come through `MajoranaRotation`, which substitutes
+  $\nu_L \to U^*\chi_L$ and $\nu_R \to U\chi_R$. They match Atre–Han–Pascoli–Zhang Eq. (2.5): full
+  strength for the light state and a factor $V$ for $N$
+  **[feynlag-verified: `test_W_coupling_eq_2_5`, `test_Z_coupling_eq_2_5`, `test_h_nu_N_coupling`]**:
+
+  ```math
+  W^-\bar e\chi_k = \frac{g}{\sqrt2}\,U_{\nu_L k},\qquad
+  Z\bar\chi_k\chi_{k'} = \frac{g_Z}{2}\,U_{\nu_L k}U_{\nu_L k'},\qquad
+  h\bar\chi_k\chi_{k'} = \frac{y_\nu}{\sqrt2}\,U_{\nu_L k}U_{\nu_R k'} .
+  ```
+
+- Decoupling: $`V = m_D/\sqrt{m_D^2 + m_N^2} \to 0`$ as $M_R \to \infty$, with
+  $`V = m_D/M_R + \mathcal O(m_D^3/M_R^3)`$ **[feynlag-verified: `test_decoupling_M_R_to_infinity`]**
 
 ## Characteristic scale
-`M_R`. At the benchmark (`y_ν = 10⁻⁶`, `M_R = 1 TeV`): `m_D ≈ 0.17 MeV`, `m_ν ≈ 0.03 eV`,
-`m_N ≈ 1 TeV`, `V ≈ 1.7×10⁻⁷` (`outputs/spectrum.md`). With `y_ν ~ 1` the same `m_ν` needs
-`M_R ~ 10¹⁴–10¹⁵ GeV`; TeV-scale `N` with observable mixing requires `y_ν ≪ 1` or a
-cancellation structure (inverse/linear seesaw). [physics judgment]
+$M_R$. At the benchmark ($y_\nu = 10^{-6}$, $M_R = 1$ TeV): $m_D \approx 0.17$ MeV,
+$m_\nu \approx 0.03$ eV, $m_N \approx 1$ TeV, $V \approx 1.7\times10^{-7}$ (`outputs/spectrum.md`).
+With $y_\nu \sim 1$ the same $m_\nu$ needs $M_R \sim 10^{14}$ to $10^{15}$ GeV; a TeV-scale $N$ with
+observable mixing requires $y_\nu \ll 1$ or a cancellation structure (inverse or linear seesaw).
+[physics judgment]
 
 ## Observables that test it
-Neutrinoless double beta decay (`ΔL = 2`), direct searches for heavy neutral leptons via
-`W → ℓ N` and `Z → ν N` with rates `∝ |V_ℓN|²`, lepton-flavour violation in 3-generation
-versions, and the light-neutrino mass scale (cosmology, KATRIN). [physics judgment]
+Neutrinoless double beta decay ($\Delta L = 2$), direct searches for heavy neutral leptons via
+$W \to \ell N$ and $Z \to \nu N$ with rates $\propto \lvert V_{\ell N}\rvert^2$, lepton-flavour violation
+in 3-generation versions, and the light-neutrino mass scale (cosmology, KATRIN). [physics judgment]
 
 ## Genealogy
-Parent: `sm`. Proposed children: 3-generation seesaw with Casas–Ibarra parametrisation,
-inverse seesaw, type-II (scalar triplet) and type-III (fermion triplet) seesaws, `sm_singlet_z2 +
-seesaw_type1` (singlet-generated `M_R`). See `GENEALOGY.md`.
+Parent: `sm`. Proposed children: 3-generation seesaw with the Casas–Ibarra parametrisation,
+inverse seesaw, type-II (scalar triplet) and type-III (fermion triplet) seesaws, and
+`sm_singlet_z2` + `seesaw_type1` (singlet-generated $M_R$). See `GENEALOGY.md`.

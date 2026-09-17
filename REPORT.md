@@ -7,8 +7,8 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 
 | model | claimed | evidence | notes |
 |---|---|---|---|
-| `sm` | **L3** | 10 tests | UFO round-trip with t, b, τ, ν, EW bosons; L4 not re-claimed (feynlag's own MadGraph benchmark covers EW+leptons) |
-| `sm_singlet_z2` | **L3** | 13 passed | Robens–Stefaniak Eqs. (7)–(13) reproduced (α = −θ, regime λ_S v_S² > λ v²); gaps FG-1, FG-2 resolved |
+| `sm` | **L3** | 10 tests | UFO round-trip with $t$, $b$, $\tau$, $\nu$ and the EW bosons; L4 not re-claimed (feynlag's own MadGraph benchmark covers EW+leptons) |
+| `sm_singlet_z2` | **L3** | 13 passed | Robens–Stefaniak Eqs. (7)–(13) reproduced ($\alpha = -\theta$, regime $\lambda_S v_S^2 > \lambda v^2$); gaps FG-1, FG-2 resolved |
 | `seesaw_type1` | **L2** | 10 tests | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
 | `thdm_type2` | **L3** | 14 passed + 1 strict xfail | GH Eqs. (6)–(17), Branco Eq. (16)/Table 2; benchmark inverted from (125, 300, 300, 320) GeV re-derived exactly by feynlag |
 
@@ -19,7 +19,7 @@ Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the sche
 
 - ~~`thdm_type2::test_charged_higgs_quark_lepton_relative_sign_branco`~~ — removed: the "discrepancy" was a
   transcription error (see "2HDM discrepancies re-checked" below).
-- `thdm_type2::test_mA_mHp_branco_arxiv_text_eq5_6` — **strict xfail**: Branco et al.'s printed `m_A²`, `m_H±²`
+- `thdm_type2::test_mA_mHp_branco_arxiv_text_eq5_6` — **strict xfail**: Branco et al.'s printed $m_A^2$, $m_{H^\pm}^2$
   prefactors (discrepancy D-2).
 - No test is skipped. No `slow` (MadGraph) test exists yet: **L4 was not attempted** for any model.
 
@@ -32,10 +32,10 @@ Categories:
    Atre et al. (0901.3589v2), Branco et al. (1106.0034), Gunion–Haber (hep-ph/0207010); the classic
    seesaw papers (Minkowski, GRS, Yanagida, Mohapatra–Senjanović) were **not** fetched.
 2. **Experimental bounds** in every `NEXT_STEPS.md` §2 except the ones read from Robens–Stefaniak
-   Table II (singlet `|sin α|` ranges) and Atre et al. footnote 1 (`|V_μ4|² < 9.2×10⁻⁸`); Run-2 numbers,
-   `B → X_s γ` `m_H±` bound, `0νββ`, cosmology are all `TODO(verify)`.
+   Table II (singlet $\lvert\sin\alpha\rvert$ ranges) and Atre et al. footnote 1 ($\lvert V_{\mu 4}\rvert^2 < 9.2\times10^{-8}$); Run-2 numbers,
+   the $B \to X_s\gamma$ bound on $m_{H^\pm}$, $0\nu\beta\beta$, cosmology are all `TODO(verify)`.
 3. **Textbook locations** for the SM rules (Peskin–Schroeder chapter/figure; PDG review equation numbers).
-4. **Branco et al. Eqs. (5)–(6)** as extracted read `m_A² ∝ [m12²/(v1v2) − 2λ5]`, `m_H±² ∝ [… − λ4 − λ5]`,
+4. **Branco et al. Eqs. (5)–(6)** as extracted read $m_A^2 \propto [m_{12}^2/(v_1v_2) - 2\lambda_5]$ and $m_{H^\pm}^2 \propto [\ldots - \lambda_4 - \lambda_5]$,
    inconsistent with Gunion–Haber Eqs. (10)–(11) for the same potential normalisation; we match GH and
    feynlag's own pinned tests.
 5. PDG code convention for the heavy neutrino (`9900012`).
@@ -47,7 +47,7 @@ Categories:
   `feynlag_models.checks.scalar_mass_block` is removed; `sm_singlet_z2` uses `Model.mass_matrix`.
 - **FG-2** (resolved, feynlag PR #19) `check_discrete_invariance` false-failed on `Dmu`-built kinetic
   terms. `sm_singlet_z2` now validates with its `Z2` declared; `thdm_type2` checks `Z2` on every term.
-- **FG-3** No UFO export for Majorana fermions → `seesaw_type1` stops at L2.
+- **FG-3** No UFO export for Majorana fermions, so `seesaw_type1` stops at L2.
 
 Additional limitations recorded in the cards (not gaps stopping an item): unitary-gauge UFO only;
 quartic gauge self-couplings in the rotated basis and gluon vertices are not exported; widths of new
@@ -75,14 +75,14 @@ All nine recommendations are in `schema/metadata.schema.json` (v2) and enforced 
 
 What the migration surfaced:
 - **SM, D-1 (convention):** the PDG 2024 EW review, Eqs. (10.2)/(10.6), has the opposite global sign
-  for every gauge coupling to fermions (equivalent to g → −g). The SM L2 checks now cite PDG
+  for every gauge coupling to fermions (equivalent to $g \to -g$). The SM L2 checks now cite PDG
   equation numbers read from the review instead of an unread textbook.
-- **2HDM, D-2 (open):** Branco et al. Eqs. (5)–(6) as extracted give `m_A²`, `m_H±²` prefactors
+- **2HDM, D-2 (open):** Branco et al. Eqs. (5)–(6) as extracted give $m_A^2$, $m_{H^\pm}^2$ prefactors
   that differ from Gunion–Haber Eqs. (10)–(11); possibly a PDF-extraction artefact.
-- **Singlet, D-1 (convention):** α = −θ, now recorded instead of living only in a docstring.
+- **Singlet, D-1 (convention):** $\alpha = -\theta$, now recorded instead of living only in a docstring.
 
 Suite after the migration: `71 passed, 1 skipped, 3 xfailed` (the skip is the UFO-scope check for
-`seesaw_type1`, which declares no UFO). `TODO(verify)` markers: 43 → 30; the remaining ones are
+`seesaw_type1`, which declares no UFO). `TODO(verify)` markers: from 43 down to 30; the remaining ones are
 experimental bounds in `NEXT_STEPS.md` tables, the open 2HDM sign question, and the heavy-neutrino
 PDG code.
 
@@ -95,18 +95,18 @@ notation Branco's Eq. (16) follows.
 - **D-1, resolved (my error).** Eq. (16) has one minus sign in front of a bracket holding both the quark and
   the lepton charged-Higgs terms, and Aoki Eq. (6) is identical. The pilot transcription dropped the bracket.
   Both papers give the two terms the same sign, as feynlag does. The strict xfail became a passing test.
-- **D-3, convention (new).** Aoki Eq. (4) defines H⁺ exactly as we do, yet their Eq. (6) has the opposite
-  overall sign to a direct derivation from it. This is equivalent to H⁺ → −H⁺ and has no observable effect.
-- **D-2, open.** Branco's printed `m_A² = [m12²/(v1v2) − 2λ5] v²` and `m_+² = [m12²/(v1v2) − λ4 − λ5] v²` are
+- **D-3, convention (new).** Aoki Eq. (4) defines $H^+$ exactly as we do, yet their Eq. (6) has the opposite
+  overall sign to a direct derivation from it. This is equivalent to $H^+ \to -H^+$ and has no observable effect.
+- **D-2, open.** Branco's printed $m_A^2 = [m_{12}^2/(v_1v_2) - 2\lambda_5]\,v^2$ and $m_+^2 = [m_{12}^2/(v_1v_2) - \lambda_4 - \lambda_5]\,v^2$ are
   inline text in all three arXiv versions, so they are not an extraction artefact. They contradict the paper's
   own potential: a plain-SymPy derivation without feynlag, Gunion–Haber Eqs. (10)–(11), and feynlag all give
-  `−λ5` and `−(λ4+λ5)/2`. The printed `m_A²` differs by exactly `λ5 v²`. A strict xfail now encodes the printed
+  $-\lambda_5$ and $-(\lambda_4+\lambda_5)/2$. The printed $m_A^2$ differs by exactly $\lambda_5 v^2$. A strict xfail now encodes the printed
   formulas; whether the published version still has them is unknown.
 
 Lesson recorded: read the bracket structure in `pdftotext -layout` output before declaring a sign discrepancy.
 
 ## What to do next
 
-- Attempt L4 for `sm_singlet_z2` (`e⁺e⁻ → Z h1` vs stock `sm` × cos²θ) with the MG5 at `~/.local/mg5dl`.
+- Attempt L4 for `sm_singlet_z2` ($e^+e^- \to Z h_1$ against the stock `sm` result times $\cos^2\theta$) with the MG5 at `~/.local/mg5dl`.
 - Check 2HDM discrepancy D-2 (Branco Eqs. 5–6 prefactors) against the published Phys. Rept. text (paywalled from here).
 - Fill the experimental-bound tables in each `NEXT_STEPS.md` from current PDG / ATLAS / CMS sources.

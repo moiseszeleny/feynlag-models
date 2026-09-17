@@ -218,7 +218,7 @@ def build(benchmark=None):
 
 def outputs(bundle, out_dir):
     e = bundle.extra
-    masses = {"m_h": e["MH"].expr, "m_W": e["MW"].expr, "m_Z": e["MZ"].expr,
-              "m_t": bundle.pieces.masses["MT"].s, "m_b": bundle.pieces.masses["MB"].s,
-              "m_tau": bundle.pieces.masses["MTA"].s}
+    masses = {"$m_h$": e["MH"].expr, "$m_W$": e["MW"].expr, "$m_Z$": e["MZ"].expr,
+              "$m_t$": bundle.pieces.masses["MT"].s, "$m_b$": bundle.pieces.masses["MB"].s,
+              r"$m_\tau$": bundle.pieces.masses["MTA"].s}
     return standard_outputs(bundle, out_dir, "SM_UFO", masses)

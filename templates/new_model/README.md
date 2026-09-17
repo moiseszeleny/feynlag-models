@@ -3,10 +3,11 @@
 **id** `new_model` · **parents** `sm` · **maturity** L0
 
 Tags: **[feynlag-verified: test]** / **[physics judgment]**.
+Write formulas in LaTeX (`$…$` inline, fenced `math` blocks for long ones) and code in backticks; see `CONVENTIONS.md`, section "Markdown".
 
 ## Problem addressed
 ## Field content
-| field | spin | SU(3)_c × SU(2)_L × U(1)_Y | extra charges | generations |
+| field | spin | $SU(3)_c \times SU(2)_L \times U(1)_Y$ | extra charges | generations |
 |---|---|---|---|---|
 ## New symmetry and breaking
 ## New Lagrangian terms

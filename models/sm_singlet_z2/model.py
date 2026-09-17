@@ -101,6 +101,6 @@ def build(benchmark=None):
 
 def outputs(bundle, out_dir):
     e = bundle.extra
-    masses = {"m_h1": e["MH1"].expr, "m_h2": e["MH2"].expr, "theta": e["theta"].expr,
-              "m_W": e["MW"].expr, "m_Z": e["MZ"].expr}
+    masses = {"$m_{h_1}$": e["MH1"].expr, "$m_{h_2}$": e["MH2"].expr, r"$\theta$": e["theta"].expr,
+              "$m_W$": e["MW"].expr, "$m_Z$": e["MZ"].expr}
     return standard_outputs(bundle, out_dir, "SM_SINGLET_Z2_UFO", masses)
