@@ -150,8 +150,7 @@ references:
     url: "https://github.com/moiseszeleny/feynlag"
     commit: "fe2208c87e80119b85ea479fbd074c1f925b81e5"
     verified_against: source_code
-feynlag_gaps:
-  - {id: FG-4, test: "tests/test_l0_l1.py::test_feynlag_fermion_mass_matrix_integer_flavour_gap"}
+feynlag_gaps: []
 outputs:
   ufo: "outputs/SM_CKM_UFO"
   ufo_scope:

@@ -24,7 +24,7 @@ Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the sche
   prefactors (discrepancy D-2).
 - No test is skipped. No `slow` (MadGraph) test exists yet: **L4 was not attempted** for any model.
 
-## TODO(verify) list (43 markers; `grep -rn "TODO(verify)" models CONVENTIONS.md`)
+## TODO(verify) list at the end of the pilot (43 markers; 17 after the schema-v2 migration, 6 after 2026-09-17 — see below)
 
 Categories:
 1. **Journal details of every reference** (venue/volume/page; `inspire`/`doi` fields are `null`) — all
@@ -115,6 +115,28 @@ Lesson recorded: read the bracket structure in `pdftotext -layout` output before
 - The benchmark CKM angles are PDG 2024 Eq. (12.28) central values, not feynlag's `standard_ckm` defaults
   (0.22500, 0.003675, 0.04182, 1.144), whose PDG edition is `TODO(verify)`.
 - $m_u$, $m_d$, $m_s$ are `benchmark.placeholders`; $m_c$, $m_e$, $m_\mu$ are the MadGraph v3.7.2 `sm` defaults.
+
+## Experimental bounds read in (2026-09-17)
+
+Every `NEXT_STEPS.md` §2 table was filled from sources read with `pdftotext` on 2026-09-17; the
+`TODO(verify)` count went from 17 to 6, and each survivor now names the source that was read and
+why it holds no quotable number (the limit is a contour or a figure, not a printed value).
+
+Read in: PDG 2024 EW review Eqs. (10.21), (10.58), (10.63), (10.65), (10.98), (10.99); PDG 2024
+Higgs review Sec. 11.4.1 and Table 11.8; PDG 2024 quark-masses review Eqs. (60.5), (60.7), (60.8);
+PDG 2024 $\tau$ and b-quark Listings; PDG 2024 neutrino review Eqs. (14.101), (14.102);
+KamLAND-Zen arXiv:2406.11438; Planck 2018 VI arXiv:1807.06209 Eq. (63b); Misiak–Steinhauser
+arXiv:1702.04571v1 ($`m_{H^\pm} \gt 580`$ GeV, type II); Fernandez-Martinez et al. arXiv:1605.08774;
+ATLAS Nature 607 (2022) 52 (arXiv:2207.00092v2, $\mu = 1.05 \pm 0.06$).
+
+Also settled: the heavy-neutrino PDG code 9900012 is the FeynRules HeavyN UFO's `N1`
+(`SM_HeavyN_NLO/particles.py`, downloaded and read), and feynlag's `standard_ckm` defaults are the
+**PDG 2022** edition's Eq. (12.28) for three of four values — $`\sin\theta_{13} = 0.003675`$ matches no
+edition and stays `TODO(verify)`.
+
+One derived bound is labelled as such: in `sm_singlet_z2`, $`\mu = \cos^2\theta`$ turns the measured
+ATLAS signal strength into $`\sin^2\theta \lesssim 0.01`$ ($1\sigma$) / $`\lesssim 0.07`$ ($2\sigma$)
+[physics judgment].
 
 ## What to do next
 

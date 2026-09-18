@@ -10,10 +10,14 @@
 | observable | value / bound | source | checked on |
 |---|---|---|---|
 | $\lvert V_{\mu 4}\rvert^2$ for a 33.9 MeV neutral fermion (historical anomaly follow-up) | $\lt 9.2\times10^{-8}$ at 95% C.L. | Atre et al. arXiv:0901.3589v2, footnote 1 of Sec. 2.2 (their Ref. [63]) | 2026-09-16 |
-| $\lvert V_{\ell N}\rvert^2$ against $m_N$ for $1 \lesssim m_N \lesssim 100$ GeV (LHC, LEP, beam dumps) | TODO(verify) — use the current compilation (e.g. Bolton–Deppisch–Dev, arXiv:1912.03058) | ATLAS, CMS, LHCb, NA62, Belle | TODO(verify) |
-| $0\nu\beta\beta$ half-life ($m_{\beta\beta}$) | TODO(verify) — KamLAND-Zen / GERDA / LEGEND | | TODO(verify) |
-| sum of light neutrino masses | TODO(verify) — Planck + BAO | | TODO(verify) |
-| electroweak precision / lepton universality limits on $\lvert V_{\ell N}\rvert^2$ (non-unitarity) | TODO(verify) — global fits (e.g. Fernandez-Martinez et al. arXiv:1605.08774) | | TODO(verify) |
+| $`\lvert V_{\ell N}\rvert^2`$ against $m_N$ for $`1 \lesssim m_N \lesssim 100`$ GeV (LHC, LEP, beam dumps) | TODO(verify): the compilation exists only as exclusion curves (Bolton–Deppisch–Dev, arXiv:1912.03058, Figs. 6–8 and Appendix A), with no representative number in the text; digitising a figure is not a reading | ATLAS, CMS, LHCb, NA62, Belle | 2026-09-17 (source read, no quotable number) |
+| $0\nu\beta\beta$ half-life, $^{136}$Xe | $`T_{1/2}^{0\nu} \gt 2.3\times10^{26}`$ yr at 90% CL, giving $`m_{ee} \lt 36-156`$ meV across nuclear matrix elements | PDG 2024 neutrino review (M.C. Gonzalez-Garcia et al., revised September 2023), Eq. (14.101) with the preceding paragraph | 2026-09-17 |
+| $0\nu\beta\beta$ half-life, $^{76}$Ge | $`T_{1/2}^{0\nu} \gt 1.8\times10^{26}`$ yr at 90% CL (GERDA final), giving $`m_{ee} \lt 79-180`$ meV | PDG 2024 neutrino review, Eq. (14.102) and Sec. 14.9.3 | 2026-09-17 |
+| $0\nu\beta\beta$, latest $^{136}$Xe dataset | $`T_{1/2}^{0\nu} \gt 3.8\times10^{26}`$ yr at 90% CL, $`\langle m_{\beta\beta}\rangle \lt 28-122`$ meV | KamLAND-Zen, arXiv:2406.11438, abstract | 2026-09-17 |
+| sum of light neutrino masses | $`\sum m_\nu \lt 0.12`$ eV at 95% CL (TT,TE,EE+lowE+lensing+BAO); $`\lt 0.24`$ eV without BAO | Planck 2018 VI, arXiv:1807.06209, Eq. (63b) and Table 2 | 2026-09-17 |
+| electroweak precision / lepton universality limits on the mixing (non-unitarity) | at $2\sigma$ the mixings are bounded between $0.1$ and $0.01$, except the $e-\mu$ entry, bounded by $0.005$ from $`\mu \to e\gamma`$; the fit prefers non-zero mixing of order $0.03-0.04$ in the $e$ and $\tau$ sectors at $1-2\sigma$ | Fernandez-Martinez, Hernandez-Garcia, Lopez-Pavon, JHEP 08 (2016) 033, arXiv:1605.08774, abstract | 2026-09-17 |
+
+The $m_{ee}$ ranges above span the nuclear-matrix-element spread quoted by the PDG review, which is a factor 2–3 for a given half-life. [physics judgment]
 
 ## 3. Open theoretical questions
 - Naturalness of the hierarchy $y_\nu \sim 10^{-6}$ at $M_R \sim$ TeV versus $y_\nu \sim 1$ at $M_R \sim 10^{14}$ GeV, and which regime is testable.

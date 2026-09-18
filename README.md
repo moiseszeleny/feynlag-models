@@ -12,6 +12,7 @@ the pilot report.
 | model | what | maturity |
 |---|---|---|
 | [`sm`](models/sm/README.md) | Standard Model root, one full generation | L3 |
+| [`sm_ckm`](models/sm_ckm/README.md) | three generations, CKM mixing from a unitary $d_L$ rotation, GIM derived | L3 |
 | [`sm_singlet_z2`](models/sm_singlet_z2/README.md) | real singlet, spontaneously broken $Z_2$, scalar mixing | L3 |
 | [`seesaw_type1`](models/seesaw_type1/README.md) | one $\nu_R$ with a Majorana mass, Takagi seesaw | L2 |
 | [`thdm_type2`](models/thdm_type2/README.md) | type-II 2HDM, CP-conserving, softly broken $Z_2$ | L3 |
@@ -21,7 +22,7 @@ L2 literature-checked (symbolic and numeric) · L3 UFO round-trip · L4 MadGraph
 
 ```bash
 uv sync --all-extras
-uv run pytest -q -m "not slow"                 # 71 passed, 3 strict xfails (documented gaps/discrepancies)
+uv run pytest -q -m "not slow"                 # 111 passed, 1 skipped, 1 strict xfail (2HDM discrepancy D-2)
 uv run python scripts/build_outputs.py --check
 uv run python scripts/build_genealogy.py --check
 ```

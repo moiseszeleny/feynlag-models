@@ -50,7 +50,7 @@ registered on the `Model` for each colour; the mass-basis fields are the auxilia
 - The weak-basis mass matrices are $M_u = \mathrm{diag}(m_u, m_c, m_t)$,
   $M_e = \mathrm{diag}(m_e, m_\mu, m_\tau)$ and $`M_d = V\,\mathrm{diag}(m_d, m_s, m_b)`$, and
   $V^\dagger M_d$ is diagonal **[feynlag-verified: `test_fermion_masses`]**.
-- $V = R_{23}\,U_{13}(\delta)\,R_{12}$ and $V^\dagger V = 1$
+- $`V = R_{23}\,U_{13}(\delta)\,R_{12}`$ and $V^\dagger V = 1$
   **[feynlag-verified: `test_ckm_standard_parametrization_and_unitarity`]**.
 - The charged current is $`W^+ \bar u_i d_j = i\,(g/\sqrt2)\,V_{ij}\,\gamma^\mu P_L`$, the same as
   feynlag's direct CKM insertion **[feynlag-verified: `test_charged_current_ckm`]**.

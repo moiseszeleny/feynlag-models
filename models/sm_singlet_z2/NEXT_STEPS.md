@@ -18,8 +18,8 @@ must be updated with Run-2 combinations before being used in a paper.
 | $\lvert\sin\alpha\rvert$ for $m_H = 1000$ GeV | allowed $[0.018, 0.17]$, upper limit from $\lambda_1$ perturbativity | arXiv:1501.02234v2, Table II | 2026-09-16 |
 | $\lvert\sin\alpha\rvert$ for $140 \le m_H \le 180$ GeV | upper limit between $0.31$ and $0.46$ from Higgs signal rates | arXiv:1501.02234v2, Table II | 2026-09-16 |
 | lower limits on $\lvert\sin\alpha\rvert$ in the table | from vacuum stability at a scale $\sim 4\times10^{10}$ GeV (RGE) | arXiv:1501.02234v2, Table II caption | 2026-09-16 |
-| Run-2 Higgs signal-strength bound on $\sin^2\theta$ | TODO(verify) — ATLAS/CMS combination | ATLAS, CMS | TODO(verify) |
-| direct $h_2 \to ZZ, WW, hh$ limits (Run 2) | TODO(verify) | ATLAS, CMS | TODO(verify) |
+| Run-2 Higgs signal strength, and the $`\sin^2\theta`$ it implies | measured $\mu = 1.05 \pm 0.06$ (ATLAS Run 2). Every $h_1$ coupling here scales by $\cos\theta$, so $`\mu = \cos^2\theta`$ when $h_1$ has no new decay channel, so the $1\sigma$ edge $\mu \gt 0.99$ gives $`\sin^2\theta \lesssim 0.01`$ and the $2\sigma$ edge $\mu \gt 0.93$ gives $`\sin^2\theta \lesssim 0.07`$ [physics judgment: the inference is ours, the measured number is theirs] | ATLAS, Nature 607 (2022) 52, arXiv:2207.00092v2, combined-measurement section | 2026-09-17 |
+| direct $`h_2 \to ZZ, WW, hh`$ limits (Run 2) | TODO(verify): the PDG 2024 Higgs review points at these searches through Table 11.11 (references only); their results are cross-section limit curves against $m_{h_2}$, not numbers | ATLAS, CMS | 2026-09-17 (source read, no quotable number) |
 
 ## 3. Open theoretical questions
 - Vacuum stability and perturbativity under RGE running (the lower limits above depend on the cutoff scale).

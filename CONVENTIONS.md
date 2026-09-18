@@ -133,7 +133,7 @@ i\,\frac{\partial^n \mathcal L}{\partial\phi_1\cdots\partial\phi_n}\bigg\vert_0
 | charged Higgs | $H^\pm$ | `Hp`, `Hm` | `h+`, `h-` | 37 | |
 | neutral / charged Goldstone | $G^0$, $G^\pm$ | `G0`, `Gp`, `Gm` | `G0`, `G+`, `G-` | 250, 251 | as in the FeynRules SM; dropped from unitary-gauge exports |
 | $Z$, photon, $W$ | $Z$, $A$, $W^\pm$ | `Z`, `A`, `Wp`, `Wm` | `Z`, `a`, `W+`, `W-` | 23, 22, 24 | |
-| heavy Majorana neutrino | $N$ | `chiL[k]`, `chiR[k]` | none (not exportable, FG-3) | 9900012 | HeavyN-UFO style code — TODO(verify) |
+| heavy Majorana neutrino | $N$ | `chiL[k]`, `chiR[k]` | none (not exportable, FG-3) | 9900012 | as in the FeynRules HeavyN UFO (`SM_HeavyN_NLO/particles.py`: `N1` 9900012, `N2` 9900014, `N3` 9900016), read 2026-09-17 |
 | leptons / quarks | $\tau$, $\nu_\tau$, $t$, $b$ | `ta`, `vt`, `t`, `b` | `ta-`, `vt`, `t`, `b` | 15, 16, 6, 5 | |
 | three generations | $u, c, t$; $d, s, b$; $e, \mu, \tau$; $\nu_e, \nu_\mu, \nu_\tau$ | same, `mu`, `ve`, `vm` | `u c t`, `d s b`, `e- mu- ta-`, `ve vm vt` | 2, 4, 6; 1, 3, 5; 11, 13, 15; 12, 14, 16 | FeynRules SM names |
 
