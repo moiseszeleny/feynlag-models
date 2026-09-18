@@ -187,5 +187,5 @@ outputs:
   latex: "outputs/vertices.tex"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
-last_reviewed: 2026-09-16
+last_reviewed: 2026-09-17
 reviewed_by: "Moises Zeleny (with Claude)"
