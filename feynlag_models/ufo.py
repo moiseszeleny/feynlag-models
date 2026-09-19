@@ -2,21 +2,24 @@
 
 Follows the validated recipe of feynlag's ``scripts/export_sm_ufo.py`` (the
 MadGraph benchmark): bosonic vertices straight from ``Model.vertices``, the
-triple-gauge couplings from ``cubic_couplings`` with the documented sign flip
-for the complex ``W±`` basis, and flavour-resolved FFS/FFV vertices flattened
-from ``extract_fermion_vertices``.
+gauge self-couplings (VVV **and** VVVV) from ``Model.gauge_vertices``, and
+flavour-resolved FFS/FFV vertices flattened from ``extract_fermion_vertices``.
 
-Not exported (documented limitation, see FEYNLAG_GAPS.md / NEXT_STEPS): quartic
-gauge self-couplings in the rotated basis, Goldstone vertices (unitary gauge),
-Majorana-fermion vertices.
+Every convention factor that maps feynlag onto UFO lives in feynlag's
+``export/ufo/legs.py`` and is applied by the writer — the field -> particle leg
+sign (what flips ``A W+ W-`` and ``W+ W- Z``), the unconditional ``VSS1`` minus,
+and the charged-Goldstone ``i**q`` phase. **Nothing here applies any of them by
+hand**; a caller-side flip would double-count. See CONVENTIONS.md.
+
+Not exported (documented limitation, see FEYNLAG_GAPS.md / NEXT_STEPS): gluon
+and QCD vertices, Goldstone vertices (unitary gauge), Majorana-fermion vertices.
 """
 
 from pathlib import Path
 
 import sympy as sp
 
-from feynlag import (DiracGamma, cubic_couplings, diracPL, diracPR,
-                     verify_ufo_numeric)
+from feynlag import DiracGamma, diracPL, diracPR, verify_ufo_numeric
 from feynlag.export.ufo import write_ufo
 
 _mu = sp.Symbol("mu", integer=True)
@@ -82,20 +85,30 @@ def flatten_fermion_vertices(table, dirac_specs, bosons, drop=()):
     return list(merged.values()), skipped
 
 
-def triple_gauge(bundle):
-    """``{(A,Wp,Wm): gAWW, (Z,Wp,Wm): gZWW}`` with the benchmark-validated sign."""
-    p = bundle.pieces
-    g, gp = p.gw.s, p.g1.s
-    cw, sw = g / sp.sqrt(g**2 + gp**2), gp / sp.sqrt(g**2 + gp**2)
+def gauge_self_vertices(bundle):
+    """``(vvv, vvvv)`` dicts for ``write_ufo``, from ``Model.gauge_vertices``.
+
+    feynlag derives the weak -> physical rotation from the ``Rotation``s already
+    registered on the model (``feynlag.gauge_basis.adjoint_rotation``), so the
+    electroweak matrix is no longer hand-typed here, and the quartics come out
+    in the same basis as the cubics.
+
+    ``groups=[SU2L]`` is required: an **unbroken** group (``SU3c``, which every
+    model here declares) raises, because its "physical" basis is its weak-basis
+    adjoint and the couplings then carry the colour factor.
+
+    The couplings are in feynlag's own convention; the field -> particle leg
+    sign is the writer's job (see the module docstring).
+    """
     b = bundle.bosons
-    Uc = sp.Matrix([[1 / sp.sqrt(2), 1 / sp.sqrt(2), 0, 0],
-                    [sp.I / sp.sqrt(2), -sp.I / sp.sqrt(2), 0, 0],
-                    [0, 0, cw, sw]])
-    cubic = cubic_couplings(p.SU2L, physical=[b["Wp"], b["Wm"], b["Z"], b["A"]], U=Uc)
-    # sign flip: see CONVENTIONS.md ("Feynman rules and export") and feynlag's
-    # docs/benchmark.md — the complex-W± basis comes out opposite to MG's VVV1.
-    return {(b["A"], b["Wp"], b["Wm"]): -sp.simplify(cubic.get((b["A"], b["Wp"], b["Wm"]), 0)),
-            (b["Z"], b["Wp"], b["Wm"]): -sp.simplify(cubic.get((b["Z"], b["Wp"], b["Wm"]), 0))}
+    vertices = bundle.model.gauge_vertices(
+        groups=[bundle.pieces.SU2L],
+        basis=[b["Wp"], b["Wm"], b["Z"], b["A"]])
+    vvv = {v.particles: v.coupling
+           for v in vertices if v.vertex_type == "VVV"}
+    vvvv = {v.particles: v.structures
+            for v in vertices if v.vertex_type == "VVVV"}
+    return vvv, vvvv
 
 
 def bosonic_vertices(bundle, sectors=("potential", "kinetic")):
@@ -116,9 +129,10 @@ def export_ufo(bundle, path, model_name):
     table = bundle.fermion_table()
     fermion_vertices, skipped = flatten_fermion_vertices(
         table, bundle.dirac, set(bundle.boson_list), drop=drop)
+    vvv, vvvv = gauge_self_vertices(bundle)
     write_ufo(path, model_name, bundle.params, particles,
               bosonic_vertices=bosonic_vertices(bundle),
-              vvv=triple_gauge(bundle),
+              vvv=vvv, vvvv=vvvv,
               fermion_vertices=fermion_vertices)
     report = verify_ufo_numeric(path)
     return path, report, skipped
