@@ -36,8 +36,8 @@ Write formulas in LaTeX and code in backticks (`CONVENTIONS.md`, section "Markdo
   route), so $V$ is not derived from a generic $Y_d$.
 - The UFO writes each coupling as an expression in the angles. The `Vud` … `Vtb` internals are
   exported but not referenced by the vertices.
-- Unitary-gauge UFO only; quartic gauge couplings, gluon vertices and Goldstone vertices are not
-  exported (see `models/sm/NEXT_STEPS.md`).
+- Unitary-gauge UFO only; gluon vertices and Goldstone vertices are not exported
+  (see `models/sm/NEXT_STEPS.md`). Quartic gauge couplings are exported since the `efffdb0` pin.
 - Loops (meson mixing, penguins) are outside feynlag's tree-level scope.
 
 ## 5. Key references

@@ -119,9 +119,24 @@ i\,\frac{\partial^n \mathcal L}{\partial\phi_1\cdots\partial\phi_n}\bigg\vert_0
 
 - Momenta are incoming, and $`\partial_\mu\phi \to i\,p(\phi)_\mu\,\phi`$ (feynlag's convention,
   pinned by its VSS test).
-- UFO triple-gauge couplings built from the complex $W^\pm$ rotation are sign-flipped
-  (`gAWW`, `gZWW`) at export, following the feynlag MadGraph benchmark. The flip lives in
-  `feynlag_models/ufo.py` and nowhere else.
+- **Mapping feynlag's conventions onto UFO's** adds three factors, all applied by feynlag's
+  writer at the export boundary (`feynlag/export/ufo/legs.py`, feynlag's own
+  `CONVENTIONS.md` § "UFO export conventions"). **This repository applies none of them by
+  hand** — a caller-side copy would double-count:
+  - *field $\to$ particle leg sign.* feynlag's symbols label fields; a UFO leg labels a
+    particle, and the field $W^+$ creates a $W^-$. `VVV1` is totally antisymmetric, so the
+    conjugate-pair transposition flips $AW^+W^-$ and $ZW^+W^-$ (and leaves `ggg` alone);
+    `VVS1`/`VVSS1`/`SSS1`/`SSSS1` are invariant, and `VVVV` must be and is checked.
+  - *`VSS1` momentum sign.* `VSS1` carries one power of momentum and feynlag's
+    $`\partial_\mu \to i p_\mu`$ differs from UFO's by a sign there, so a VSS gets $-1$
+    unconditionally (until feynlag `efffdb0` this was applied nowhere, so the 2HDM's
+    $Zhh_3$, $W^\mp H^\pm h$ and $\gamma H^+H^-$ exports carried the wrong sign).
+  - *charged-Goldstone phase.* feynlag's $G^\pm$ carries $i^{-q}$ relative to MadGraph's, so
+    each charged-Goldstone leg contributes $i^{q}$. Inert here (unitary gauge), and a pure
+    rephasing in any case.
+  Pinned by `models/sm/tests/test_l3_ufo.py`, which compares the exported cubic, quartic and
+  scalar–vector couplings to MadGraph's stock `sm` entry-by-entry at the shared benchmark
+  point.
 - UFO fermion couplings are the raw Lagrangian coefficients; the writer applies the $i$.
 
 ## Names and PDG codes

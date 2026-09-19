@@ -27,9 +27,10 @@ this card makes no claim beyond tree level. [physics judgment]
 
 ## 4. What feynlag cannot yet do for this model
 - No $R_\xi$ gauge fixing or ghosts (unitary-gauge UFO only; Goldstone vertices are dropped at export).
-- Quartic gauge self-couplings in the rotated $W^\pm, Z, \gamma$ basis are not exported (feynlag's
-  `assemble_vvvv` works in the real weak basis; the physical-basis assembly is not in the
-  pinned commit). The exported UFO is therefore complete for FFV/FFS/VVS/VVSS/SSS/SSSS/VVV only.
+- The exported UFO is complete for FFV/FFS/VVS/VVSS/SSS/SSSS/VVV/VVVV. (The quartic gauge
+  self-couplings in the rotated $W^\pm, Z, \gamma$ basis arrived with feynlag's `gauge_basis`,
+  pinned since `efffdb0`, and are checked against MadGraph's stock `sm` in
+  `tests/test_l3_ufo.py`.)
 - Gluon vertices are not exported in this pilot (no colour-octet particle); quark vertices
   carry `Identity(1,2)` colour flow so the model imports, but hadron-collider use needs the
   gluon sector (feynlag supports it; not wired here).

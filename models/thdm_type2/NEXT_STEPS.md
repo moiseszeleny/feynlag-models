@@ -27,7 +27,8 @@
 - No physical-basis input inversion (`InternalParameter`s for the $\lambda_i$ from masses); done by hand for `benchmark.derived_from`.
 - No boundedness-from-below / unitarity / oblique-parameter helpers (simple inequalities a child could add).
 - No loops ($h \to \gamma\gamma$ with the $H^\pm$ loop, $B \to X_s\gamma$); feynlag's loop module covers only the SM $gg$, $\gamma\gamma$ and $Z\gamma$ effective vertices.
-- Unitary-gauge UFO only; quartic gauge couplings, gluon vertices and Goldstone vertices are not exported (see `models/sm/NEXT_STEPS.md`).
+- Unitary-gauge UFO only; gluon vertices not exported (see `models/sm/NEXT_STEPS.md`).
+  Quartic gauge couplings are exported since the `efffdb0` pin.
 - The widths `WHH`, `WA0` and `WHp` are placeholders in the UFO card.
 
 ## 5. Key references

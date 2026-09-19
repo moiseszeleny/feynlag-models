@@ -30,7 +30,8 @@ must be updated with Run-2 combinations before being used in a paper.
 - No loops: $h_2 \to \gamma\gamma$ and $h_1 \to \gamma\gamma$ with the rescaled couplings would follow from feynlag's `pheno.loop` effective vertices only.
 - $`\Gamma(h_2 \to h_1 h_1)`$ (Pruna–Robens Eq. 12) is a tree-level SSS width feynlag's `DecayCalculator` can compute; not done in this pilot.
 - No RGE running, unitarity or boundedness-from-below checks (Eqs. 4–5 of the reference) — they are simple inequalities a child could add as tests.
-- Unitary-gauge UFO only; quartic gauge couplings and gluon vertices not exported (see `models/sm/NEXT_STEPS.md`).
+- Unitary-gauge UFO only; gluon vertices not exported (see `models/sm/NEXT_STEPS.md`).
+  Quartic gauge couplings are exported since the `efffdb0` pin.
 
 ## 5. Key references
 1. T. Robens, T. Stefaniak, *Status of the Higgs Singlet Extension of the Standard Model after LHC Run 1*, Eur. Phys. J. C 75 (2015) 104, arXiv:1501.02234, doi:10.1140/epjc/s10052-015-3323-y.
