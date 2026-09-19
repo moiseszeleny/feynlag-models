@@ -66,8 +66,11 @@ Data flows from `SMPieces` to a feynlag `Model`, then to a `ModelBundle`, which 
 - **`feynlag_models/` is shared and model-independent.**
   - `checks.py`: `assert_dual_equal` (symbolic `simplify` plus feynlag's `numeric_equal`),
     Goldstone and massive-boson counting, and `only_failures`.
-  - `ufo.py`: `export_ufo`, a unitary-gauge export. It drops Goldstone legs and applies the
-    documented sign flip of the $W^+W^-\gamma$ and $W^+W^-Z$ couplings. `flatten_fermion_vertices` merges
+  - `ufo.py`: `export_ufo`, a unitary-gauge export. It drops Goldstone legs, and takes the
+    gauge self-couplings (VVV **and** VVVV) from `Model.gauge_vertices(groups=[SU2L], basis=…)`
+    — `groups=` is mandatory, since the unbroken `SU3c` every model declares raises.
+    Convention factors (leg sign, `VSS1` minus, Goldstone phase) belong to feynlag's writer;
+    applying one here would double-count. `flatten_fermion_vertices` merges
     chiral keys into FFS/FFV vertices. `DiracSpec.copies` lists the redundant quark colour
     components to skip. `exported_vertex_classes` reads a written UFO.
   - `metadata.py`: the v2 validator. `registry.py`: model discovery. `stamp.py`:

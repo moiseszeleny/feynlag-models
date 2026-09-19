@@ -14,7 +14,7 @@ def test_ufo_roundtrip(ckm, tmp_path):
     particles = (path / "particles.py").read_text()
     for name in NAMES:
         assert f"name='{name}'" in particles, name
-    assert exported_vertex_classes(path) == {"FFS", "FFV", "SSS", "SSSS", "VVS", "VVSS", "VVV"}
+    assert exported_vertex_classes(path) == {"FFS", "FFV", "SSS", "SSSS", "VVS", "VVSS", "VVV", "VVVV"}
 
     vals = ckm.values()
     g = vals[ckm.pieces.gw.s]
