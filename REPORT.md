@@ -41,7 +41,7 @@ Categories:
    feynlag's own pinned tests.
 5. PDG code convention for the heavy neutrino (`9900012`).
 
-## FEYNLAG_GAPS.md (four entries, two resolved)
+## FEYNLAG_GAPS.md (four entries, three resolved)
 
 - **FG-1** (resolved, feynlag PR #19) `Model.mass_matrix` double-shifted a real VEV'd scalar
   (`Scalar(real=True)` + `expand_vev`), evaluating every block at `S = 2v_S`. The workaround
@@ -49,12 +49,14 @@ Categories:
 - **FG-2** (resolved, feynlag PR #19) `check_discrete_invariance` false-failed on `Dmu`-built kinetic
   terms. `sm_singlet_z2` now validates with its `Z2` declared; `thdm_type2` checks `Z2` on every term.
 - **FG-3** No UFO export for Majorana fermions, so `seesaw_type1` stops at L2.
-- **FG-4** (open, found by `sm_ckm`) `fermion_mass_matrix` and `majorana_mass_matrix` mangle integer flavour
-  indices. `sm_ckm` reads its mass matrices with `feynlag_models.checks.fermion_mass_block` and pins the gap with a strict xfail.
+- **FG-4** (resolved, feynlag PR #20) `fermion_mass_matrix` and `majorana_mass_matrix` mangled integer
+  flavour indices. Each term is now read at its own leg indices; the workaround
+  `feynlag_models.checks.fermion_mass_block` is removed and `sm_ckm` uses feynlag's own builder.
 
 Additional limitations recorded in the cards (not gaps stopping an item): unitary-gauge UFO only;
-quartic gauge self-couplings in the rotated basis and gluon vertices are not exported; widths of new
-scalars are placeholder inputs; every model except `sm_ckm` has one generation and no CKM.
+gluon and QCD vertices are not exported; widths of new scalars are placeholder inputs; every model
+except `sm_ckm` has one generation and no CKM. (Quartic gauge self-couplings **are** exported as of
+the 2026-09-18 pin — see below.)
 
 ## Schema changes — implemented as schema version 2 (2026-09-16)
 
@@ -137,6 +139,37 @@ edition and stays `TODO(verify)`.
 One derived bound is labelled as such: in `sm_singlet_z2`, $`\mu = \cos^2\theta`$ turns the measured
 ATLAS signal strength into $`\sin^2\theta \lesssim 0.01`$ ($1\sigma$) / $`\lesssim 0.07`$ ($2\sigma$)
 [physics judgment].
+
+## feynlag pin moved to `efffdb0` (2026-09-18)
+
+feynlag PRs #21 (physical-basis gauge self-couplings) and #23 (charged-Goldstone export
+convention) landed; the pin moved from `31df7e1` to `efffdb0` and all four UFOs were
+regenerated. Three consequences, each verified rather than assumed:
+
+- **Quartic gauge couplings are now exported.** `Model.gauge_vertices(groups=[SU2L], basis=…)`
+  derives the weak $\to$ physical rotation from the model's own `Rotation`s and returns VVV *and*
+  VVVV, so `feynlag_models/ufo.py` no longer hand-types the electroweak matrix. `VVVV` joins
+  `ufo_scope.vertex_classes` in all four models and leaves every `omitted` list.
+- **The triple-gauge sign flip left this repository.** It is now feynlag's field $\to$ particle leg
+  sign, applied by the writer. Removing our copy was mandatory, not cosmetic: keeping it would
+  have applied the flip twice. The regenerated $AW^+W^-$ / $ZW^+W^-$ vertices come out with
+  both the value **and** the leg order of MadGraph's stock `sm` (previously the legs were
+  emitted transposed with a compensating sign — the same physics, harder to compare).
+- **The 2HDM's ten VSS couplings changed sign** ($Zhh_3$, $Zh_2h_3$, $ZH^+H^-$, $\gamma H^+H^-$,
+  $W^\mp H^\pm h/h_2/h_3$). feynlag's `VSS1` now carries the unconditional $-1$ that maps its
+  $`\partial_\mu \to ip_\mu`$ onto UFO's; nothing applied it before, so those exports had been
+  wrong by a sign since the pilot. `\gamma H^+H^-` now reproduces stock `sm`'s $\gamma G^+G^-$
+  entry ($-i e$) exactly. No Lagrangian-level result moved — this is an export convention
+  [feynlag-verified: `models/sm/tests/test_l3_ufo.py`].
+
+New pin: `models/sm/tests/test_l3_ufo.py` compares the exported cubic, quartic and
+scalar–vector bosonic couplings to MadGraph's stock `sm` entry-by-entry (`GC_4`, `GC_53`,
+`GC_5`, `GC_35`, `GC_36`, `GC_57`, `GC_72`, `GC_81`, `GC_34`, `GC_65`), the quartics in the
+convention-free metric-pair basis. The `sm` benchmark already *is* the stock electroweak
+point, so the comparison needs no MadGraph installation and runs in the fast suite. Nothing
+pinned those signs before; only `build_outputs.py --check` would have noticed, as a diff.
+
+Fast suite after the pin: `115 passed, 1 skipped, 1 xfailed`.
 
 ## What to do next
 

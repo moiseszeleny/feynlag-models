@@ -155,9 +155,8 @@ outputs:
   ufo: "outputs/SM_CKM_UFO"
   ufo_scope:
     gauge: unitary
-    vertex_classes: [FFS, FFV, SSS, SSSS, VVS, VVSS, VVV]
+    vertex_classes: [FFS, FFV, SSS, SSSS, VVS, VVSS, VVV, VVVV]
     omitted:
-      - "VVVV: quartic gauge self-couplings in the rotated W/Z/photon basis"
       - "gluon and QCD vertices (quarks carry Identity colour flow only)"
       - "vertices with Goldstone legs (unitary gauge)"
   latex: "outputs/vertices.tex"
