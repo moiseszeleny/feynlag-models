@@ -78,7 +78,7 @@ $s_{13} \ll s_{23} \ll s_{12} \ll 1$. [physics judgment]
   $B \to X_s\gamma$. These are loop-level and outside this tree-level card. [physics judgment]
 - The benchmark inputs are listed in `metadata.yaml`. $m_u$, $m_d$ and $m_s$ are placeholders.
 
-Generated pages: [`outputs/vertices.md`](outputs/vertices.md) (bosonic Feynman rules, grouped by vertex class) and [`outputs/spectrum.md`](outputs/spectrum.md) (masses at the benchmark).
+Generated pages: [`outputs/vertices.md`](outputs/vertices.md) (bosonic and fermion Feynman rules, grouped by vertex class) and [`outputs/spectrum.md`](outputs/spectrum.md) (masses at the benchmark).
 
 ## Genealogy
 Parent: `sm` (extends: same fields with three generations, plus CKM mixing). No children yet;

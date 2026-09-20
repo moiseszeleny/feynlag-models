@@ -110,7 +110,7 @@ $b \to s\ell\ell$; Higgs signal strengths ($\sin(\beta - \alpha)$, $\xi_h^f$); d
 $A/H \to \tau\tau$ at large $\tan\beta$ and for $H^+ \to tb, \tau\nu$; electroweak precision (the $T$
 parameter from the splitting between $m_A$ and $m_{H^\pm}$). [physics judgment; see `NEXT_STEPS.md`]
 
-Generated pages: [`outputs/vertices.md`](outputs/vertices.md) (bosonic Feynman rules, grouped by vertex class) and [`outputs/spectrum.md`](outputs/spectrum.md) (masses at the benchmark).
+Generated pages: [`outputs/vertices.md`](outputs/vertices.md) (bosonic and fermion Feynman rules, grouped by vertex class) and [`outputs/spectrum.md`](outputs/spectrum.md) (masses at the benchmark).
 
 ## Genealogy
 Parent: `sm` (Higgs sector replaced). Proposed children: `thdm_type1`, `thdm_type_x` and `thdm_type_y`

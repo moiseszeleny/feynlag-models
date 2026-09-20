@@ -72,7 +72,7 @@ $h_2 \to WW, ZZ, hh, t\bar t$, the $W$ mass at NLO, and, for $`m_{h_2} \gt 2 m_{
 $`\text{BR}(h_2 \to h_1 h_1)`$. See `NEXT_STEPS.md` for the current allowed
 $\lvert\sin\alpha\rvert$ ranges from Robens–Stefaniak Table II. [physics judgment]
 
-Generated pages: [`outputs/vertices.md`](outputs/vertices.md) (bosonic Feynman rules, grouped by vertex class) and [`outputs/spectrum.md`](outputs/spectrum.md) (masses at the benchmark).
+Generated pages: [`outputs/vertices.md`](outputs/vertices.md) (bosonic and fermion Feynman rules, grouped by vertex class) and [`outputs/spectrum.md`](outputs/spectrum.md) (masses at the benchmark).
 
 ## Genealogy
 Parent: `sm`. Proposed children: complex singlet (`sm_csinglet`), singlet with a $Z_2$-stable dark
