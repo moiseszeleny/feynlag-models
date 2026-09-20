@@ -160,7 +160,7 @@ regenerated. Three consequences, each verified rather than assumed:
   $`\partial_\mu \to ip_\mu`$ onto UFO's; nothing applied it before, so those exports had been
   wrong by a sign since the pilot. `\gamma H^+H^-` now reproduces stock `sm`'s $\gamma G^+G^-$
   entry ($-i e$) exactly. No Lagrangian-level result moved — this is an export convention
-  [feynlag-verified: `models/sm/tests/test_l3_ufo.py`].
+  [feynlag-verified: `models/thdm_type2/tests/test_l3_ufo.py::test_vss_couplings_match_stock_sm`].
 
 New pin: `models/sm/tests/test_l3_ufo.py` compares the exported cubic, quartic and
 scalar–vector bosonic couplings to MadGraph's stock `sm` entry-by-entry (`GC_4`, `GC_53`,
@@ -169,7 +169,21 @@ convention-free metric-pair basis. The `sm` benchmark already *is* the stock ele
 point, so the comparison needs no MadGraph installation and runs in the fast suite. Nothing
 pinned those signs before; only `build_outputs.py --check` would have noticed, as a diff.
 
-Fast suite after the pin: `115 passed, 1 skipped, 1 xfailed`.
+The ten VSS couplings are pinned by `models/thdm_type2/tests/test_l3_ufo.py::test_vss_couplings_match_stock_sm`;
+`models/sm` cannot, because the SM UFO has no VSS vertex in unitary gauge. In the Higgs basis the
+second doublet couples to the gauge bosons like the SM doublet, with
+$`\rho_\perp = \cos(\beta-\alpha)\,h - \sin(\beta-\alpha)\,H`$, so each vertex is a stock Goldstone vertex
+(`GC_3`, `GC_61`, `GC_37`, `GC_60`, `GC_39`, `GC_38`) times $\cos(\beta-\alpha)$ or $-\sin(\beta-\alpha)$.
+Charged Goldstone legs are divided by $i^q$, because $H^\pm$ carries no Goldstone phase.
+Six vertices are pinned absolutely. Four of those, the charged $W$ ones, are not conjugate pairs,
+so they tell an unconditional $-1$ from a pair-only one. The four vertices with an $A$ depend on the
+sign of $A$ relative to MadGraph's $G^0$, a field convention, so they are pinned to share one sign.
+Mutation checks (2026-09-19, run outside the repository): the pre-`efffdb0` UFO fails all six absolute
+pins; a pair-only rule fails the four charged $W$ pins; flipping one $A$ vertex fails the other three.
+The two conjugate-pair vertices alone would have passed the pair-only rule
+[feynlag-verified: same test].
+
+Fast suite after the pin and this test: `116 passed, 1 skipped, 1 xfailed`.
 
 ## What to do next
 
