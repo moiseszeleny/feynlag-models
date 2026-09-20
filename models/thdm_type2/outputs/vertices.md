@@ -1,11 +1,13 @@
 # Feynman rules: Two-Higgs-doublet model, type II, CP-conserving, softly broken Z2
 
-Bosonic vertices of `thdm_type2` (potential and kinetic sectors), 154 in all, as feynlag derives them at tree level.
+Tree-level vertices of `thdm_type2` as feynlag derives them: 154 bosonic (potential and kinetic sectors) and the fermion couplings below.
 This page re-renders the rules of [`vertices.tex`](vertices.tex) with physics names; it adds no verification. See the [card](../README.md) for what the tests pin against the literature, [`spectrum.md`](spectrum.md) for the masses and the [UFO](THDM_TYPE2_UFO/) for the exported couplings.
 
 Each rule is $`i \times (\text{monomial coefficient}) \times \prod_f (\text{multiplicity of } f)!`$, all momenta are incoming and $`\partial_\mu \to i\,p_\mu`$ ([`CONVENTIONS.md`](../../../CONVENTIONS.md)); $`p_X`$ is the momentum of leg $`X`$.
 
-## Cubic scalar (SSS): 8 vertices
+## Bosonic vertices: 154 in all
+
+### Cubic scalar (SSS): 8 vertices
 
 $`A A H`$
 
@@ -55,7 +57,7 @@ $`h h h`$
 3 i \left({\lambda_1} {v_1} \sin^{3}{\left({\alpha} \right)} - {\lambda_2} {v_2} \cos^{3}{\left({\alpha} \right)} + {\lambda_3} {v_1} \sin{\left({\alpha} \right)} \cos^{2}{\left({\alpha} \right)} - {\lambda_3} {v_2} \sin^{2}{\left({\alpha} \right)} \cos{\left({\alpha} \right)} + {\lambda_4} {v_1} \sin{\left({\alpha} \right)} \cos^{2}{\left({\alpha} \right)} - {\lambda_4} {v_2} \sin^{2}{\left({\alpha} \right)} \cos{\left({\alpha} \right)} + {\lambda_5} {v_1} \sin{\left({\alpha} \right)} \cos^{2}{\left({\alpha} \right)} - {\lambda_5} {v_2} \sin^{2}{\left({\alpha} \right)} \cos{\left({\alpha} \right)}\right)
 ```
 
-## Quartic scalar (SSSS): 14 vertices
+### Quartic scalar (SSSS): 14 vertices
 
 $`A A A A`$
 
@@ -141,7 +143,7 @@ $`h h h h`$
 3 i \left(- {\lambda_1} \sin^{4}{\left({\alpha} \right)} - {\lambda_2} \cos^{4}{\left({\alpha} \right)} - \frac{{\lambda_3} \left(1 - \cos{\left(4 {\alpha} \right)}\right)}{4} - \frac{{\lambda_4} \left(1 - \cos{\left(4 {\alpha} \right)}\right)}{4} - \frac{{\lambda_5} \left(1 - \cos{\left(4 {\alpha} \right)}\right)}{4}\right)
 ```
 
-## Vector and two scalars (VSS): 10 vertices
+### Vector and two scalars (VSS): 10 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -166,7 +168,7 @@ $`Z A h`$
 \frac{\left(- {g'}^{2} {p_{A}} + {g'}^{2} {p_{h}} - {g}^{2} {p_{A}} + {g}^{2} {p_{h}}\right) \cos{\left({\alpha} - {\beta} \right)}}{2 \sqrt{{g'}^{2} + {g}^{2}}}
 ```
 
-## Two vectors and a scalar (VVS): 8 vertices
+### Two vectors and a scalar (VVS): 8 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -189,7 +191,7 @@ $`Z Z h`$
 \frac{i \left(- {g'}^{2} {v_1} \sin{\left({\alpha} \right)} + {g'}^{2} {v_2} \cos{\left({\alpha} \right)} - {g}^{2} {v_1} \sin{\left({\alpha} \right)} + {g}^{2} {v_2} \cos{\left({\alpha} \right)}\right)}{2}
 ```
 
-## Two vectors and two scalars (VVSS): 22 vertices
+### Two vectors and two scalars (VVSS): 22 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -216,11 +218,11 @@ $`Z Z h`$
 | $`W^- W^+ h h`$ | $`\frac{i {g}^{2}}{2}`$ |
 | $`Z Z h h`$ | $`\frac{i \left({g'}^{2} + {g}^{2}\right)}{2}`$ |
 
-## Feynman-gauge vertices with a Goldstone leg: 92 in all
+### Feynman-gauge vertices with a Goldstone leg: 92 in all
 
 The unitary-gauge UFO drops these; they matter for a Feynman-gauge calculation.
 
-### Cubic scalar (SSS): 14 vertices
+#### Cubic scalar (SSS): 14 vertices
 
 $`A G^0 H`$
 
@@ -306,7 +308,7 @@ $`G^+ H^- h`$
 i \left(- {\lambda_1} {v_1} \sin{\left({\alpha} \right)} \sin{\left({\beta} \right)} \cos{\left({\beta} \right)} - {\lambda_2} {v_2} \sin{\left({\beta} \right)} \cos{\left({\alpha} \right)} \cos{\left({\beta} \right)} + {\lambda_3} {v_1} \sin{\left({\alpha} \right)} \sin{\left({\beta} \right)} \cos{\left({\beta} \right)} + {\lambda_3} {v_2} \sin{\left({\beta} \right)} \cos{\left({\alpha} \right)} \cos{\left({\beta} \right)} + {\lambda_4} {v_1} \sin^{2}{\left({\beta} \right)} \cos{\left({\alpha} \right)} - \frac{{\lambda_4} {v_1} \cos{\left({\alpha} \right)}}{2} - {\lambda_4} {v_2} \sin{\left({\alpha} \right)} \sin^{2}{\left({\beta} \right)} + \frac{{\lambda_4} {v_2} \sin{\left({\alpha} \right)}}{2} + {\lambda_5} {v_1} \sin^{2}{\left({\beta} \right)} \cos{\left({\alpha} \right)} - \frac{{\lambda_5} {v_1} \cos{\left({\alpha} \right)}}{2} - {\lambda_5} {v_2} \sin{\left({\alpha} \right)} \sin^{2}{\left({\beta} \right)} + \frac{{\lambda_5} {v_2} \sin{\left({\alpha} \right)}}{2}\right)
 ```
 
-### Quartic scalar (SSSS): 46 vertices
+#### Quartic scalar (SSSS): 46 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -547,7 +549,7 @@ $`G^+ H^- h h`$
 \frac{i \left(2 {\lambda_1} \sin{\left(2 {\beta} \right)} + {\lambda_1} \sin{\left(2 {\alpha} - 2 {\beta} \right)} - {\lambda_1} \sin{\left(2 {\alpha} + 2 {\beta} \right)} - 2 {\lambda_2} \sin{\left(2 {\beta} \right)} + {\lambda_2} \sin{\left(2 {\alpha} - 2 {\beta} \right)} - {\lambda_2} \sin{\left(2 {\alpha} + 2 {\beta} \right)} - 2 {\lambda_3} \sin{\left(2 {\alpha} - 2 {\beta} \right)} + 2 {\lambda_3} \sin{\left(2 {\alpha} + 2 {\beta} \right)} + 2 {\lambda_4} \sin{\left(2 {\alpha} - 2 {\beta} \right)} + 2 {\lambda_4} \sin{\left(2 {\alpha} + 2 {\beta} \right)} + 2 {\lambda_5} \sin{\left(2 {\alpha} - 2 {\beta} \right)} + 2 {\lambda_5} \sin{\left(2 {\alpha} + 2 {\beta} \right)}\right)}{8}
 ```
 
-### Vector and two scalars (VSS): 10 vertices
+#### Vector and two scalars (VSS): 10 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -572,7 +574,7 @@ $`Z G^0 h`$
 \frac{\left({g'}^{2} {p_{G^0}} - {g'}^{2} {p_{h}} + {g}^{2} {p_{G^0}} - {g}^{2} {p_{h}}\right) \sin{\left({\alpha} - {\beta} \right)}}{2 \sqrt{{g'}^{2} + {g}^{2}}}
 ```
 
-### Two vectors and a scalar (VVS): 4 vertices
+#### Two vectors and a scalar (VVS): 4 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -581,7 +583,7 @@ $`Z G^0 h`$
 | $`W^+ Z G^-`$ | $`- \frac{i {g'}^{2} {g} \left({v_1} \cos{\left({\beta} \right)} + {v_2} \sin{\left({\beta} \right)}\right)}{2 \sqrt{{g'}^{2} + {g}^{2}}}`$ |
 | $`W^- Z G^+`$ | $`- \frac{i {g'}^{2} {g} \left({v_1} \cos{\left({\beta} \right)} + {v_2} \sin{\left({\beta} \right)}\right)}{2 \sqrt{{g'}^{2} + {g}^{2}}}`$ |
 
-### Two vectors and two scalars (VVSS): 18 vertices
+#### Two vectors and two scalars (VVSS): 18 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -603,3 +605,48 @@ $`Z G^0 h`$
 | $`W^+ Z G^- h`$ | $`\frac{i {g'}^{2} {g} \sin{\left({\alpha} - {\beta} \right)}}{2 \sqrt{{g'}^{2} + {g}^{2}}}`$ |
 | $`W^- Z G^+ H`$ | $`- \frac{i {g'}^{2} {g} \cos{\left({\alpha} - {\beta} \right)}}{2 \sqrt{{g'}^{2} + {g}^{2}}}`$ |
 | $`W^- Z G^+ h`$ | $`\frac{i {g'}^{2} {g} \sin{\left({\alpha} - {\beta} \right)}}{2 \sqrt{{g'}^{2} + {g}^{2}}}`$ |
+
+## Fermion vertices: 31 in all
+
+One boson leg each, as the UFO exports them: chiral keys merged into $`P_L`$/$`P_R`$ slots, redundant colour copies dropped, Yukawa couplings resolved to masses. Gluon couplings are not included (no colour-octet particle is declared).
+
+### Fermion pair and a vector (FFV): 11 vertices
+
+| interaction | Feynman rule |
+|---|---|
+| $`\bar{\nu}_\tau \nu_\tau Z`$ | $`i \gamma^\mu \left(\frac{\sqrt{{g'}^{2} + {g}^{2}}}{2}\right) P_L`$ |
+| $`\bar{\nu}_\tau \tau W^+`$ | $`i \gamma^\mu \left(\frac{\sqrt{2} {g}}{2}\right) P_L`$ |
+| $`\bar{\tau} \nu_\tau W^-`$ | $`i \gamma^\mu \left(\frac{\sqrt{2} {g}}{2}\right) P_L`$ |
+| $`\bar{\tau} \tau Z`$ | $`i \gamma^\mu \left[\left(\frac{{g'}^{2} - {g}^{2}}{2 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_L + \left(\frac{{g'}^{2}}{\sqrt{{g'}^{2} + {g}^{2}}}\right) P_R\right]`$ |
+| $`\bar{\tau} \tau \gamma`$ | $`i \gamma^\mu \left(- \frac{{g'} {g}}{\sqrt{{g'}^{2} + {g}^{2}}}\right)`$ |
+| $`\bar{b} b Z`$ | $`i \gamma^\mu \left[\left(\frac{- {g'}^{2} - 3 {g}^{2}}{6 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_L + \left(\frac{{g'}^{2}}{3 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_R\right]`$ |
+| $`\bar{b} b \gamma`$ | $`i \gamma^\mu \left(- \frac{{g'} {g}}{3 \sqrt{{g'}^{2} + {g}^{2}}}\right)`$ |
+| $`\bar{b} t W^-`$ | $`i \gamma^\mu \left(\frac{\sqrt{2} {g}}{2}\right) P_L`$ |
+| $`\bar{t} b W^+`$ | $`i \gamma^\mu \left(\frac{\sqrt{2} {g}}{2}\right) P_L`$ |
+| $`\bar{t} t Z`$ | $`i \gamma^\mu \left[\left(\frac{- {g'}^{2} + 3 {g}^{2}}{6 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_L + \left(- \frac{2 {g'}^{2}}{3 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_R\right]`$ |
+| $`\bar{t} t \gamma`$ | $`i \gamma^\mu \left(\frac{2 {g'} {g}}{3 \sqrt{{g'}^{2} + {g}^{2}}}\right)`$ |
+
+### Fermion pair and a scalar (FFS): 20 vertices
+
+| interaction | Feynman rule |
+|---|---|
+| $`\bar{\nu}_\tau \tau G^+`$ | $`i \left(- \frac{\sqrt{2} {m_\tau}}{{v}}\right) P_R`$ |
+| $`\bar{\nu}_\tau \tau H^+`$ | $`i \left(\frac{\sqrt{2} {m_\tau} \tan{\left({\beta} \right)}}{{v}}\right) P_R`$ |
+| $`\bar{\tau} \nu_\tau G^-`$ | $`i \left(- \frac{\sqrt{2} {m_\tau}}{{v}}\right) P_L`$ |
+| $`\bar{\tau} \nu_\tau H^-`$ | $`i \left(\frac{\sqrt{2} {m_\tau} \tan{\left({\beta} \right)}}{{v}}\right) P_L`$ |
+| $`\bar{\tau} \tau A`$ | $`i \left[\left(- \frac{i {m_\tau} \tan{\left({\beta} \right)}}{{v}}\right) P_L + \left(\frac{i {m_\tau} \tan{\left({\beta} \right)}}{{v}}\right) P_R\right]`$ |
+| $`\bar{\tau} \tau G^0`$ | $`i \left[\left(\frac{i {m_\tau}}{{v}}\right) P_L + \left(- \frac{i {m_\tau}}{{v}}\right) P_R\right]`$ |
+| $`\bar{\tau} \tau H`$ | $`i \left(- \frac{{m_\tau} \cos{\left({\alpha} \right)}}{{v} \cos{\left({\beta} \right)}}\right)`$ |
+| $`\bar{\tau} \tau h`$ | $`i \left(\frac{{m_\tau} \sin{\left({\alpha} \right)}}{{v} \cos{\left({\beta} \right)}}\right)`$ |
+| $`\bar{b} b A`$ | $`i \left[\left(- \frac{i {m_b} \tan{\left({\beta} \right)}}{{v}}\right) P_L + \left(\frac{i {m_b} \tan{\left({\beta} \right)}}{{v}}\right) P_R\right]`$ |
+| $`\bar{b} b G^0`$ | $`i \left[\left(\frac{i {m_b}}{{v}}\right) P_L + \left(- \frac{i {m_b}}{{v}}\right) P_R\right]`$ |
+| $`\bar{b} b H`$ | $`i \left(- \frac{{m_b} \cos{\left({\alpha} \right)}}{{v} \cos{\left({\beta} \right)}}\right)`$ |
+| $`\bar{b} b h`$ | $`i \left(\frac{{m_b} \sin{\left({\alpha} \right)}}{{v} \cos{\left({\beta} \right)}}\right)`$ |
+| $`\bar{b} t G^-`$ | $`i \left[\left(- \frac{\sqrt{2} {m_b}}{{v}}\right) P_L + \left(\frac{\sqrt{2} {m_t}}{{v}}\right) P_R\right]`$ |
+| $`\bar{b} t H^-`$ | $`i \left[\left(\frac{\sqrt{2} {m_b} \tan{\left({\beta} \right)}}{{v}}\right) P_L + \left(\frac{\sqrt{2} {m_t}}{{v} \tan{\left({\beta} \right)}}\right) P_R\right]`$ |
+| $`\bar{t} b G^+`$ | $`i \left[\left(\frac{\sqrt{2} {m_t}}{{v}}\right) P_L + \left(- \frac{\sqrt{2} {m_b}}{{v}}\right) P_R\right]`$ |
+| $`\bar{t} b H^+`$ | $`i \left[\left(\frac{\sqrt{2} {m_t}}{{v} \tan{\left({\beta} \right)}}\right) P_L + \left(\frac{\sqrt{2} {m_b} \tan{\left({\beta} \right)}}{{v}}\right) P_R\right]`$ |
+| $`\bar{t} t A`$ | $`i \left[\left(- \frac{i {m_t}}{{v} \tan{\left({\beta} \right)}}\right) P_L + \left(\frac{i {m_t}}{{v} \tan{\left({\beta} \right)}}\right) P_R\right]`$ |
+| $`\bar{t} t G^0`$ | $`i \left[\left(- \frac{i {m_t}}{{v}}\right) P_L + \left(\frac{i {m_t}}{{v}}\right) P_R\right]`$ |
+| $`\bar{t} t H`$ | $`i \left(- \frac{{m_t} \sin{\left({\alpha} \right)}}{{v} \sin{\left({\beta} \right)}}\right)`$ |
+| $`\bar{t} t h`$ | $`i \left(- \frac{{m_t} \cos{\left({\alpha} \right)}}{{v} \sin{\left({\beta} \right)}}\right)`$ |

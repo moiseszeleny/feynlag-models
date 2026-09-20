@@ -1,8 +1,8 @@
 {
   "model": "sm_singlet_z2",
-  "generated": "2026-09-20T06:39:36+00:00",
+  "generated": "2026-09-20T07:31:30+00:00",
   "feynlag_models_version": "0.1.0",
-  "repo_commit": "a2b51c339940f0b7fa1e2253e811aa8c15f8ab31",
+  "repo_commit": "3c80845719a509669f156b9fc1ca8778c47bad76",
   "repo_dirty": true,
   "feynlag_version": "0.1.0",
   "feynlag_commit": "efffdb0d22be88ecabb5636037703d844c63d0d4",

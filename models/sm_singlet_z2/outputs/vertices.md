@@ -1,11 +1,13 @@
 # Feynman rules: SM + real singlet scalar (Z2-symmetric, spontaneously broken)
 
-Bosonic vertices of `sm_singlet_z2` (potential and kinetic sectors), 64 in all, as feynlag derives them at tree level.
+Tree-level vertices of `sm_singlet_z2` as feynlag derives them: 64 bosonic (potential and kinetic sectors) and the fermion couplings below.
 This page re-renders the rules of [`vertices.tex`](vertices.tex) with physics names; it adds no verification. See the [card](../README.md) for what the tests pin against the literature, [`spectrum.md`](spectrum.md) for the masses and the [UFO](SM_SINGLET_Z2_UFO/) for the exported couplings.
 
 Each rule is $`i \times (\text{monomial coefficient}) \times \prod_f (\text{multiplicity of } f)!`$, all momenta are incoming and $`\partial_\mu \to i\,p_\mu`$ ([`CONVENTIONS.md`](../../../CONVENTIONS.md)); $`p_X`$ is the momentum of leg $`X`$.
 
-## Cubic scalar (SSS): 4 vertices
+## Bosonic vertices: 64 in all
+
+### Cubic scalar (SSS): 4 vertices
 
 $`h_1 h_1 h_1`$
 
@@ -31,7 +33,7 @@ $`h_2 h_2 h_2`$
 3 i \left(2 {\lambda} {v} \sin^{3}{\left({\theta} \right)} + {\lambda_{HS}} {v} \sin{\left({\theta} \right)} \cos^{2}{\left({\theta} \right)} - {\lambda_{HS}} {v_S} \sin^{2}{\left({\theta} \right)} \cos{\left({\theta} \right)} - 2 {\lambda_S} {v_S} \cos^{3}{\left({\theta} \right)}\right)
 ```
 
-## Quartic scalar (SSSS): 5 vertices
+### Quartic scalar (SSSS): 5 vertices
 
 $`h_1 h_1 h_1 h_1`$
 
@@ -63,7 +65,7 @@ $`h_2 h_2 h_2 h_2`$
 6 i \left(- {\lambda} \sin^{4}{\left({\theta} \right)} - \frac{{\lambda_{HS}} \left(1 - \cos{\left(4 {\theta} \right)}\right)}{8} - {\lambda_S} \cos^{4}{\left({\theta} \right)}\right)
 ```
 
-## Two vectors and a scalar (VVS): 4 vertices
+### Two vectors and a scalar (VVS): 4 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -72,7 +74,7 @@ $`h_2 h_2 h_2 h_2`$
 | $`Z Z h_1`$ | $`\frac{i {v} \left({g'}^{2} + {g}^{2}\right) \cos{\left({\theta} \right)}}{2}`$ |
 | $`Z Z h_2`$ | $`\frac{i {v} \left(- {g'}^{2} - {g}^{2}\right) \sin{\left({\theta} \right)}}{2}`$ |
 
-## Two vectors and two scalars (VVSS): 6 vertices
+### Two vectors and two scalars (VVSS): 6 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -83,11 +85,11 @@ $`h_2 h_2 h_2 h_2`$
 | $`Z Z h_1 h_2`$ | $`\frac{i \left(- {g'}^{2} - {g}^{2}\right) \sin{\left(2 {\theta} \right)}}{4}`$ |
 | $`Z Z h_2 h_2`$ | $`\frac{i \left({g'}^{2} + {g}^{2}\right) \sin^{2}{\left({\theta} \right)}}{2}`$ |
 
-## Feynman-gauge vertices with a Goldstone leg: 45 in all
+### Feynman-gauge vertices with a Goldstone leg: 45 in all
 
 The unitary-gauge UFO drops these; they matter for a Feynman-gauge calculation.
 
-### Cubic scalar (SSS): 4 vertices
+#### Cubic scalar (SSS): 4 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -96,7 +98,7 @@ The unitary-gauge UFO drops these; they matter for a Feynman-gauge calculation.
 | $`G^0 G^0 h_1`$ | $`- i \left(2 {\lambda} {v} \cos{\left({\theta} \right)} + {\lambda_{HS}} {v_S} \sin{\left({\theta} \right)}\right)`$ |
 | $`G^0 G^0 h_2`$ | $`i \left(2 {\lambda} {v} \sin{\left({\theta} \right)} - {\lambda_{HS}} {v_S} \cos{\left({\theta} \right)}\right)`$ |
 
-### Quartic scalar (SSSS): 9 vertices
+#### Quartic scalar (SSSS): 9 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -110,7 +112,7 @@ The unitary-gauge UFO drops these; they matter for a Feynman-gauge calculation.
 | $`G^0 G^0 h_1 h_2`$ | $`\frac{i \left(2 {\lambda} - {\lambda_{HS}}\right) \sin{\left(2 {\theta} \right)}}{2}`$ |
 | $`G^0 G^0 h_2 h_2`$ | $`i \left(- 2 {\lambda} \sin^{2}{\left({\theta} \right)} - {\lambda_{HS}} \cos^{2}{\left({\theta} \right)}\right)`$ |
 
-### Vector and two scalars (VSS): 10 vertices
+#### Vector and two scalars (VSS): 10 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -135,7 +137,7 @@ $`Z G^0 h_2`$
 \frac{\left({g'}^{2} {p_{G^0}} - {g'}^{2} {p_{h_2}} + {g}^{2} {p_{G^0}} - {g}^{2} {p_{h_2}}\right) \sin{\left({\theta} \right)}}{2 \sqrt{{g'}^{2} + {g}^{2}}}
 ```
 
-### Two vectors and a scalar (VVS): 4 vertices
+#### Two vectors and a scalar (VVS): 4 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -144,7 +146,7 @@ $`Z G^0 h_2`$
 | $`W^+ Z G^-`$ | $`- \frac{i {g'}^{2} {g} {v}}{2 \sqrt{{g'}^{2} + {g}^{2}}}`$ |
 | $`W^- Z G^+`$ | $`- \frac{i {g'}^{2} {g} {v}}{2 \sqrt{{g'}^{2} + {g}^{2}}}`$ |
 
-### Two vectors and two scalars (VVSS): 18 vertices
+#### Two vectors and two scalars (VVSS): 18 vertices
 
 | interaction | Feynman rule |
 |---|---|
@@ -166,3 +168,41 @@ $`Z G^0 h_2`$
 | $`W^- Z G^+ h_2`$ | $`\frac{i {g'}^{2} {g} \sin{\left({\theta} \right)}}{2 \sqrt{{g'}^{2} + {g}^{2}}}`$ |
 | $`W^- W^+ G^0 G^0`$ | $`\frac{i {g}^{2}}{2}`$ |
 | $`Z Z G^0 G^0`$ | $`\frac{i \left({g'}^{2} + {g}^{2}\right)}{2}`$ |
+
+## Fermion vertices: 24 in all
+
+One boson leg each, as the UFO exports them: chiral keys merged into $`P_L`$/$`P_R`$ slots, redundant colour copies dropped, Yukawa couplings resolved to masses. Gluon couplings are not included (no colour-octet particle is declared).
+
+### Fermion pair and a vector (FFV): 11 vertices
+
+| interaction | Feynman rule |
+|---|---|
+| $`\bar{\nu}_\tau \nu_\tau Z`$ | $`i \gamma^\mu \left(\frac{\sqrt{{g'}^{2} + {g}^{2}}}{2}\right) P_L`$ |
+| $`\bar{\nu}_\tau \tau W^+`$ | $`i \gamma^\mu \left(\frac{\sqrt{2} {g}}{2}\right) P_L`$ |
+| $`\bar{\tau} \nu_\tau W^-`$ | $`i \gamma^\mu \left(\frac{\sqrt{2} {g}}{2}\right) P_L`$ |
+| $`\bar{\tau} \tau Z`$ | $`i \gamma^\mu \left[\left(\frac{{g'}^{2} - {g}^{2}}{2 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_L + \left(\frac{{g'}^{2}}{\sqrt{{g'}^{2} + {g}^{2}}}\right) P_R\right]`$ |
+| $`\bar{\tau} \tau \gamma`$ | $`i \gamma^\mu \left(- \frac{{g'} {g}}{\sqrt{{g'}^{2} + {g}^{2}}}\right)`$ |
+| $`\bar{b} b Z`$ | $`i \gamma^\mu \left[\left(\frac{- {g'}^{2} - 3 {g}^{2}}{6 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_L + \left(\frac{{g'}^{2}}{3 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_R\right]`$ |
+| $`\bar{b} b \gamma`$ | $`i \gamma^\mu \left(- \frac{{g'} {g}}{3 \sqrt{{g'}^{2} + {g}^{2}}}\right)`$ |
+| $`\bar{b} t W^-`$ | $`i \gamma^\mu \left(\frac{\sqrt{2} {g}}{2}\right) P_L`$ |
+| $`\bar{t} b W^+`$ | $`i \gamma^\mu \left(\frac{\sqrt{2} {g}}{2}\right) P_L`$ |
+| $`\bar{t} t Z`$ | $`i \gamma^\mu \left[\left(\frac{- {g'}^{2} + 3 {g}^{2}}{6 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_L + \left(- \frac{2 {g'}^{2}}{3 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_R\right]`$ |
+| $`\bar{t} t \gamma`$ | $`i \gamma^\mu \left(\frac{2 {g'} {g}}{3 \sqrt{{g'}^{2} + {g}^{2}}}\right)`$ |
+
+### Fermion pair and a scalar (FFS): 13 vertices
+
+| interaction | Feynman rule |
+|---|---|
+| $`\bar{\nu}_\tau \tau G^+`$ | $`i \left(- \frac{\sqrt{2} {m_\tau}}{{v}}\right) P_R`$ |
+| $`\bar{\tau} \nu_\tau G^-`$ | $`i \left(- \frac{\sqrt{2} {m_\tau}}{{v}}\right) P_L`$ |
+| $`\bar{\tau} \tau G^0`$ | $`i \left[\left(\frac{i {m_\tau}}{{v}}\right) P_L + \left(- \frac{i {m_\tau}}{{v}}\right) P_R\right]`$ |
+| $`\bar{\tau} \tau h_1`$ | $`i \left(- \frac{{m_\tau} \cos{\left({\theta} \right)}}{{v}}\right)`$ |
+| $`\bar{\tau} \tau h_2`$ | $`i \left(\frac{{m_\tau} \sin{\left({\theta} \right)}}{{v}}\right)`$ |
+| $`\bar{b} b G^0`$ | $`i \left[\left(\frac{i {m_b}}{{v}}\right) P_L + \left(- \frac{i {m_b}}{{v}}\right) P_R\right]`$ |
+| $`\bar{b} b h_1`$ | $`i \left(- \frac{{m_b} \cos{\left({\theta} \right)}}{{v}}\right)`$ |
+| $`\bar{b} b h_2`$ | $`i \left(\frac{{m_b} \sin{\left({\theta} \right)}}{{v}}\right)`$ |
+| $`\bar{b} t G^-`$ | $`i \left[\left(- \frac{\sqrt{2} {m_b}}{{v}}\right) P_L + \left(\frac{\sqrt{2} {m_t}}{{v}}\right) P_R\right]`$ |
+| $`\bar{t} b G^+`$ | $`i \left[\left(\frac{\sqrt{2} {m_t}}{{v}}\right) P_L + \left(- \frac{\sqrt{2} {m_b}}{{v}}\right) P_R\right]`$ |
+| $`\bar{t} t G^0`$ | $`i \left[\left(- \frac{i {m_t}}{{v}}\right) P_L + \left(\frac{i {m_t}}{{v}}\right) P_R\right]`$ |
+| $`\bar{t} t h_1`$ | $`i \left(- \frac{{m_t} \cos{\left({\theta} \right)}}{{v}}\right)`$ |
+| $`\bar{t} t h_2`$ | $`i \left(\frac{{m_t} \sin{\left({\theta} \right)}}{{v}}\right)`$ |
