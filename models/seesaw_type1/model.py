@@ -129,9 +129,42 @@ def physical_neutrino_lagrangian(bundle):
     return e["rot"].apply(L, bundle.pieces.idx, 1)
 
 
+def majorana_vertex_markdown(bundle):
+    """The mass-basis neutrino couplings as a numeric table at the benchmark.
+
+    The Majorana states have no Dirac assignment, so they are absent from the generic
+    fermion table (FG-3), and the Takagi rotation is solved numerically at the benchmark:
+    symbolically these coefficients are numeric radicals, not formulas. Their magnitudes
+    are what the L2 tests check against Atre et al. Eq. (2.5), so the page prints those.
+    """
+    from feynlag import extract_fermion_vertices
+    from feynlag_models.outputs import numeric_fermion_markdown
+
+    e = bundle.extra
+    chiL, chiR, chiLbar, chiRbar = e["chi"]
+    light, heavy = e["light"], e["heavy"]
+    names = {}
+    for base, bar in ((chiL, False), (chiR, False), (chiLbar, True), (chiRbar, True)):
+        for k, tex in ((light, r"\nu"), (heavy, "N")):
+            names[(base, k)] = rf"\bar{{{tex}}}" if bar else tex
+    table = extract_fermion_vertices(physical_neutrino_lagrangian(bundle), bundle.boson_list)
+    table = {k: v for k, v in table.items()
+             if any(x.base in (chiL, chiR, chiLbar, chiRbar) for x in (k[0], k[2]))}
+    ratio = float(bundle.values()[e["mDsym"].s] / bundle.values()[e["MR"].s])
+    mantissa, exponent = f"{ratio:.2e}".split("e")
+    note = (r"$`\nu`$ and $N$ are the light and heavy Majorana mass eigenstates ($`\chi_k`$ in the code). "
+            "The mixing is a Takagi rotation solved numerically at the benchmark, so these couplings have no "
+            "closed form here; magnitudes are given instead, and the tests pin them against Atre et al. "
+            "Eq. (2.5) (`tests/test_l2_literature.py`). The heavy state is suppressed by "
+            rf"$`V \approx m_D/M_R = {mantissa} \times 10^{{{int(exponent)}}}`$ relative to the light one.")
+    return numeric_fermion_markdown(bundle, table, names,
+                                    "Majorana neutrino vertices (numeric)", note)
+
+
 def outputs(bundle, out_dir):
     e = bundle.extra
     masses = {"$m_h$": e["MH"].expr, "$m_W$": e["MW"].expr, "$m_Z$": e["MZ"].expr,
               "$m_D$": e["mDsym"].expr, r"$m_\nu$ (exact)": e["MN1"].expr, "$m_N$ (exact)": e["MN2"].expr,
               r"$m_\nu$ (seesaw approximation)": -e["m_light_approx"]}
-    return standard_outputs(bundle, out_dir, "SEESAW_TYPE1_UFO", masses, ufo=False)
+    return standard_outputs(bundle, out_dir, "SEESAW_TYPE1_UFO", masses, ufo=False,
+                            extra_vertex_sections=[majorana_vertex_markdown(bundle)])
