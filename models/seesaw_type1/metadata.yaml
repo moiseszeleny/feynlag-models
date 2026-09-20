@@ -129,6 +129,7 @@ feynlag_gaps:
 outputs:
   ufo: null
   latex: "outputs/vertices.tex"
+  vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
 last_reviewed: 2026-09-17
