@@ -14,4 +14,6 @@ Write formulas in LaTeX (`$…$` inline, fenced `math` blocks for long ones) and
 ## Key mechanism
 ## Characteristic scale
 ## Observables that test it
+Generated pages: [`outputs/vertices.md`](outputs/vertices.md) (bosonic Feynman rules, grouped by vertex class) and [`outputs/spectrum.md`](outputs/spectrum.md) (masses at the benchmark).
+
 ## Genealogy

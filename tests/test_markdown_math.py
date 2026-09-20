@@ -35,7 +35,9 @@ ALLOWED_CODE = set()
 
 def _markdown_files():
     out = subprocess.run(["git", "ls-files", "*.md"], cwd=ROOT, capture_output=True, text=True).stdout
-    files = [ROOT / f for f in out.split() if "/outputs/" not in f and f.split("/")[-1] not in EXCLUDED]
+    # generated pages under outputs/ (spectrum.md, vertices.md) are checked too: they are written by
+    # code, so a regression there would otherwise ship unseen
+    files = [ROOT / f for f in out.split() if f.split("/")[-1] not in EXCLUDED]
     return sorted(files)
 
 

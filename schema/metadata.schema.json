@@ -247,6 +247,7 @@
           }
         },
         "latex": {"type": ["string", "null"]},
+        "vertices_md": {"type": ["string", "null"]},
         "spectrum": {"type": ["string", "null"]},
         "stamp": {"type": "string"}
       }

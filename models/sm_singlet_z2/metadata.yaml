@@ -122,6 +122,7 @@ outputs:
       - "vertices with Goldstone legs (unitary gauge)"
       - "physical width of h2 (WH2 is a placeholder input)"
   latex: "outputs/vertices.tex"
+  vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
 last_reviewed: 2026-09-17

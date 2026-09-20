@@ -64,6 +64,7 @@ feynlag_gaps: []                       # {id: FG-n, test?: strict-xfail test}
 outputs:
   ufo: null                            # when set, ufo_scope is required
   latex: "outputs/vertices.tex"
+  vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
 last_reviewed: 2026-09-16

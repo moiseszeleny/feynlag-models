@@ -128,6 +128,7 @@ outputs:
       - "gluon and QCD vertices (quarks carry Identity colour flow only)"
       - "vertices with Goldstone legs (unitary gauge)"
   latex: "outputs/vertices.tex"
+  vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
 last_reviewed: 2026-09-17

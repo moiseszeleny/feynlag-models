@@ -75,6 +75,8 @@ Neutrinoless double beta decay ($\Delta L = 2$), direct searches for heavy neutr
 $W \to \ell N$ and $Z \to \nu N$ with rates $\propto \lvert V_{\ell N}\rvert^2$, lepton-flavour violation
 in 3-generation versions, and the light-neutrino mass scale (cosmology, KATRIN). [physics judgment]
 
+Generated pages: [`outputs/vertices.md`](outputs/vertices.md) (bosonic Feynman rules, grouped by vertex class) and [`outputs/spectrum.md`](outputs/spectrum.md) (masses at the benchmark).
+
 ## Genealogy
 Parent: `sm`. Proposed children: 3-generation seesaw with the Casas–Ibarra parametrisation,
 inverse seesaw, type-II (scalar triplet) and type-III (fermion triplet) seesaws, and
