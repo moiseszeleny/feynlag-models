@@ -57,5 +57,7 @@ Higgs signal strengths, electroweak precision fits of $m_W$, $m_Z$ and $\sin^2\t
 and bottom Yukawas via $t\bar t h$ and $h \to b\bar b$. Benchmark inputs in `metadata.yaml` are round
 PDG-like numbers, not measurements; see `NEXT_STEPS.md` for sources. [physics judgment]
 
+Generated pages: [`outputs/vertices.md`](outputs/vertices.md) (bosonic Feynman rules, grouped by vertex class) and [`outputs/spectrum.md`](outputs/spectrum.md) (masses at the benchmark).
+
 ## Genealogy
 Parents: none. Children: `sm_ckm`, `sm_singlet_z2`, `seesaw_type1`, `thdm_type2` (see `GENEALOGY.md`).
