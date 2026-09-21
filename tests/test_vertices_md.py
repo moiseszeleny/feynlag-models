@@ -6,10 +6,12 @@ checks need no build (seconds). A rule is a table row (``| $`...`$ | $`...`$ |``
 long for a cell, an interaction line followed by a display-math block.
 """
 
+import math
 import re
 
 import pytest
 
+from feynlag_models import metadata as md
 from feynlag_models.registry import model_dirs
 
 MODELS = [d for d in model_dirs() if (d / "outputs" / "vertices.tex").exists()]
@@ -83,6 +85,74 @@ def test_seesaw_majorana_section_is_numeric():
     assert "no closed form" in part
     assert re.search(r"\| \d\.\d{3}e[-+]\d{2} \|", part)     # magnitudes, not formulas
     assert r"\bar{N} \tau W^+" in part and r"\bar{\nu} \nu Z" in part
+
+
+#: a Goldstone fermion coupling every model has, and must keep on the page
+GOLDSTONE_ROW = r"\bar{\tau} \tau G^0"
+
+
+@pytest.mark.parametrize("model_dir", MODELS, ids=lambda d: d.name)
+def test_goldstone_fermion_vertices_are_on_the_page(model_dir):
+    """The page keeps the Goldstone fermion vertices and says so in its own subsection.
+
+    ``fermion_rows`` deliberately does not pass ``drop=bundle.goldstones``, unlike
+    ``export_ufo``: a Feynman-gauge calculation needs these. The other half of the policy is
+    :func:`test_exported_ufo_has_no_goldstone`.
+    """
+    part = _part((model_dir / "outputs" / "vertices.md").read_text(), "Fermion vertices")
+    heading = re.search(r"^### Fermion pairs with a Goldstone leg \(Feynman gauge\): (\d+) vert(?:ex|ices)$",
+                        part, flags=re.M)
+    assert heading, f"{model_dir.name}: no Goldstone subsection in the fermion part"
+    tail = part[heading.end():]
+    assert _rules(tail) == int(heading.group(1))
+    assert GOLDSTONE_ROW in tail, GOLDSTONE_ROW
+
+
+@pytest.mark.parametrize("model_dir", [d for d in MODELS if md.load(d)["outputs"]["ufo"]],
+                         ids=lambda d: d.name)
+def test_exported_ufo_has_no_goldstone(model_dir):
+    """The other half: the unitary-gauge UFO drops every Goldstone, particle and vertex alike."""
+    ufo = model_dir / md.load(model_dir)["outputs"]["ufo"]
+    for name in ("particles.py", "vertices.py"):
+        text = (ufo / name).read_text()
+        for goldstone in ("G__plus__", "G__minus__", "G0"):
+            assert goldstone not in text, f"{model_dir.name}/{name}: {goldstone}"
+
+
+def _majorana_couplings(text):
+    """``{(vertex, structure): magnitude}`` from the seesaw's numeric table."""
+    part = _part(text, "Majorana neutrino vertices")
+    rows = re.findall(r"^\| \$`([^`]+)`\$ \| \$`([^`]+)`\$ \| ([0-9.]+e[-+]\d+) \|$", part, flags=re.M)
+    return {(v, s): float(c) for v, s, c in rows}
+
+
+def test_seesaw_majorana_table_shows_the_seesaw_hierarchy():
+    """The numeric table must keep the light state unsuppressed and the heavy one at O(V).
+
+    A rotation-direction slip (light and heavy swapped) breaks the first two checks at once.
+    Magnitudes cannot see a conjugation (U against U*) mistake; that is pinned symbolically in
+    ``models/seesaw_type1/tests/test_l2_literature.py`` against Atre et al. Eq. (2.5). This test
+    guards the generated table, not the physics.
+    """
+    model_dir = next(d for d in MODELS if d.name == "seesaw_type1")
+    couplings = _majorana_couplings((model_dir / "outputs" / "vertices.md").read_text())
+    bench = md.benchmark_inputs(model_dir)
+    gw, g1, v = bench["gw"], bench["g1"], bench["v"]
+    mixing = (bench["yv"] * v / math.sqrt(2)) / bench["MR"]          # V = m_D / M_R
+    yukawa = bench["yv"] / math.sqrt(2)
+
+    def close(got, want, tol=2e-3):                                  # the table prints 4 digits
+        assert abs(got - want) <= tol * abs(want), f"{got} != {want}"
+
+    light_w = couplings[(r"\bar{\nu} \tau W^+", r"\gamma^\mu P_L")]
+    light_z = couplings[(r"\bar{\nu} \nu Z", r"\gamma^\mu P_L")]
+    close(light_w, gw / math.sqrt(2))                                # unsuppressed
+    close(light_z, math.hypot(gw, g1) / 2)
+    close(couplings[(r"\bar{N} \tau W^+", r"\gamma^\mu P_L")] / light_w, mixing)      # O(V)
+    close(couplings[(r"\bar{N} \nu Z", r"\gamma^\mu P_L")] / light_z, mixing)
+    close(couplings[(r"\bar{\nu} N h", "P_R")], yukawa)            # the Dirac Yukawa survives
+    close(couplings[(r"\bar{\nu} N h", "P_L")]
+          / couplings[(r"\bar{\nu} N h", "P_R")], mixing**2, tol=4e-3)                  # O(V^2)
 
 
 @pytest.mark.parametrize("model_dir", MODELS, ids=lambda d: d.name)
