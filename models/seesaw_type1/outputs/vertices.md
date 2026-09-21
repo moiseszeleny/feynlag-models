@@ -96,7 +96,7 @@ The unitary-gauge UFO drops these; they matter for a Feynman-gauge calculation.
 
 ## Fermion vertices: 16 in all
 
-One boson leg each, as the UFO exports them: chiral keys merged into $`P_L`$/$`P_R`$ slots, redundant colour copies dropped, Yukawa couplings resolved to masses. Gluon couplings are not included (no colour-octet particle is declared).
+One boson leg each, flattened as the UFO export flattens them: chiral keys merged into $`P_L`$/$`P_R`$ slots, redundant colour copies dropped, Yukawa couplings resolved to masses. Gluon couplings are not included (no colour-octet particle is declared). Unlike the export, which is in unitary gauge, the Goldstone vertices are kept here; they are in their own subsection below.
 
 ### Fermion pair and a vector (FFV): 8 vertices
 
@@ -111,18 +111,27 @@ One boson leg each, as the UFO exports them: chiral keys merged into $`P_L`$/$`P
 | $`\bar{t} t Z`$ | $`i \gamma^\mu \left[\left(\frac{- {g'}^{2} + 3 {g}^{2}}{6 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_L + \left(- \frac{2 {g'}^{2}}{3 \sqrt{{g'}^{2} + {g}^{2}}}\right) P_R\right]`$ |
 | $`\bar{t} t \gamma`$ | $`i \gamma^\mu \left(\frac{2 {g'} {g}}{3 \sqrt{{g'}^{2} + {g}^{2}}}\right)`$ |
 
-### Fermion pair and a scalar (FFS): 8 vertices
+### Fermion pair and a scalar (FFS): 3 vertices
+
+| interaction | Feynman rule |
+|---|---|
+| $`\bar{\tau} \tau h`$ | $`i \left(- \frac{{m_\tau}}{{v}}\right)`$ |
+| $`\bar{b} b h`$ | $`i \left(- \frac{{m_b}}{{v}}\right)`$ |
+| $`\bar{t} t h`$ | $`i \left(- \frac{{m_t}}{{v}}\right)`$ |
+
+### Fermion pairs with a Goldstone leg (Feynman gauge): 5 vertices
+
+Absent from the unitary-gauge UFO, which drops every Goldstone leg.
+
+#### Fermion pair and a scalar (FFS): 5 vertices
 
 | interaction | Feynman rule |
 |---|---|
 | $`\bar{\tau} \tau G^0`$ | $`i \left[\left(\frac{i {m_\tau}}{{v}}\right) P_L + \left(- \frac{i {m_\tau}}{{v}}\right) P_R\right]`$ |
-| $`\bar{\tau} \tau h`$ | $`i \left(- \frac{{m_\tau}}{{v}}\right)`$ |
 | $`\bar{b} b G^0`$ | $`i \left[\left(\frac{i {m_b}}{{v}}\right) P_L + \left(- \frac{i {m_b}}{{v}}\right) P_R\right]`$ |
-| $`\bar{b} b h`$ | $`i \left(- \frac{{m_b}}{{v}}\right)`$ |
 | $`\bar{b} t G^-`$ | $`i \left[\left(- \frac{\sqrt{2} {m_b}}{{v}}\right) P_L + \left(\frac{\sqrt{2} {m_t}}{{v}}\right) P_R\right]`$ |
 | $`\bar{t} b G^+`$ | $`i \left[\left(\frac{\sqrt{2} {m_t}}{{v}}\right) P_L + \left(- \frac{\sqrt{2} {m_b}}{{v}}\right) P_R\right]`$ |
 | $`\bar{t} t G^0`$ | $`i \left[\left(- \frac{i {m_t}}{{v}}\right) P_L + \left(\frac{i {m_t}}{{v}}\right) P_R\right]`$ |
-| $`\bar{t} t h`$ | $`i \left(- \frac{{m_t}}{{v}}\right)`$ |
 
 9 further vertex keys involve fields with no Dirac particle (`eL`, `eLbar`, `eR`, `eRbar`, `nuL`, `nuLbar`, `nuR`, `nuRbar`) and are not in the table above; see the [card](../README.md) and `FEYNLAG_GAPS.md` (FG-3).
 

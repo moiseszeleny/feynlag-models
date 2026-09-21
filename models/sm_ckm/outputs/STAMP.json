@@ -1,8 +1,8 @@
 {
   "model": "sm_ckm",
-  "generated": "2026-09-20T07:31:15+00:00",
+  "generated": "2026-09-21T18:59:56+00:00",
   "feynlag_models_version": "0.1.0",
-  "repo_commit": "3c80845719a509669f156b9fc1ca8778c47bad76",
+  "repo_commit": "47c999f9e4f14cb2141f519dd0552b79ef904c64",
   "repo_dirty": true,
   "feynlag_version": "0.1.0",
   "feynlag_commit": "efffdb0d22be88ecabb5636037703d844c63d0d4",

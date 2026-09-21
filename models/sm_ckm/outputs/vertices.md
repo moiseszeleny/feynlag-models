@@ -96,7 +96,7 @@ The unitary-gauge UFO drops these; they matter for a Feynman-gauge calculation.
 
 ## Fermion vertices: 87 in all
 
-One boson leg each, as the UFO exports them: chiral keys merged into $`P_L`$/$`P_R`$ slots, redundant colour copies dropped, Yukawa couplings resolved to masses. Gluon couplings are not included (no colour-octet particle is declared).
+One boson leg each, flattened as the UFO export flattens them: chiral keys merged into $`P_L`$/$`P_R`$ slots, redundant colour copies dropped, Yukawa couplings resolved to masses. Gluon couplings are not included (no colour-octet particle is declared). Unlike the export, which is in unitary gauge, the Goldstone vertices are kept here; they are in their own subsection below.
 
 ### Fermion pair and a vector (FFV): 45 vertices
 
@@ -188,36 +188,45 @@ $`\bar{t} s W^+`$
 i \gamma^\mu \left(- \frac{\sqrt{2} {g} \left(e^{i {\delta}} \sin{\left({\theta_{12}} \right)} \sin{\left({\theta_{13}} \right)} \cos{\left({\theta_{23}} \right)} + \sin{\left({\theta_{23}} \right)} \cos{\left({\theta_{12}} \right)}\right)}{2}\right) P_L
 ```
 
-### Fermion pair and a scalar (FFS): 42 vertices
+### Fermion pair and a scalar (FFS): 9 vertices
+
+| interaction | Feynman rule |
+|---|---|
+| $`\bar{\mu} \mu h`$ | $`i \left(- \frac{{m_\mu}}{{v}}\right)`$ |
+| $`\bar{\tau} \tau h`$ | $`i \left(- \frac{{m_\tau}}{{v}}\right)`$ |
+| $`\bar{b} b h`$ | $`i \left(- \frac{{m_b}}{{v}}\right)`$ |
+| $`\bar{c} c h`$ | $`i \left(- \frac{{m_c}}{{v}}\right)`$ |
+| $`\bar{d} d h`$ | $`i \left(- \frac{{m_d}}{{v}}\right)`$ |
+| $`\bar{e} e h`$ | $`i \left(- \frac{{m_e}}{{v}}\right)`$ |
+| $`\bar{s} s h`$ | $`i \left(- \frac{{m_s}}{{v}}\right)`$ |
+| $`\bar{t} t h`$ | $`i \left(- \frac{{m_t}}{{v}}\right)`$ |
+| $`\bar{u} u h`$ | $`i \left(- \frac{{m_u}}{{v}}\right)`$ |
+
+### Fermion pairs with a Goldstone leg (Feynman gauge): 33 vertices
+
+Absent from the unitary-gauge UFO, which drops every Goldstone leg.
+
+#### Fermion pair and a scalar (FFS): 33 vertices
 
 | interaction | Feynman rule |
 |---|---|
 | $`\bar{\mu} \mu G^0`$ | $`i \left[\left(\frac{i {m_\mu}}{{v}}\right) P_L + \left(- \frac{i {m_\mu}}{{v}}\right) P_R\right]`$ |
-| $`\bar{\mu} \mu h`$ | $`i \left(- \frac{{m_\mu}}{{v}}\right)`$ |
 | $`\bar{\mu} \nu_\mu G^-`$ | $`i \left(- \frac{\sqrt{2} {m_\mu}}{{v}}\right) P_L`$ |
 | $`\bar{\nu}_\mu \mu G^+`$ | $`i \left(- \frac{\sqrt{2} {m_\mu}}{{v}}\right) P_R`$ |
 | $`\bar{\nu}_\tau \tau G^+`$ | $`i \left(- \frac{\sqrt{2} {m_\tau}}{{v}}\right) P_R`$ |
 | $`\bar{\nu}_e e G^+`$ | $`i \left(- \frac{\sqrt{2} {m_e}}{{v}}\right) P_R`$ |
 | $`\bar{\tau} \nu_\tau G^-`$ | $`i \left(- \frac{\sqrt{2} {m_\tau}}{{v}}\right) P_L`$ |
 | $`\bar{\tau} \tau G^0`$ | $`i \left[\left(\frac{i {m_\tau}}{{v}}\right) P_L + \left(- \frac{i {m_\tau}}{{v}}\right) P_R\right]`$ |
-| $`\bar{\tau} \tau h`$ | $`i \left(- \frac{{m_\tau}}{{v}}\right)`$ |
 | $`\bar{b} b G^0`$ | $`i \left[\left(\frac{i {m_b}}{{v}}\right) P_L + \left(- \frac{i {m_b}}{{v}}\right) P_R\right]`$ |
-| $`\bar{b} b h`$ | $`i \left(- \frac{{m_b}}{{v}}\right)`$ |
 | $`\bar{b} u G^-`$ | $`i \left[\left(- \frac{\sqrt{2} {m_b} e^{i {\delta}} \sin{\left({\theta_{13}} \right)}}{{v}}\right) P_L + \left(\frac{\sqrt{2} {m_u} e^{i {\delta}} \sin{\left({\theta_{13}} \right)}}{{v}}\right) P_R\right]`$ |
 | $`\bar{c} c G^0`$ | $`i \left[\left(- \frac{i {m_c}}{{v}}\right) P_L + \left(\frac{i {m_c}}{{v}}\right) P_R\right]`$ |
-| $`\bar{c} c h`$ | $`i \left(- \frac{{m_c}}{{v}}\right)`$ |
 | $`\bar{d} d G^0`$ | $`i \left[\left(\frac{i {m_d}}{{v}}\right) P_L + \left(- \frac{i {m_d}}{{v}}\right) P_R\right]`$ |
-| $`\bar{d} d h`$ | $`i \left(- \frac{{m_d}}{{v}}\right)`$ |
 | $`\bar{e} \nu_e G^-`$ | $`i \left(- \frac{\sqrt{2} {m_e}}{{v}}\right) P_L`$ |
 | $`\bar{e} e G^0`$ | $`i \left[\left(\frac{i {m_e}}{{v}}\right) P_L + \left(- \frac{i {m_e}}{{v}}\right) P_R\right]`$ |
-| $`\bar{e} e h`$ | $`i \left(- \frac{{m_e}}{{v}}\right)`$ |
 | $`\bar{s} s G^0`$ | $`i \left[\left(\frac{i {m_s}}{{v}}\right) P_L + \left(- \frac{i {m_s}}{{v}}\right) P_R\right]`$ |
-| $`\bar{s} s h`$ | $`i \left(- \frac{{m_s}}{{v}}\right)`$ |
 | $`\bar{t} t G^0`$ | $`i \left[\left(- \frac{i {m_t}}{{v}}\right) P_L + \left(\frac{i {m_t}}{{v}}\right) P_R\right]`$ |
-| $`\bar{t} t h`$ | $`i \left(- \frac{{m_t}}{{v}}\right)`$ |
 | $`\bar{u} b G^+`$ | $`i \left[\left(\frac{\sqrt{2} {m_u} e^{- i {\delta}} \sin{\left({\theta_{13}} \right)}}{{v}}\right) P_L + \left(- \frac{\sqrt{2} {m_b} e^{- i {\delta}} \sin{\left({\theta_{13}} \right)}}{{v}}\right) P_R\right]`$ |
 | $`\bar{u} u G^0`$ | $`i \left[\left(- \frac{i {m_u}}{{v}}\right) P_L + \left(\frac{i {m_u}}{{v}}\right) P_R\right]`$ |
-| $`\bar{u} u h`$ | $`i \left(- \frac{{m_u}}{{v}}\right)`$ |
 
 $`\bar{b} c G^-`$
 

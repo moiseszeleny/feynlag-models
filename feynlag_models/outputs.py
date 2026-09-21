@@ -140,10 +140,14 @@ def _refined(expr, assumption):
 
 
 def fermion_rows(bundle):
-    """``(rows, skipped)``: one ``(interaction, rule TeX, class)`` per fermion vertex.
+    """``(rows, skipped)``: one ``(interaction, rule TeX, class, goldstone)`` per fermion vertex.
 
-    Reuses :func:`feynlag_models.ufo.flatten_fermion_vertices`, so this is exactly the set
-    of vertices the UFO exports: one boson leg, chiral keys merged, colour copies dropped.
+    Reuses :func:`feynlag_models.ufo.flatten_fermion_vertices`, so the same flattening rules as
+    the UFO export apply: one boson leg, chiral keys merged, colour copies dropped, gluon
+    couplings (which carry no boson from ``boson_list``) absent. **The Goldstone vertices are
+    kept**, unlike in the export, which passes ``drop=bundle.goldstones`` because its UFO is in
+    unitary gauge; a Feynman-gauge calculation needs them, so they are flagged here and the page
+    gives them their own subsection.
     Yukawa internals are resolved (``h t t̄`` reads ``−m_t/v``, not ``y_t/√2``), but a mixing
     angle defined by an ``atan`` solution is left as its symbol (substituting it would replace
     ``sin(alpha)`` by a page-wide closed form and hide the physics), with its tangent written as
@@ -156,6 +160,7 @@ def fermion_rows(bundle):
     fermions = fermion_names(bundle)
     names = tex_names(bundle)
     vectors = {bundle.bosons[k] for k in _VECTOR_KEYS if k in bundle.bosons}
+    goldstones = set(bundle.goldstones)
     resolve, angles = {}, {}
     for sym, expr in bundle.params.resolve().items():
         if expr.has(sp.atan):
@@ -182,8 +187,8 @@ def fermion_rows(bundle):
                                 fermions.get(entry["field"], str(entry["field"])),
                                 fields.get(boson, str(boson))])
         rows.append((interaction, _chiral_rule(left, right, vector, names),
-                     "FFV" if vector else "FFS"))
-    rows.sort(key=lambda r: (r[2] != "FFV", r[0]))
+                     "FFV" if vector else "FFS", boson in goldstones))
+    rows.sort(key=lambda r: (r[3], r[2] != "FFV", r[0]))
     return rows, skipped
 
 
@@ -301,15 +306,27 @@ def vertices_markdown(bundle, rules, ufo_name=None, extra_sections=()):
                 lines += section(gold_rows) + [""]
 
     ferm_rows, skipped = fermion_rows(bundle)
+    n_ferm_gold = sum(1 for r in ferm_rows if r[3])
     lines += [f"## Fermion vertices: {len(ferm_rows)} in all", "",
-              "One boson leg each, as the UFO exports them: chiral keys merged into "
+              "One boson leg each, flattened as the UFO export flattens them: chiral keys merged into "
               r"$`P_L`$/$`P_R`$ slots, redundant colour copies dropped, Yukawa couplings resolved to masses. "
-              "Gluon couplings are not included (no colour-octet particle is declared).", ""]
-    for code, title in (("FFV", "Fermion pair and a vector (FFV)"), ("FFS", "Fermion pair and a scalar (FFS)")):
-        rows = [r for r in ferm_rows if r[2] == code]
+              "Gluon couplings are not included (no colour-octet particle is declared). "
+              "Unlike the export, which is in unitary gauge, the Goldstone vertices are kept here; "
+              "they are in their own subsection below.", ""]
+    classes = (("FFV", "Fermion pair and a vector (FFV)"), ("FFS", "Fermion pair and a scalar (FFS)"))
+    for code, title in classes:
+        rows = [r for r in ferm_rows if r[2] == code and not r[3]]
         if rows:
             lines += [f"### {title}: {_plural(len(rows))}", ""]
             lines += section([(r[0], r[1], False) for r in rows], FERMION_LONG_TEX) + [""]
+    if n_ferm_gold:
+        lines += [f"### Fermion pairs with a Goldstone leg (Feynman gauge): {_plural(n_ferm_gold)}", "",
+                  "Absent from the unitary-gauge UFO, which drops every Goldstone leg.", ""]
+        for code, title in classes:
+            rows = [r for r in ferm_rows if r[2] == code and r[3]]
+            if rows:
+                lines += [f"#### {title}: {_plural(len(rows))}", ""]
+                lines += section([(r[0], r[1], False) for r in rows], FERMION_LONG_TEX) + [""]
     if skipped:
         legs = sorted({str(x.base) for key in skipped for x in (key[0], key[2])})
         lines += [f"{len(skipped)} further vertex keys involve fields with no Dirac particle "
