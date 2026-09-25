@@ -226,6 +226,9 @@ First, the new route reproduces the workaround: $U$ agrees to $2\times10^{-38}$ 
 at the benchmark. Second, the massless light state is now an exact $D = 0$ instead of the
 workaround's $`4\times10^{-49}`$ remainder. No test tolerance changed, and `build_outputs.py --check` finds every
 model's outputs up to date at the new pin; every `STAMP.json` was regenerated to record `e34b356`.
+Every stamp before this one said `repo_dirty: true`, because `build_outputs.py` deletes `outputs/`
+before stamping; `feynlag_models/stamp.py` now counts only changes outside the generated
+`outputs/` directories as dirty.
 
 Fast suite at this pin: `176 passed, 2 skipped, 1 xfailed` (the xfail is 2HDM D-2).
 
