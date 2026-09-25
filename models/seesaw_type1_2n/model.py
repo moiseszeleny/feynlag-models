@@ -36,6 +36,7 @@ PARENT = "sm"
 
 FLAVOURS = ("e", "mu", "tau")
 N_L, N_R = 3, 2
+ZERO_COUPLING = 1e-40   # the numeric Takagi works at 50 digits; smallest physical coupling here ~1e-29
 
 
 def benchmark_point():
@@ -170,14 +171,31 @@ def majorana_vertex_markdown(bundle):
     for base, bar in ((chiL, False), (chiR, False), (chiLbar, True), (chiRbar, True)):
         for k in range(N_L + N_R):
             names[(base, k)] = rf"\bar{{{_state_tex(k)}}}" if bar else _state_tex(k)
+    # charged-lepton legs by flavour (the generic fallback names by base, one generation)
+    Ll, eR = bundle.pieces.fermions["Ll"], bundle.pieces.fermions["eR"]
+    for base, bar in ((Ll.components[1], False), (Ll.bar_components[1], True),
+                      (eR.components[0], False), (eR.bar_components[0], True)):
+        for a, tex in enumerate(("e", r"\mu", r"\tau")):
+            names[(base, a)] = rf"\bar{{{tex}}}" if bar else tex
     table = extract_fermion_vertices(physical_neutrino_lagrangian(bundle), bundle.boson_list)
-    table = {k: v for k, v in table.items()
-             if any(x.base in (chiL, chiR, chiLbar, chiRbar) for x in (k[0], k[2]))}
+    vals = bundle.values()
+    kept = {}
+    for key, orders in table.items():
+        if not any(x.base in (chiL, chiR, chiLbar, chiRbar) for x in (key[0], key[2])):
+            continue
+        orders = {n: {b: c for b, c in by_boson.items()
+                      if abs(complex(sp.N(sp.sympify(c).subs(vals)))) > ZERO_COUPLING}
+                  for n, by_boson in orders.items()}
+        orders = {n: d for n, d in orders.items() if d}
+        if orders:
+            kept[key] = orders
     note = (r"$`\nu_{1,2,3}`$ and $`N_{1,2}`$ are the light and heavy Majorana mass eigenstates "
             r"($`\chi_k`$ in the code), ordered by mass; $`\nu_1`$ is massless. The Takagi rotation is "
             "solved numerically at the benchmark, so these couplings have no closed form here; "
             "magnitudes are given instead, and the tests pin them against Atre et al. Eq. (2.5) "
-            "(`tests/test_l2_literature.py`).")
+            "(`tests/test_l2_literature.py`). Couplings below $`10^{-40}`$ vanish at the 50-digit "
+            r"working precision (for example $`Z\bar\nu_i\nu_j`$ with $`i \ne j`$) and are omitted.")
+    table = kept
     return numeric_fermion_markdown(bundle, table, names,
                                     "Majorana neutrino vertices (numeric)", note)
 
@@ -185,7 +203,9 @@ def majorana_vertex_markdown(bundle):
 def outputs(bundle, out_dir):
     e = bundle.extra
     masses = {"$m_h$": e["MH"].expr, "$m_W$": e["MW"].expr, "$m_Z$": e["MZ"].expr}
-    for k in range(N_L + N_R):
+    # rank(M_ν) = 4 exactly, so m_ν1 = 0; the Takagi returns it as ~1e-49 working-precision noise
+    masses[rf"$m_{{{_state_tex(0)}}}$ (exact, rank 2)"] = sp.S.Zero
+    for k in range(1, N_L + N_R):
         masses[rf"$m_{{{_state_tex(k)}}}$ (Takagi)"] = sp.Float(e["masses"][k], 15)
     return standard_outputs(bundle, out_dir, "SEESAW_TYPE1_2N_UFO", masses, ufo=False,
                             extra_vertex_sections=[majorana_vertex_markdown(bundle)])
