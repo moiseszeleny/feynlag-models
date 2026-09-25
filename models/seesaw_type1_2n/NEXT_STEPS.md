@@ -4,10 +4,11 @@
 - A benchmark fitted to the two measured oscillation splittings and the PMNS angles, through the
   two-$\nu_R$ Casas–Ibarra form (Ibarra–Ross, Phys. Lett. B 591 (2004) 285, Eq. (6), already
   reproduced by `test_casas_ibarra_two_rhn_eq_6` for arbitrary inputs). Only complex $z$ and
-  the PMNS phases are missing; `numeric_takagi` would need a complex version.
+  the PMNS phases are missing; feynlag's numeric `diagonalize_takagi` would need a complex version.
 - `seesaw_type1_3gen`: three $\nu_R$ with a $6\times6$ block (the lightest neutrino then becomes massive).
-- A non-diagonal $M_R$, or complex Yukawas (CP phases and leptogenesis). `numeric_takagi` handles
-  real matrices only; complex ones need a numeric SVD-based Takagi.
+- A non-diagonal $M_R$, or complex Yukawas (CP phases and leptogenesis). feynlag's numeric
+  `diagonalize_takagi` handles real matrices only (it raises on complex ones); complex ones need a
+  numeric SVD-based Takagi.
 - CKM mixing in the quark sector (combine with `sm_ckm`), which does not change the neutrino sector at tree level.
 
 ## 2. Observables and current bounds
@@ -23,8 +24,9 @@
 
 ## 4. What feynlag cannot yet do for this model
 - **FG-3**: no UFO export of Majorana-fermion vertices, so the model stops at L2.
-- **FG-5**: `diagonalize_takagi` is symbolic and does not finish on the generic $5\times5$; the workaround
-  `feynlag_models.checks.numeric_takagi` is used instead, so masses and mixings exist only at numeric points.
+- Masses and mixings exist only at numeric points. feynlag's `diagonalize_takagi` goes numeric on the
+  generic $5\times5$, because the exact route does not finish (FG-5, resolved: before the `e34b356` pin
+  it did not finish at all).
 - No loops ($\mu \to e\gamma$ from $N$ exchange), and no $0\nu\beta\beta$ amplitude.
 
 ## 5. Key references

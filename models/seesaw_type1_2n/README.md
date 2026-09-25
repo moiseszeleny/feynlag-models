@@ -47,8 +47,9 @@ $y^\nu$ is a general real $3\times2$ matrix.
 M_\nu = \begin{pmatrix} 0_{3\times3} & m_D \\ m_D^T & M_R \end{pmatrix} = U D U^T .
 ```
 
-- The Takagi factorisation is numeric at the benchmark. It uses `feynlag_models.checks.numeric_takagi`
-  at 50 digits, because feynlag's symbolic `diagonalize_takagi` does not finish (FG-5). $U D U^T$
+- The Takagi factorisation is numeric at the benchmark. feynlag's `diagonalize_takagi` takes its mpmath
+  route at 50 digits for a numeric matrix larger than $2\times2$, because the exact route does not
+  finish on a generic $5\times5$ (FG-5, resolved). $U D U^T$
   reconstructs $M_\nu$ to about 40 digits **[feynlag-verified: `test_takagi_spectrum_at_benchmark`]**
 - **Rank 2.** Exactly one light neutrino is massless. The two massive light states have distinct
   masses, which gives two independent $\Delta m^2$. The heavy states sit at $M_1$ and $M_2$

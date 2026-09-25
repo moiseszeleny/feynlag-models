@@ -40,33 +40,6 @@ def numeric_matrix(M, values):
     return sp.Matrix(M).subs(values).evalf()
 
 
-def numeric_takagi(M, dps=50):
-    """Takagi factorisation ``M = U D Uᵀ`` of a real symmetric numeric matrix at ``dps`` digits.
-
-    Workaround for FG-5: feynlag's ``diagonalize_takagi`` diagonalises symbolically and does not
-    finish on a generic ``N > 2`` matrix. Same convention as ``diagonalize_takagi`` (``U = Oᵀ``
-    times a factor ``i`` on each column with a negative eigenvalue, ``D ≥ 0``); columns are ordered
-    by increasing mass. High precision matters: a seesaw spectrum spans ~14 orders of magnitude.
-    """
-    import mpmath
-
-    M = sp.Matrix(M)
-    if M.free_symbols or sp.simplify(M - M.T) != sp.zeros(*M.shape):
-        raise ValueError("numeric_takagi needs a numeric symmetric matrix")
-    if any(sp.im(sp.N(x)) != 0 for x in M):
-        raise ValueError("numeric_takagi handles real matrices only")
-    n = M.rows
-    with mpmath.workdps(dps):
-        A = mpmath.matrix([[mpmath.mpf(str(sp.N(x, dps + 10))) for x in row]
-                           for row in M.tolist()])
-        E, Q = mpmath.eigsy(A)
-        order = sorted(range(n), key=lambda k: abs(E[k]))
-        U = sp.Matrix([[sp.Float(str(Q[a, k]), dps) * (sp.I if E[k] < 0 else 1) for k in order]
-                       for a in range(n)])
-        D = sp.diag(*[sp.Float(str(abs(E[k])), dps) for k in order])
-    return U, D
-
-
 def zero_eigenvalue_count(M, values, tol=1e-8):
     """Number of (numerically) vanishing eigenvalues of ``M`` at ``values``.
 

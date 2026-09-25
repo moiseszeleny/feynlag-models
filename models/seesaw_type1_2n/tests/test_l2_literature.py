@@ -11,10 +11,9 @@ In feynlag's convention n = U* χ, so U is the Takagi factor (rows ν_L[e, μ, �
 
 import sympy as sp
 
-from feynlag import DiracGamma, diracPL, diracPR
+from feynlag import DiracGamma, diagonalize_takagi, diracPL, diracPR
 from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
-from feynlag_models.checks import numeric_takagi
 from .conftest import coupling
 
 mu = sp.Symbol("mu", integer=True)
@@ -33,7 +32,7 @@ def _close(a, b, rel):
 def _takagi_at(ss, point):
     """Numeric Takagi of the model's symbolic M_ν at ``point`` (symbol → exact or 50-digit value)."""
     Mn = ss.extra["Mnu"].applyfunc(lambda x: sp.N(x.subs(point), DPS + 10))
-    return numeric_takagi(Mn, dps=DPS)
+    return diagonalize_takagi(Mn, method="numeric", dps=DPS)
 
 
 def _point(ss, yv_values=None, MR_values=None):

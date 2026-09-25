@@ -34,7 +34,9 @@ def make_stamp(model_id):
         "generated": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "feynlag_models_version": __version__,
         "repo_commit": _git("rev-parse", "HEAD"),
-        "repo_dirty": bool(_git("status", "--porcelain")),
+        # the build deletes and rewrites outputs/ before stamping, so only source changes count
+        "repo_dirty": bool(_git("status", "--porcelain", "--", ".",
+                                ":(exclude,glob)models/*/outputs/**")),
         "feynlag_version": feynlag.__version__,
         "feynlag_commit": feynlag_pin(),
         "sympy_version": sympy.__version__,

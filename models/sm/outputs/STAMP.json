@@ -1,11 +1,11 @@
 {
   "model": "sm",
-  "generated": "2026-09-21T18:59:24+00:00",
+  "generated": "2026-09-25T21:49:58+00:00",
   "feynlag_models_version": "0.1.0",
-  "repo_commit": "47c999f9e4f14cb2141f519dd0552b79ef904c64",
-  "repo_dirty": true,
+  "repo_commit": "5e753fa7b454cc6785d01f66694546f233f9aab4",
+  "repo_dirty": false,
   "feynlag_version": "0.1.0",
-  "feynlag_commit": "efffdb0d22be88ecabb5636037703d844c63d0d4",
+  "feynlag_commit": "e34b356e9681f19b029b2b70219aec73f7127a5a",
   "sympy_version": "1.14.0",
   "python": "3.13.2",
   "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39"
