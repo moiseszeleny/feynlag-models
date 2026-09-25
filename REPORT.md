@@ -223,9 +223,9 @@ brings in PR #24 (PyPI packaging, no library change). `seesaw_type1_2n` now buil
 feynlag's `diagonalize_takagi`, and its tests use it too (`method="numeric"` for the $3\times3$ light
 block and the L2 re-diagonalisations at other points). Two things were checked rather than assumed.
 First, the new route reproduces the workaround: $U$ agrees to $2\times10^{-38}$ and $D$ to $10^{-47}$
-at the benchmark. Second, the massless light state is now an exact $D = 0$ instead of a
-$\sim10^{-59}$ remainder. No test tolerance changed, and `build_outputs.py --check` finds every
-model's outputs up to date at the new pin.
+at the benchmark. Second, the massless light state is now an exact $D = 0$ instead of the
+workaround's $`4\times10^{-49}`$ remainder. No test tolerance changed, and `build_outputs.py --check` finds every
+model's outputs up to date at the new pin; every `STAMP.json` was regenerated to record `e34b356`.
 
 Fast suite at this pin: `176 passed, 2 skipped, 1 xfailed` (the xfail is 2HDM D-2).
 
