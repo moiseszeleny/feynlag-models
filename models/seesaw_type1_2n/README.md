@@ -1,6 +1,6 @@
-# Type-I seesaw, three generations and two ν_R — physics card
+# Type-I seesaw, three generations and two right-handed neutrinos — physics card
 
-**id** `seesaw_type1_2n` · **parents** `sm` · **maturity** L0 (L3 blocked by FG-3, no UFO path for Majorana fermions; the Takagi factorisation uses a workaround for FG-5, see `FEYNLAG_GAPS.md`)
+**id** `seesaw_type1_2n` · **parents** `sm` · **maturity** L1 (L3 blocked by FG-3, no UFO path for Majorana fermions; the Takagi factorisation uses a workaround for FG-5, see `FEYNLAG_GAPS.md`)
 
 Tags: **[feynlag-verified: test]** = pinned by a test in `tests/`; **[physics judgment]** = not machine-checked.
 
@@ -38,17 +38,27 @@ $M_R = \operatorname{diag}(M_1, M_2)$ is taken diagonal (the $\nu_R$ basis), and
 $y^\nu$ is a general real $3\times2$ matrix.
 
 ## Key mechanism
-- $m_D = y^\nu v/\sqrt2$ is $3\times2$. In the basis $n = (\nu_L, \nu_R^c)$ the $5\times5$ mass
-  matrix is
+- $m_D = y^\nu v/\sqrt2$ is $3\times2$, read off the Lagrangian by feynlag's `fermion_mass_matrix`.
+  That function returns a square matrix; its third column is exactly zero because there is no
+  third $\nu_R$. In the basis $n = (\nu_L, \nu_R^c)$ the $5\times5$ mass matrix is
+  **[feynlag-verified: `tests/test_l0_l1.py::test_mass_matrix_entries`]**:
 
 ```math
 M_\nu = \begin{pmatrix} 0_{3\times3} & m_D \\ m_D^T & M_R \end{pmatrix} = U D U^T .
 ```
 
-- Its Takagi factorisation is numeric at the benchmark, done by `feynlag_models.checks.numeric_takagi`
-  at 50 digits, because feynlag's symbolic `diagonalize_takagi` does not finish (FG-5). The
-  physical Majorana states $\chi_k$ ($\nu_{1,2,3}$, $N_{1,2}$) come from feynlag's `MajoranaRotation`
-  with $n_L = 3$.
+- The Takagi factorisation is numeric at the benchmark. It uses `feynlag_models.checks.numeric_takagi`
+  at 50 digits, because feynlag's symbolic `diagonalize_takagi` does not finish (FG-5). $U D U^T$
+  reconstructs $M_\nu$ to about 40 digits **[feynlag-verified: `test_takagi_spectrum_at_benchmark`]**
+- **Rank 2.** Exactly one light neutrino is massless. The two massive light states have distinct
+  masses, which gives two independent $\Delta m^2$. The heavy states sit at $M_1$ and $M_2$
+  **[feynlag-verified: `test_light_sector_rank_two`]**. The light masses agree with the singular
+  values of $m_\nu = -m_D M_R^{-1} m_D^T$, including the zero, up to $\mathcal O(m_D^2/M_R^2)$
+  **[feynlag-verified: `test_seesaw_formula_matrix`]**, and the light–heavy mixing agrees with
+  $\lvert U_{a N_m}\rvert \approx \lvert (m_D M_R^{-1})_{am}\rvert$
+  **[feynlag-verified: `test_light_heavy_mixing_at_benchmark`]**.
+- The physical Majorana states $\chi_k$ ($\nu_{1,2,3}$, $N_{1,2}$, ordered by mass) come from
+  feynlag's `MajoranaRotation` with $n_L = 3$, whose output is fed by the numeric $U$.
 
 ## Characteristic scale
 $M_{1,2}$. At the benchmark ($y^\nu \sim 10^{-6}$, $M_1 = 1$ TeV, $M_2 = 3$ TeV) the light masses

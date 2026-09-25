@@ -12,7 +12,7 @@
   },
   "seesaw_type1_2n": {
     "children": [],
-    "maturity_level": 0,
+    "maturity_level": 1,
     "name": "Type-I seesaw with three lepton generations and two right-handed neutrinos",
     "parents": [
       "sm"

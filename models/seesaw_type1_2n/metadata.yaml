@@ -74,10 +74,12 @@ benchmark:
   placeholders: [MU, MD, MS]
 key_results:
   - {statement: "The Dirac Yukawa via H̃ and the two Majorana masses are gauge invariant and hermitian; the singlet ν_R leave the anomalies of sm untouched", test: "tests/test_l0_l1.py::test_validate_invariance_and_anomalies"}
-maturity_level: 0
+  - {statement: "M_ν = [[0, m_D], [m_D^T, M_R]] with the 3×2 m_D = y_ν v/√2 and M_R = diag(M_1, M_2); U D Uᵀ = M_ν at the benchmark", test: "tests/test_l0_l1.py::test_takagi_spectrum_at_benchmark"}
+  - {statement: "rank(m_ν) = 2: one massless light neutrino, two massive light states with distinct masses (two independent Δm²), heavy states at M_1 and M_2", test: "tests/test_l0_l1.py::test_light_sector_rank_two"}
+maturity_level: 1
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
-  L1: []
+  L1: ["tests/test_l0_l1.py::test_mass_matrix_entries", "tests/test_l0_l1.py::test_takagi_spectrum_at_benchmark", "tests/test_l0_l1.py::test_light_sector_rank_two", "tests/test_l0_l1.py::test_seesaw_formula_matrix", "tests/test_l0_l1.py::test_light_heavy_mixing_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_unchanged"]
   L2: []
   L3: []
   L4: []
