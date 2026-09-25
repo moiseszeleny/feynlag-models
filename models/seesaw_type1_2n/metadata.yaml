@@ -76,16 +76,33 @@ key_results:
   - {statement: "The Dirac Yukawa via H̃ and the two Majorana masses are gauge invariant and hermitian; the singlet ν_R leave the anomalies of sm untouched", test: "tests/test_l0_l1.py::test_validate_invariance_and_anomalies"}
   - {statement: "M_ν = [[0, m_D], [m_D^T, M_R]] with the 3×2 m_D = y_ν v/√2 and M_R = diag(M_1, M_2); U D Uᵀ = M_ν at the benchmark", test: "tests/test_l0_l1.py::test_takagi_spectrum_at_benchmark"}
   - {statement: "rank(m_ν) = 2: one massless light neutrino, two massive light states with distinct masses (two independent Δm²), heavy states at M_1 and M_2", test: "tests/test_l0_l1.py::test_light_sector_rank_two"}
-maturity_level: 1
+  - {statement: "Ibarra–Ross Eq. (6) (two-ν_R Casas–Ibarra) Yukawa gives back light masses {0, m_2, m_3} and the input |U_MNS|", test: "tests/test_l2_literature.py::test_casas_ibarra_two_rhn_eq_6"}
+  - {statement: "W ℓ_a χ_k = (g/√2)|U[a,k]| and Z χ̄χ = (g_Z/2)|Σ_a U U*| for all three flavours and five mass eigenstates", test: "tests/test_l2_literature.py::test_W_coupling_eq_2_5"}
+  - {statement: "With one Yukawa entry and one ν_R on, the spectrum and mixing are those of seesaw_type1", test: "tests/test_l2_literature.py::test_single_generation_limit_matches_seesaw_type1"}
+maturity_level: 2
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
   L1: ["tests/test_l0_l1.py::test_mass_matrix_entries", "tests/test_l0_l1.py::test_takagi_spectrum_at_benchmark", "tests/test_l0_l1.py::test_light_sector_rank_two", "tests/test_l0_l1.py::test_seesaw_formula_matrix", "tests/test_l0_l1.py::test_light_heavy_mixing_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_unchanged"]
-  L2: []
+  L2: ["tests/test_l2_literature.py::test_W_coupling_eq_2_5", "tests/test_l2_literature.py::test_Z_coupling_eq_2_5", "tests/test_l2_literature.py::test_h_nu_N_coupling", "tests/test_l2_literature.py::test_decoupling_M_R_to_infinity", "tests/test_l2_literature.py::test_single_generation_limit_matches_seesaw_type1", "tests/test_l2_literature.py::test_casas_ibarra_two_rhn_eq_6"]
   L3: []
   L4: []
 slow_evidence: []
-literature_checks: []
-discrepancies: []
+literature_checks:
+  - {quantity: "W ℓ_a N coupling (g/√2) V*_ℓm γ^μ P_L, summed over ℓ = e, μ, τ", ref: atre2009, location: {equation: "(2.5)", note: "first term; mixing relation Eq. (2.3)"}, source_version: "arXiv:0901.3589v2", checked_on: 2026-09-24, test: "tests/test_l2_literature.py::test_W_coupling_eq_2_5"}
+  - {quantity: "Z ν N coupling (g/2cosθ_W) V*_ℓm γ^μ P_L, summed over ℓ", ref: atre2009, location: {equation: "(2.5)", note: "second term; mixing relation Eq. (2.3)"}, source_version: "arXiv:0901.3589v2", checked_on: 2026-09-24, test: "tests/test_l2_literature.py::test_Z_coupling_eq_2_5"}
+  - {quantity: "decoupling V → 0 as M_R → ∞ (V†V ≈ m_ν/M_N)", ref: atre2009, location: {section: "2.1", note: "remarks following Eq. (2.5)"}, source_version: "arXiv:0901.3589v2", checked_on: 2026-09-24, test: "tests/test_l2_literature.py::test_decoupling_M_R_to_infinity"}
+  - {quantity: "with two ν_R one light neutrino mass vanishes", ref: ibarraross2004, location: {section: "2", note: "last paragraph (the 2RHN case removes one light mass and one phase); Sec. 3: m_1 → 0 as M_3 → ∞"}, source_version: "arXiv:hep-ph/0312138v2", checked_on: 2026-09-24, test: "tests/test_l0_l1.py::test_light_sector_rank_two"}
+  - {quantity: "two-ν_R Casas–Ibarra Yukawa in terms of m_2, m_3, U_MNS and one complex angle z", ref: ibarraross2004, location: {equation: "(6)", note: "R = first two rows of Eq. (5); general form Eq. (3)"}, source_version: "arXiv:hep-ph/0312138v2", checked_on: 2026-09-24, test: "tests/test_l2_literature.py::test_casas_ibarra_two_rhn_eq_6"}
+discrepancies:
+  - id: D-1
+    quantity: "layout and sign of the seesaw Yukawa and light mass matrix"
+    ref: ibarraross2004
+    location: {equation: "(1), (2), (6)"}
+    ours: "L ⊃ −y_ν^{ab} L̄_a H̃ ν_Rb; m_D = y_ν v/√2 is 3×2 (row = lepton doublet); m_ν ≈ −m_D M_R⁻¹ m_Dᵀ"
+    theirs: "Yν is 2×3 (row = right-handed neutrino) with Dirac mass Yν⟨H⁰⟩; M = Yνᵀ Mν⁻¹ Yν"
+    status: convention
+    note: "m_D = (Yν⟨H⁰⟩)ᵀ with ⟨H⁰⟩ = v/√2. The overall sign of the light mass matrix is a Majorana phase, absorbed by the Takagi phases; the test compares the masses and |U|."
+    test: "tests/test_l2_literature.py::test_casas_ibarra_two_rhn_eq_6"
 references:
   - key: atre2009
     kind: article
@@ -110,6 +127,29 @@ references:
     inspire: "4994"
     doi: "10.1016/0370-2693(77)90435-X"
     verified_against: inspire_record
+  - key: ibarraross2004
+    kind: article
+    authors: "A. Ibarra, G. G. Ross"
+    title: "Neutrino phenomenology: the case of two right-handed neutrinos"
+    venue: "Phys. Lett. B 591 (2004) 285"
+    year: 2004
+    arxiv: "hep-ph/0312138"
+    inspire: "635183"
+    doi: "10.1016/j.physletb.2004.04.037"
+    verified_against: arxiv_text
+    conventions_map:
+      - {theirs: "Yν (2×3), Dirac mass Yν⟨H⁰⟩, M = Yνᵀ Mν⁻¹ Yν (Eqs. 1–2)", ours: "m_D = (Yν⟨H⁰⟩)ᵀ = y_ν v/√2 (3×2), m_ν ≈ −m_D M_R⁻¹ m_Dᵀ", note: "discrepancy D-1 (convention)"}
+      - {theirs: "U_{i2}, U_{i3} (MNS columns 2, 3)", ours: "Uin[:, 1], Uin[:, 2] (0-based) in the test"}
+  - key: fgy2002
+    kind: article
+    authors: "P. H. Frampton, S. L. Glashow, T. Yanagida"
+    title: "Cosmological sign of neutrino CP violation"
+    venue: "Phys. Lett. B 548 (2002) 119"
+    year: 2002
+    arxiv: "hep-ph/0208157"
+    inspire: "593055"
+    doi: "10.1016/S0370-2693(02)02853-8"
+    verified_against: arxiv_text
   - key: casas2001
     kind: article
     authors: "J. A. Casas, A. Ibarra"

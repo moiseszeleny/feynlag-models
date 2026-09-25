@@ -2,9 +2,9 @@
 
 ## 1. Natural extensions
 - A benchmark fitted to the two measured oscillation splittings and the PMNS angles, through the
-  Casas–Ibarra parametrisation (Nucl. Phys. B 618 (2001) 171, arXiv:hep-ph/0103065). With two $\nu_R$
-  the orthogonal matrix $R$ is $3\times2$; the explicit form for this case is TODO(verify) (read
-  the two-$\nu_R$ literature before writing it).
+  two-$\nu_R$ Casas–Ibarra form (Ibarra–Ross, Phys. Lett. B 591 (2004) 285, Eq. (6), already
+  reproduced by `test_casas_ibarra_two_rhn_eq_6` for arbitrary inputs). Only complex $z$ and
+  the PMNS phases are missing; `numeric_takagi` would need a complex version.
 - `seesaw_type1_3gen`: three $\nu_R$ with a $6\times6$ block (the lightest neutrino then becomes massive).
 - A non-diagonal $M_R$, or complex Yukawas (CP phases and leptogenesis). `numeric_takagi` handles
   real matrices only; complex ones need a numeric SVD-based Takagi.
@@ -30,4 +30,6 @@
 ## 5. Key references
 1. P. Minkowski, "$`\mu \to e\gamma`$ at a rate of one out of $`10^9`$ muon decays?", Phys. Lett. B 67 (1977) 421.
 2. A. Atre, T. Han, S. Pascoli, B. Zhang, *The Search for Heavy Majorana Neutrinos*, JHEP 05 (2009) 030, arXiv:0901.3589.
-3. J. A. Casas, A. Ibarra, "Oscillating neutrinos and $`\mu \to e, \gamma`$", Nucl. Phys. B 618 (2001) 171, arXiv:hep-ph/0103065.
+3. A. Ibarra, G. G. Ross, *Neutrino phenomenology: the case of two right-handed neutrinos*, Phys. Lett. B 591 (2004) 285, arXiv:hep-ph/0312138.
+4. P. H. Frampton, S. L. Glashow, T. Yanagida, *Cosmological sign of neutrino CP violation*, Phys. Lett. B 548 (2002) 119, arXiv:hep-ph/0208157 (the minimal two-$\nu_R$ seesaw with $m(\nu_1) = 0$, for a two-zero texture).
+5. J. A. Casas, A. Ibarra, "Oscillating neutrinos and $`\mu \to e, \gamma`$", Nucl. Phys. B 618 (2001) 171, arXiv:hep-ph/0103065.

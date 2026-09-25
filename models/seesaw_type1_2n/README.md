@@ -1,6 +1,6 @@
 # Type-I seesaw, three generations and two right-handed neutrinos — physics card
 
-**id** `seesaw_type1_2n` · **parents** `sm` · **maturity** L1 (L3 blocked by FG-3, no UFO path for Majorana fermions; the Takagi factorisation uses a workaround for FG-5, see `FEYNLAG_GAPS.md`)
+**id** `seesaw_type1_2n` · **parents** `sm` · **maturity** L2 (L3 blocked by FG-3, no UFO path for Majorana fermions; the Takagi factorisation uses a workaround for FG-5, see `FEYNLAG_GAPS.md`)
 
 Tags: **[feynlag-verified: test]** = pinned by a test in `tests/`; **[physics judgment]** = not machine-checked.
 
@@ -58,7 +58,28 @@ M_\nu = \begin{pmatrix} 0_{3\times3} & m_D \\ m_D^T & M_R \end{pmatrix} = U D U^
   $\lvert U_{a N_m}\rvert \approx \lvert (m_D M_R^{-1})_{am}\rvert$
   **[feynlag-verified: `test_light_heavy_mixing_at_benchmark`]**.
 - The physical Majorana states $\chi_k$ ($\nu_{1,2,3}$, $N_{1,2}$, ordered by mass) come from
-  feynlag's `MajoranaRotation` with $n_L = 3$, whose output is fed by the numeric $U$.
+  feynlag's `MajoranaRotation` with $n_L = 3$, whose output is fed by the numeric $U$. The
+  couplings match Atre–Han–Pascoli–Zhang Eq. (2.5) summed over the three flavours, for all five
+  states **[feynlag-verified: `tests/test_l2_literature.py::test_W_coupling_eq_2_5`, `test_Z_coupling_eq_2_5`]**:
+
+```math
+W^-\bar e_a\chi_k = \frac{g}{\sqrt2}\,U_{ak},\qquad
+Z\bar\chi_k\chi_{k'} = \frac{g_Z}{2}\sum_a U_{ak}U^*_{ak'},\qquad
+h\bar\chi_k\chi_{k'} = \sum_{a,b}\frac{y^\nu_{ab}}{\sqrt2}\,U_{ak}U_{3+b,k'} .
+```
+
+  The $h$ coupling is derived from the Lagrangian, not taken from a paper
+  **[feynlag-verified: `test_h_nu_N_coupling`]**.
+- Decoupling: scaling $M_{1,2}$ by $\lambda$ scales every light–heavy mixing and both massive light
+  masses by $1/\lambda$ **[feynlag-verified: `test_decoupling_M_R_to_infinity`]**
+- One-generation limit: when only $y^\nu_{\tau1}$ is on, the spectrum is
+  $`\{0, 0, m_\nu, m_N, M_2\}`$, with $m_\nu$, $m_N$ and the mixing equal to those of `seesaw_type1`
+  **[feynlag-verified: `test_single_generation_limit_matches_seesaw_type1`]**
+- Casas–Ibarra for two $\nu_R$ (Ibarra–Ross Eq. (6), with $R$ the first two rows of their
+  Eq. (5)): a Yukawa built from $m_2$, $m_3$, a real mixing matrix and an angle $z$ gives back the
+  light masses $`\{0, m_2, m_3\}`$ and the input $\lvert U\rvert$
+  **[feynlag-verified: `test_casas_ibarra_two_rhn_eq_6`]**. The difference in index layout and
+  overall sign is a convention (discrepancy D-1 in `metadata.yaml`).
 
 ## Characteristic scale
 $M_{1,2}$. At the benchmark ($y^\nu \sim 10^{-6}$, $M_1 = 1$ TeV, $M_2 = 3$ TeV) the light masses
