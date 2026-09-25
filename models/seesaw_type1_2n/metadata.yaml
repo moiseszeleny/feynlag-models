@@ -1,0 +1,173 @@
+schema_version: 2
+id: seesaw_type1_2n
+name: "Type-I seesaw with three lepton generations and two right-handed neutrinos"
+parents:
+  - {id: sm, relation: extends}
+problem_addressed: |
+  Neutrino masses with two independent mass splittings. `seesaw_type1` has one lepton
+  generation and one ν_R, so rank(m_ν) ≤ 1 and a single massive light neutrino. With three
+  lepton generations and two gauge-singlet ν_R (Dirac Yukawa y_ν, 3×2, and Majorana masses
+  M_1, M_2) the light matrix m_ν ≈ −m_D M_R⁻¹ m_Dᵀ has rank 2: the lightest neutrino is
+  massless and the other two carry two independent Δm². The heavy states N_1, N_2 couple to
+  W, Z, h through the light–heavy mixing ≈ m_D M_R⁻¹. [physics judgment]
+new_fields:
+  - {name: Ll, symbol: "L_L", spin: "1/2", su3: 1, su2: 2, u1y: "-1/2", extra_charges: [], real: false, chirality: L, generations: 3}
+  - {name: eR, symbol: "e_R", spin: "1/2", su3: 1, su2: 1, u1y: "-1", extra_charges: [], real: false, chirality: R, generations: 3}
+  - {name: QL, symbol: "Q_L", spin: "1/2", su3: 3, su2: 2, u1y: "1/6", extra_charges: [], real: false, chirality: L, generations: 3}
+  - {name: uR, symbol: "u_R", spin: "1/2", su3: 3, su2: 1, u1y: "2/3", extra_charges: [], real: false, chirality: R, generations: 3}
+  - {name: dR, symbol: "d_R", spin: "1/2", su3: 3, su2: 1, u1y: "-1/3", extra_charges: [], real: false, chirality: R, generations: 3}
+  - name: nuR
+    symbol: "\\nu_R"
+    spin: "1/2"
+    su3: 1
+    su2: 1
+    u1y: "0"
+    extra_charges: [{group: U1_L, kind: global, charge: "1"}]
+    real: false
+    chirality: R
+    generations: 2
+new_symmetries:
+  - {name: "U(1)_L (lepton number, accidental in the SM)", kind: global, acts_on: [Ll, eR, nuR], status: explicitly_broken, broken_by: "the Majorana masses −½ M_k ν_R^{kT} C ν_R^k (ΔL = 2)"}
+free_parameters:
+  - {name: yv_e1,   tex: "y^\\nu_{e1}",    mass_dim: 0, role: Dirac neutrino Yukawa (L_e – ν_R1)}
+  - {name: yv_e2,   tex: "y^\\nu_{e2}",    mass_dim: 0, role: Dirac neutrino Yukawa (L_e – ν_R2)}
+  - {name: yv_mu1,  tex: "y^\\nu_{\\mu1}",  mass_dim: 0, role: Dirac neutrino Yukawa (L_μ – ν_R1)}
+  - {name: yv_mu2,  tex: "y^\\nu_{\\mu2}",  mass_dim: 0, role: Dirac neutrino Yukawa (L_μ – ν_R2)}
+  - {name: yv_tau1, tex: "y^\\nu_{\\tau1}", mass_dim: 0, role: Dirac neutrino Yukawa (L_τ – ν_R1)}
+  - {name: yv_tau2, tex: "y^\\nu_{\\tau2}", mass_dim: 0, role: Dirac neutrino Yukawa (L_τ – ν_R2)}
+  - {name: MR1, tex: "M_1", mass_dim: 1, role: Majorana mass of ν_R1}
+  - {name: MR2, tex: "M_2", mass_dim: 1, role: Majorana mass of ν_R2}
+benchmark:
+  description: >-
+    Inputs, not measurements, and not a fit to oscillation data. The electroweak and
+    fermion-mass block is that of models/sm_ckm (MU, MD, MS are its round placeholders). The
+    3×2 Yukawa is a hand-chosen generic real texture of order 1e-6 with no zero entries and
+    M_1 = 1 TeV, M_2 = 3 TeV, which puts the two massive light neutrinos at about 0.016 and
+    0.040 eV (outputs/spectrum.md).
+  inputs:
+    gw: 0.65322889878251
+    g1: 0.3491928465111313
+    gs: 1.2177157847767197
+    v: 246.2184581018163
+    MH: 125.0
+    MU: 0.002
+    MC: 1.27
+    MT: 173.0
+    MD: 0.005
+    MS: 0.1
+    MB: 4.7
+    ME: 0.000511
+    MMU: 0.10566
+    MTA: 1.777
+    WZ: 2.4952
+    WW: 2.0850
+    WH: 0.00407
+    WT: 1.4915
+    yv_e1: 3.0e-7
+    yv_e2: 5.0e-7
+    yv_mu1: 8.0e-7
+    yv_mu2: -6.0e-7
+    yv_tau1: 7.0e-7
+    yv_tau2: 1.1e-6
+    MR1: 1000.0
+    MR2: 3000.0
+  placeholders: [MU, MD, MS]
+key_results:
+  - {statement: "The Dirac Yukawa via H̃ and the two Majorana masses are gauge invariant and hermitian; the singlet ν_R leave the anomalies of sm untouched", test: "tests/test_l0_l1.py::test_validate_invariance_and_anomalies"}
+  - {statement: "M_ν = [[0, m_D], [m_D^T, M_R]] with the 3×2 m_D = y_ν v/√2 and M_R = diag(M_1, M_2); U D Uᵀ = M_ν at the benchmark", test: "tests/test_l0_l1.py::test_takagi_spectrum_at_benchmark"}
+  - {statement: "rank(m_ν) = 2: one massless light neutrino, two massive light states with distinct masses (two independent Δm²), heavy states at M_1 and M_2", test: "tests/test_l0_l1.py::test_light_sector_rank_two"}
+  - {statement: "Ibarra–Ross Eq. (6) (two-ν_R Casas–Ibarra) Yukawa gives back light masses {0, m_2, m_3} and the input |U_MNS|", test: "tests/test_l2_literature.py::test_casas_ibarra_two_rhn_eq_6"}
+  - {statement: "W ℓ_a χ_k = (g/√2)|U[a,k]| and Z χ̄χ = (g_Z/2)|Σ_a U U*| for all three flavours and five mass eigenstates", test: "tests/test_l2_literature.py::test_W_coupling_eq_2_5"}
+  - {statement: "With one Yukawa entry and one ν_R on, the spectrum and mixing are those of seesaw_type1", test: "tests/test_l2_literature.py::test_single_generation_limit_matches_seesaw_type1"}
+maturity_level: 2
+maturity_evidence:
+  L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
+  L1: ["tests/test_l0_l1.py::test_mass_matrix_entries", "tests/test_l0_l1.py::test_takagi_spectrum_at_benchmark", "tests/test_l0_l1.py::test_light_sector_rank_two", "tests/test_l0_l1.py::test_seesaw_formula_matrix", "tests/test_l0_l1.py::test_light_heavy_mixing_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_unchanged"]
+  L2: ["tests/test_l2_literature.py::test_W_coupling_eq_2_5", "tests/test_l2_literature.py::test_Z_coupling_eq_2_5", "tests/test_l2_literature.py::test_h_nu_N_coupling", "tests/test_l2_literature.py::test_decoupling_M_R_to_infinity", "tests/test_l2_literature.py::test_single_generation_limit_matches_seesaw_type1", "tests/test_l2_literature.py::test_casas_ibarra_two_rhn_eq_6"]
+  L3: []
+  L4: []
+slow_evidence: []
+literature_checks:
+  - {quantity: "W ℓ_a N coupling (g/√2) V*_ℓm γ^μ P_L, summed over ℓ = e, μ, τ", ref: atre2009, location: {equation: "(2.5)", note: "first term; mixing relation Eq. (2.3)"}, source_version: "arXiv:0901.3589v2", checked_on: 2026-09-24, test: "tests/test_l2_literature.py::test_W_coupling_eq_2_5"}
+  - {quantity: "Z ν N coupling (g/2cosθ_W) V*_ℓm γ^μ P_L, summed over ℓ", ref: atre2009, location: {equation: "(2.5)", note: "second term; mixing relation Eq. (2.3)"}, source_version: "arXiv:0901.3589v2", checked_on: 2026-09-24, test: "tests/test_l2_literature.py::test_Z_coupling_eq_2_5"}
+  - {quantity: "decoupling V → 0 as M_R → ∞ (V†V ≈ m_ν/M_N)", ref: atre2009, location: {section: "2.1", note: "remarks following Eq. (2.5)"}, source_version: "arXiv:0901.3589v2", checked_on: 2026-09-24, test: "tests/test_l2_literature.py::test_decoupling_M_R_to_infinity"}
+  - {quantity: "with two ν_R one light neutrino mass vanishes", ref: ibarraross2004, location: {section: "2", note: "last paragraph (the 2RHN case removes one light mass and one phase); Sec. 3: m_1 → 0 as M_3 → ∞"}, source_version: "arXiv:hep-ph/0312138v2", checked_on: 2026-09-24, test: "tests/test_l0_l1.py::test_light_sector_rank_two"}
+  - {quantity: "two-ν_R Casas–Ibarra Yukawa in terms of m_2, m_3, U_MNS and one complex angle z", ref: ibarraross2004, location: {equation: "(6)", note: "R = first two rows of Eq. (5); general form Eq. (3)"}, source_version: "arXiv:hep-ph/0312138v2", checked_on: 2026-09-24, test: "tests/test_l2_literature.py::test_casas_ibarra_two_rhn_eq_6"}
+discrepancies:
+  - id: D-1
+    quantity: "layout and sign of the seesaw Yukawa and light mass matrix"
+    ref: ibarraross2004
+    location: {equation: "(1), (2), (6)"}
+    ours: "L ⊃ −y_ν^{ab} L̄_a H̃ ν_Rb; m_D = y_ν v/√2 is 3×2 (row = lepton doublet); m_ν ≈ −m_D M_R⁻¹ m_Dᵀ"
+    theirs: "Yν is 2×3 (row = right-handed neutrino) with Dirac mass Yν⟨H⁰⟩; M = Yνᵀ Mν⁻¹ Yν"
+    status: convention
+    note: "m_D = (Yν⟨H⁰⟩)ᵀ with ⟨H⁰⟩ = v/√2. The overall sign of the light mass matrix is a Majorana phase, absorbed by the Takagi phases; the test compares the masses and |U|."
+    test: "tests/test_l2_literature.py::test_casas_ibarra_two_rhn_eq_6"
+references:
+  - key: atre2009
+    kind: article
+    authors: "A. Atre, T. Han, S. Pascoli, B. Zhang"
+    title: "The Search for Heavy Majorana Neutrinos"
+    venue: "JHEP 05 (2009) 030"
+    year: 2009
+    arxiv: "0901.3589"
+    inspire: "811669"
+    doi: "10.1088/1126-6708/2009/05/030"
+    verified_against: arxiv_text
+    conventions_map:
+      - {theirs: "ν_aL = Σ U_am ν_mL + Σ V_am' N^c_m'L (Eq. 2.3)", ours: "ν_L[a] = Σ_k U*[a, k] χ_L[k] (feynlag MajoranaRotation, n = U* χ)", note: "|V_aN_m| = |U[a, 3+m]|; phases differ by the Takagi phase convention"}
+      - {theirs: "−L = (g/√2) W⁺ … (Eq. 2.5)", ours: "L ⊃ +(g/√2) W⁻ ē γ P_L χ", note: "tests compare magnitudes; see models/sm discrepancy D-1 for the gauge-sign convention"}
+  - key: minkowski1977
+    kind: article
+    authors: "P. Minkowski"
+    title: "μ → eγ at a Rate of One Out of 10⁹ Muon Decays?"
+    venue: "Phys. Lett. B 67 (1977) 421"
+    year: 1977
+    arxiv: null
+    inspire: "4994"
+    doi: "10.1016/0370-2693(77)90435-X"
+    verified_against: inspire_record
+  - key: ibarraross2004
+    kind: article
+    authors: "A. Ibarra, G. G. Ross"
+    title: "Neutrino phenomenology: the case of two right-handed neutrinos"
+    venue: "Phys. Lett. B 591 (2004) 285"
+    year: 2004
+    arxiv: "hep-ph/0312138"
+    inspire: "635183"
+    doi: "10.1016/j.physletb.2004.04.037"
+    verified_against: arxiv_text
+    conventions_map:
+      - {theirs: "Yν (2×3), Dirac mass Yν⟨H⁰⟩, M = Yνᵀ Mν⁻¹ Yν (Eqs. 1–2)", ours: "m_D = (Yν⟨H⁰⟩)ᵀ = y_ν v/√2 (3×2), m_ν ≈ −m_D M_R⁻¹ m_Dᵀ", note: "discrepancy D-1 (convention)"}
+      - {theirs: "U_{i2}, U_{i3} (MNS columns 2, 3)", ours: "Uin[:, 1], Uin[:, 2] (0-based) in the test"}
+  - key: fgy2002
+    kind: article
+    authors: "P. H. Frampton, S. L. Glashow, T. Yanagida"
+    title: "Cosmological sign of neutrino CP violation"
+    venue: "Phys. Lett. B 548 (2002) 119"
+    year: 2002
+    arxiv: "hep-ph/0208157"
+    inspire: "593055"
+    doi: "10.1016/S0370-2693(02)02853-8"
+    verified_against: arxiv_text
+  - key: casas2001
+    kind: article
+    authors: "J. A. Casas, A. Ibarra"
+    title: "Oscillating neutrinos and μ → e, γ"
+    venue: "Nucl. Phys. B 618 (2001) 171"
+    year: 2001
+    arxiv: "hep-ph/0103065"
+    inspire: "553820"
+    doi: "10.1016/S0550-3213(01)00475-8"
+    verified_against: inspire_record
+feynlag_gaps:
+  - {id: FG-3}
+  - {id: FG-5, test: "tests/test_l0_l1.py::test_feynlag_takagi_generic_matrix_gap"}
+outputs:
+  ufo: null
+  latex: "outputs/vertices.tex"
+  vertices_md: "outputs/vertices.md"
+  spectrum: "outputs/spectrum.md"
+  stamp: "outputs/STAMP.json"
+last_reviewed: 2026-09-24
+reviewed_by: "Moises Zeleny (with Claude)"

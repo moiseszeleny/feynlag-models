@@ -11,6 +11,7 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 | `sm_singlet_z2` | **L3** | 13 passed | Robens–Stefaniak Eqs. (7)–(13) reproduced ($\alpha = -\theta$, regime $\lambda_S v_S^2 \gt \lambda v^2$); gaps FG-1, FG-2 resolved |
 | `seesaw_type1` | **L2** | 10 tests | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
 | `sm_ckm` (added 2026-09-17) | **L3** | 12 passed + 1 strict xfail (FG-4) | three generations, CKM through a unitary $d_L$ rotation; PDG 2024 CKM review Eqs. (12.2), (12.3), (12.27), (12.28) and $J$; GIM derived |
+| `seesaw_type1_2n` (added 2026-09-24) | **L2** | 13 passed + 1 strict xfail (FG-5) | three generations, two $\nu_R$: rank-2 light sector ($m_{\nu_1} = 0$), Atre et al. Eq. (2.5) per flavour, Ibarra–Ross Eq. (6) reproduced, one-generation limit equals `seesaw_type1`; **L3 stopped** (FG-3) |
 | `thdm_type2` | **L3** | 14 passed + 1 strict xfail | GH Eqs. (6)–(17), Branco Eq. (16)/Table 2; benchmark inverted from (125, 300, 300, 320) GeV re-derived exactly by feynlag |
 
 Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the schema v2 section for the current count. `scripts/build_outputs.py --check` and
@@ -22,6 +23,8 @@ Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the sche
   transcription error (see "2HDM discrepancies re-checked" below).
 - `thdm_type2::test_mA_mHp_branco_arxiv_text_eq5_6` — **strict xfail**: Branco et al.'s printed $m_A^2$, $m_{H^\pm}^2$
   prefactors (discrepancy D-2).
+- `seesaw_type1_2n::test_feynlag_takagi_generic_matrix_gap` — **strict xfail** (FG-5): feynlag's
+  `diagonalize_takagi` on the generic $5\times5$ within 10 s.
 - No test is skipped. No `slow` (MadGraph) test exists yet: **L4 was not attempted** for any model.
 
 ## TODO(verify) list at the end of the pilot (43 markers; 17 after the schema-v2 migration, 6 after 2026-09-17 — see below)
@@ -41,7 +44,7 @@ Categories:
    feynlag's own pinned tests.
 5. PDG code convention for the heavy neutrino (`9900012`).
 
-## FEYNLAG_GAPS.md (four entries, three resolved)
+## FEYNLAG_GAPS.md (five entries, three resolved)
 
 - **FG-1** (resolved, feynlag PR #19) `Model.mass_matrix` double-shifted a real VEV'd scalar
   (`Scalar(real=True)` + `expand_vev`), evaluating every block at `S = 2v_S`. The workaround
@@ -52,10 +55,14 @@ Categories:
 - **FG-4** (resolved, feynlag PR #20) `fermion_mass_matrix` and `majorana_mass_matrix` mangled integer
   flavour indices. Each term is now read at its own leg indices; the workaround
   `feynlag_models.checks.fermion_mass_block` is removed and `sm_ckm` uses feynlag's own builder.
+- **FG-5** (open, 2026-09-24) `diagonalize_takagi` is symbolic (`Matrix.diagonalize`) and does not
+  finish on the generic $5\times5$ seesaw matrix of `seesaw_type1_2n`; feynlag has no numeric Takagi.
+  Workaround outside feynlag: `feynlag_models.checks.numeric_takagi` (mpmath, 50 digits), checked
+  against `diagonalize_takagi` on feynlag's block-diagonal $6\times6$ (`tests/test_checks.py`).
 
 Additional limitations recorded in the cards (not gaps stopping an item): unitary-gauge UFO only;
 gluon and QCD vertices are not exported; widths of new scalars are placeholder inputs; every model
-except `sm_ckm` has one generation and no CKM. (Quartic gauge self-couplings **are** exported as of
+except `sm_ckm` and `seesaw_type1_2n` has one generation, and only `sm_ckm` has CKM. (Quartic gauge self-couplings **are** exported as of
 the 2026-09-18 pin — see below.)
 
 ## Schema changes — implemented as schema version 2 (2026-09-16)
@@ -184,6 +191,30 @@ The two conjugate-pair vertices alone would have passed the pair-only rule
 [feynlag-verified: same test].
 
 Fast suite after the pin and this test: `116 passed, 1 skipped, 1 xfailed`.
+
+## `seesaw_type1_2n` (2026-09-24)
+
+Built for `feynlag-anomalies` (`anomalies/neutrino_mass`), whose stage-1 fit needs two independent
+$\Delta m^2$: `seesaw_type1` has $\operatorname{rank} m_\nu \le \min(n_L, n_R) = 1$. The request's
+placeholder id `seesaw_type1_2N` is not a valid id (`^[a-z0-9_]+$`), hence `seesaw_type1_2n`.
+
+- Three verified facts about feynlag that the model relies on. `fermion_mass_matrix` at
+  `nflavors=3` returns a $3\times3$ whose third column is exactly zero (no $\nu_{R3}$), so the $3\times2$
+  $m_D$ is a slice [feynlag-verified: `test_mass_matrix_entries`]. `MajoranaRotation` works at
+  $n_L = 3$ (first use with $n_L \gt 1$ anywhere). And `MajoranaRotation.apply(expr, idx, n)` sums `expr` over every
+  combination of `idx` even when `expr` does not contain it: with integer flavour indices it
+  must be called as `apply(L, (), 1)`, or every term is counted $n^2$ times.
+- The benchmark is a hand-chosen generic real Yukawa (light masses $\approx 0.016$ and $0.040$ eV);
+  it is not a fit. A fit belongs to `feynlag-anomalies`, and the Ibarra–Ross Eq. (6) test shows the
+  model maps $(m_2, m_3, U, z)$ to the right Yukawa.
+- Literature read with `pdftotext` on 2026-09-24: Ibarra–Ross arXiv:hep-ph/0312138v2 (Secs. 2–3,
+  Eqs. (1)–(6)), Frampton–Glashow–Yanagida arXiv:hep-ph/0208157, Atre et al. arXiv:0901.3589v2
+  Eqs. (2.3)–(2.5). INSPIRE ids and DOIs from the INSPIRE API. The index-layout and sign difference
+  from Ibarra–Ross is discrepancy D-1 (`convention`).
+- Two new `TODO(verify)` markers, both in `models/seesaw_type1_2n/NEXT_STEPS.md` §2 (oscillation-fit
+  values and heavy-neutral-lepton bounds, deliberately not quoted from memory).
+- Fast suite with this model: `177 passed, 2 skipped, 2 xfailed` (about 7 minutes); the new model
+  adds about 60 s. `build_outputs.py --check` and `build_genealogy.py --check` pass.
 
 ## What to do next
 

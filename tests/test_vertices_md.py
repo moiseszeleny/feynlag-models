@@ -22,6 +22,7 @@ EXPECTED_FERMIONS = {
     "sm_singlet_z2": [r"\bar{t} t h_1", r"\bar{t} t h_2"],
     "thdm_type2": [r"\bar{t} t h", r"\bar{t} b H^+"],
     "seesaw_type1": [r"\bar{t} t h"],
+    "seesaw_type1_2n": [r"\bar{t} t h", r"\bar{c} c h", r"\bar{\mu} \mu \gamma"],
 }
 
 
@@ -153,6 +154,20 @@ def test_seesaw_majorana_table_shows_the_seesaw_hierarchy():
     close(couplings[(r"\bar{\nu} N h", "P_R")], yukawa)            # the Dirac Yukawa survives
     close(couplings[(r"\bar{\nu} N h", "P_L")]
           / couplings[(r"\bar{\nu} N h", "P_R")], mixing**2, tol=4e-3)                  # O(V^2)
+
+
+def test_seesaw_2n_majorana_table_names_each_flavour():
+    """Three generations: every charged-lepton leg is named by its flavour. The generic fallback
+    names legs by field base only, which printed every charged lepton as tau and listed the
+    same vertex twice with different couplings."""
+    model_dir = next(d for d in MODELS if d.name == "seesaw_type1_2n")
+    part = _part((model_dir / "outputs" / "vertices.md").read_text(), "Majorana neutrino vertices")
+    rows = re.findall(r"^\| \$`([^`]+)`\$ \| \$`([^`]+)`\$ \|", part, flags=re.M)
+    assert rows and len(rows) == len(set(rows))
+    for lep in ("e", r"\mu", r"\tau"):
+        for state in ("N_1", "N_2", r"\nu_2", r"\nu_3"):
+            assert (rf"\bar{{{state}}} {lep} W^+", r"\gamma^\mu P_L") in rows, (state, lep)
+    assert "no closed form" in part
 
 
 @pytest.mark.parametrize("model_dir", MODELS, ids=lambda d: d.name)
