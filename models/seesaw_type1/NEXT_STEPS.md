@@ -1,6 +1,7 @@
 # Next steps — `seesaw_type1`
 
 ## 1. Natural extensions
+- `seesaw_type1_2n` (built): three lepton generations and two $\nu_R$, giving two massive light neutrinos and a massless lightest one, with a numeric Takagi factorisation of the $5\times5$ block.
 - `seesaw_type1_3gen`: three $\nu_R$, Casas–Ibarra parametrisation (Nucl. Phys. B 618 (2001) 171, arXiv:hep-ph/0103065), numeric Takagi factorisation of the $6\times6$ block.
 - `inverse_seesaw`: add a singlet $S_L$ with a small $`\mu\, S_L^T C S_L`$ term, so $V$ is unsuppressed at a TeV-scale $M$.
 - `seesaw_type2` (scalar triplet, $Y = 1$) and `seesaw_type3` (fermion triplet, $Y = 0$): different `feynlag` reps, same Takagi machinery.
