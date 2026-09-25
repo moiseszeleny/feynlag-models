@@ -11,7 +11,7 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 | `sm_singlet_z2` | **L3** | 13 passed | Robens–Stefaniak Eqs. (7)–(13) reproduced ($\alpha = -\theta$, regime $\lambda_S v_S^2 \gt \lambda v^2$); gaps FG-1, FG-2 resolved |
 | `seesaw_type1` | **L2** | 10 tests | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
 | `sm_ckm` (added 2026-09-17) | **L3** | 12 passed + 1 strict xfail (FG-4) | three generations, CKM through a unitary $d_L$ rotation; PDG 2024 CKM review Eqs. (12.2), (12.3), (12.27), (12.28) and $J$; GIM derived |
-| `seesaw_type1_2n` (added 2026-09-24) | **L2** | 13 passed + 1 strict xfail (FG-5) | three generations, two $\nu_R$: rank-2 light sector ($m_{\nu_1} = 0$), Atre et al. Eq. (2.5) per flavour, Ibarra–Ross Eq. (6) reproduced, one-generation limit equals `seesaw_type1`; **L3 stopped** (FG-3) |
+| `seesaw_type1_2n` (added 2026-09-24) | **L2** | 13 passed (FG-5 resolved) | three generations, two $\nu_R$: rank-2 light sector ($m_{\nu_1} = 0$), Atre et al. Eq. (2.5) per flavour, Ibarra–Ross Eq. (6) reproduced, one-generation limit equals `seesaw_type1`; **L3 stopped** (FG-3) |
 | `thdm_type2` | **L3** | 14 passed + 1 strict xfail | GH Eqs. (6)–(17), Branco Eq. (16)/Table 2; benchmark inverted from (125, 300, 300, 320) GeV re-derived exactly by feynlag |
 
 Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the schema v2 section for the current count. `scripts/build_outputs.py --check` and
@@ -23,8 +23,8 @@ Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the sche
   transcription error (see "2HDM discrepancies re-checked" below).
 - `thdm_type2::test_mA_mHp_branco_arxiv_text_eq5_6` — **strict xfail**: Branco et al.'s printed $m_A^2$, $m_{H^\pm}^2$
   prefactors (discrepancy D-2).
-- `seesaw_type1_2n::test_feynlag_takagi_generic_matrix_gap` — **strict xfail** (FG-5): feynlag's
-  `diagonalize_takagi` on the generic $5\times5$ within 10 s.
+- ~~`seesaw_type1_2n::test_feynlag_takagi_generic_matrix_gap`~~ — removed: FG-5 is resolved at the
+  `e34b356` pin, and the model now builds with `diagonalize_takagi` itself.
 - No test is skipped. No `slow` (MadGraph) test exists yet: **L4 was not attempted** for any model.
 
 ## TODO(verify) list at the end of the pilot (43 markers; 17 after the schema-v2 migration, 6 after 2026-09-17 — see below)
@@ -44,7 +44,7 @@ Categories:
    feynlag's own pinned tests.
 5. PDG code convention for the heavy neutrino (`9900012`).
 
-## FEYNLAG_GAPS.md (five entries, three resolved)
+## FEYNLAG_GAPS.md (five entries, four resolved)
 
 - **FG-1** (resolved, feynlag PR #19) `Model.mass_matrix` double-shifted a real VEV'd scalar
   (`Scalar(real=True)` + `expand_vev`), evaluating every block at `S = 2v_S`. The workaround
@@ -55,10 +55,10 @@ Categories:
 - **FG-4** (resolved, feynlag PR #20) `fermion_mass_matrix` and `majorana_mass_matrix` mangled integer
   flavour indices. Each term is now read at its own leg indices; the workaround
   `feynlag_models.checks.fermion_mass_block` is removed and `sm_ckm` uses feynlag's own builder.
-- **FG-5** (open, 2026-09-24) `diagonalize_takagi` is symbolic (`Matrix.diagonalize`) and does not
-  finish on the generic $5\times5$ seesaw matrix of `seesaw_type1_2n`; feynlag has no numeric Takagi.
-  Workaround outside feynlag: `feynlag_models.checks.numeric_takagi` (mpmath, 50 digits), checked
-  against `diagonalize_takagi` on feynlag's block-diagonal $6\times6$ (`tests/test_checks.py`).
+- **FG-5** (resolved, feynlag PR #25) `diagonalize_takagi` was symbolic only (`Matrix.diagonalize`) and did
+  not finish on the generic $5\times5$ seesaw matrix of `seesaw_type1_2n`. It now goes numeric (mpmath,
+  50 digits) for a numeric matrix larger than $2\times2$. The workaround
+  `feynlag_models.checks.numeric_takagi` and its `tests/test_checks.py` are removed.
 
 Additional limitations recorded in the cards (not gaps stopping an item): unitary-gauge UFO only;
 gluon and QCD vertices are not exported; widths of new scalars are placeholder inputs; every model
@@ -215,6 +215,19 @@ placeholder id `seesaw_type1_2N` is not a valid id (`^[a-z0-9_]+$`), hence `sees
   values and heavy-neutral-lepton bounds, deliberately not quoted from memory).
 - Fast suite with this model: `177 passed, 2 skipped, 2 xfailed` (about 7 minutes); the new model
   adds about 60 s. `build_outputs.py --check` and `build_genealogy.py --check` pass.
+
+## feynlag pin moved to `e34b356` (2026-09-25)
+
+feynlag PR #25 (numeric Takagi, FG-5) landed; the pin moved from `efffdb0` to `e34b356`, which also
+brings in PR #24 (PyPI packaging, no library change). `seesaw_type1_2n` now builds its $U$, $D$ with
+feynlag's `diagonalize_takagi`, and its tests use it too (`method="numeric"` for the $3\times3$ light
+block and the L2 re-diagonalisations at other points). Two things were checked rather than assumed.
+First, the new route reproduces the workaround: $U$ agrees to $2\times10^{-38}$ and $D$ to $10^{-47}$
+at the benchmark. Second, the massless light state is now an exact $D = 0$ instead of a
+$\sim10^{-59}$ remainder. No test tolerance changed, and `build_outputs.py --check` finds every
+model's outputs up to date at the new pin.
+
+Fast suite at this pin: `176 passed, 2 skipped, 1 xfailed` (the xfail is 2HDM D-2).
 
 ## What to do next
 

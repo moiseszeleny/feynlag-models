@@ -11,8 +11,9 @@ carry two independent mass splittings; that is what the one-generation ``seesaw_
 The quark sector is ``sm``'s three flavour-diagonal generations **without** CKM mixing, on
 purpose: quark mixing does not enter the neutrino sector at tree level.
 
-The Takagi factorisation is numeric at the benchmark (``feynlag_models.checks.numeric_takagi``):
-feynlag's symbolic ``diagonalize_takagi`` does not finish on a generic 5×5 (FG-5).
+The Takagi factorisation is numeric at the benchmark: feynlag's ``diagonalize_takagi`` takes its
+mpmath route (50 digits) for a numeric matrix larger than 2×2, because the exact one does not
+finish on a generic 5×5 (FG-5, resolved in feynlag ``e34b356``).
 """
 
 import sympy as sp
@@ -20,14 +21,13 @@ import sympy as sp
 from feynlag import (
     Bilinear, ExternalParameter, InternalParameter, MajoranaBilinear,
     MajoranaRotation, Model, ParameterSet, WeylFermion,
-    diracC, diracPL, diracPR, fermion_mass_matrix, majorana_mass_matrix,
+    diagonalize_takagi, diracC, diracPL, diracPR, fermion_mass_matrix, majorana_mass_matrix,
     seesaw_light_mass, seesaw_mass_matrix, to_physical_basis,
 )
 
 from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import ModelBundle
-from feynlag_models.checks import numeric_takagi
 from feynlag_models.outputs import standard_outputs
 from models.sm import model as sm
 
@@ -104,10 +104,10 @@ def build(benchmark=None):
     Mnu = seesaw_mass_matrix(mD, MRmat)
     m_light_approx = seesaw_light_mass(mD, MRmat)
 
-    # --- numeric Takagi at the benchmark (FG-5) ----------------------------------
+    # --- numeric Takagi at the benchmark ---------------------------------------
     numeric = {ew.v.s: bench["v"], **{par.s: bench[par.name] for par in (*yv_params, *MR)}}
     Mn = Mnu.applyfunc(lambda x: sp.nsimplify(x.subs(numeric), rational=True))
-    U, Dm = numeric_takagi(Mn)
+    U, Dm = diagonalize_takagi(Mn)   # numeric Mn larger than 2×2 → mpmath at 50 digits
     masses = [float(Dm[k, k]) for k in range(N_L + N_R)]   # increasing
     light, heavy = list(range(N_L)), list(range(N_L, N_L + N_R))
 
@@ -160,7 +160,7 @@ def majorana_vertex_markdown(bundle):
     """The mass-basis neutrino couplings as a numeric table at the benchmark.
 
     The Majorana states have no Dirac assignment, so they are absent from the generic
-    fermion table (FG-3), and the Takagi rotation is numeric (FG-5): magnitudes are printed.
+    fermion table (FG-3), and the Takagi rotation is numeric: magnitudes are printed.
     """
     from feynlag import extract_fermion_vertices
     from feynlag_models.outputs import numeric_fermion_markdown
