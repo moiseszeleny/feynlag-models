@@ -25,6 +25,10 @@ dev = ["pytest==8.3.5", "pytest-timeout==2.3.1"]
 [tool.setuptools.packages.find]
 include = ["feynlag_models*", "models*"]
 
+# the registry reads models/<id>/metadata.yaml at import time; a wheel keeps only .py files otherwise
+[tool.setuptools.package-data]
+models = ["*/metadata.yaml", "*/README.md", "*/NEXT_STEPS.md", "*/outputs/**/*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests", "models"]
 markers = [
