@@ -47,7 +47,8 @@ def build(benchmark=None):
     # --- delta: ν_R, Dirac Yukawa via H̃, Majorana mass ------------------
     yv = ExternalParameter("yv", bench["yv"], positive=True)
     MR = ExternalParameter("MR", bench["MR"], positive=True, unit_dim=1)
-    nuR = WeylFermion("nuR", reps={}, chirality="R", nflavors=1, component_names=["nuR"])
+    nuR = WeylFermion("nuR", reps={}, chirality="R", nflavors=1, component_names=["nuR"],
+                      tex=r"\nu_R")
     Ll = p.fermions["Ll"]
     Gp, H0 = ew.H.components
     nuL, eL = Ll.components
@@ -70,7 +71,7 @@ def build(benchmark=None):
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
                   parameters=p.params, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
-    phys = to_physical_basis(model, ew)
+    phys = to_physical_basis(model, ew, gm_tex="G^-")
 
     # --- seesaw mass matrix (symbolic) and Takagi at the benchmark ----------
     mD = fermion_mass_matrix(LYukD, nuLbar, nR, model.vacuum, 1, (i, j), gamma=diracPR)

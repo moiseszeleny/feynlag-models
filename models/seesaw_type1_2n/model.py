@@ -64,7 +64,8 @@ def build(benchmark=None):
             yv[a, b] = par.s
     MR = [ExternalParameter(f"MR{k + 1}", bench[f"MR{k + 1}"], positive=True, unit_dim=1)
           for k in range(N_R)]
-    nuR = WeylFermion("nuR", reps={}, chirality="R", nflavors=N_R, component_names=["nuR"])
+    nuR = WeylFermion("nuR", reps={}, chirality="R", nflavors=N_R, component_names=["nuR"],
+                      tex=r"\nu_R")
     Ll = p.fermions["Ll"]
     Gp, H0 = ew.H.components
     nuL, eL = Ll.components
@@ -94,7 +95,7 @@ def build(benchmark=None):
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
                   parameters=p.params, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
-    phys = to_physical_basis(model, ew)
+    phys = to_physical_basis(model, ew, gm_tex="G^-")
 
     # --- seesaw mass matrix (symbolic) ---------------------------------------
     # fermion_mass_matrix is square; no term carries nR[2], so its third column is zero

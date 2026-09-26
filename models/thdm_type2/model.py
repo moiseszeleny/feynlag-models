@@ -52,8 +52,10 @@ def build(benchmark=None):
     m22sq = InternalParameter("m22sq", unit_dim=2)
 
     # --- fields ------------------------------------------------------------
-    H1 = Scalar("H1", reps={SU2L: 2, U1Y: sp.Rational(1, 2)}, component_names=["H1p", "H10"])
-    H2 = Scalar("H2", reps={SU2L: 2, U1Y: sp.Rational(1, 2)}, component_names=["H2p", "H20"])
+    H1 = Scalar("H1", reps={SU2L: 2, U1Y: sp.Rational(1, 2)}, component_names=["H1p", "H10"],
+                component_tex=["H_1^+", "H_1^0"])
+    H2 = Scalar("H2", reps={SU2L: 2, U1Y: sp.Rational(1, 2)}, component_names=["H2p", "H20"],
+                component_tex=["H_2^+", "H_2^0"])
     H1.expand_vev({H1.components[1]: v1})
     H2.expand_vev({H2.components[1]: v2})
     Z2 = ZN("Z2", 2)

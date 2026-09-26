@@ -12,7 +12,7 @@ license = { text = "MIT" }
 authors = [{ name = "Moises Zeleny", email = "moiseszeleny@gmail.com" }]
 dependencies = [
     # Exact pins: this repository is a verification record, not a library.
-    "feynlag @ git+https://github.com/moiseszeleny/feynlag.git@e34b356e9681f19b029b2b70219aec73f7127a5a",
+    "feynlag @ git+https://github.com/moiseszeleny/feynlag.git@410fc952c55cd9558120d1d55977e729cfc56b02",
     "sympy==1.14.0",
     "pyyaml==6.0.2",
     "jsonschema==4.23.0",

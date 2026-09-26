@@ -62,7 +62,8 @@ def ckm(bench):
 def mass_basis_down_left():
     """Auxiliary mass-basis ``d_L`` handles, one ``IndexedBase`` per colour."""
     fields = [WeylFermion(f"dLm{c}", reps={}, chirality="L", nflavors=3,
-                          component_names=[f"dLm_{c}"]) for c in (1, 2, 3)]
+                          component_names=[f"dLm_{c}"],
+                          component_tex=[f"{{d'}}_L^{{{c}}}"]) for c in (1, 2, 3)]
     return [f.components[0] for f in fields], [f.bar_components[0] for f in fields]
 
 
@@ -83,7 +84,7 @@ def build(benchmark=None):
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
                   parameters=p.params, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
-    phys = to_physical_basis(model, ew)
+    phys = to_physical_basis(model, ew, gm_tex="G^-")
 
     # --- mass basis of d_L: d'_L = V d_L, i.e. new = V† old -------------------
     QL = p.fermions["QL"]

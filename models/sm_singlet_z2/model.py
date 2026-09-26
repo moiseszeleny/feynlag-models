@@ -42,7 +42,7 @@ def build(benchmark=None):
     lamS = ExternalParameter("lamS", bench["lamS"])
     lamHS = ExternalParameter("lamHS", bench["lamHS"])
     muS2 = InternalParameter("muS2", unit_dim=2)
-    S = Scalar("S", reps={}, component_names=["S"], real=True)
+    S = Scalar("S", reps={}, component_names=["S"], real=True, tex="S")
     s0 = S.components[0]
     S.expand_vev({s0: vS})
     Z2 = ZN("Z2", 2)
@@ -59,7 +59,7 @@ def build(benchmark=None):
     model = Model(ID, gauge_groups=p.gauge_groups, discrete_groups=[Z2],
                   fields=p.fields, parameters=p.params, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2, muS2])
-    phys = to_physical_basis(model, ew)
+    phys = to_physical_basis(model, ew, gm_tex="G^-")
 
     # --- CP-even mixing (h, s) → (h1, h2) ------------------------------------
     M_even = model.mass_matrix([phys.h, s0])
