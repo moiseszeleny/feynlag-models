@@ -4,34 +4,17 @@ import sympy as sp
 
 from feynlag import latex_feynman_table
 
+from .tex import TEX
 from .ufo import export_ufo
 
 
-#: LaTeX names for symbols that are not free parameters (internals, derived angles/VEVs)
-DEFAULT_TEX = {
-    "gw": "g", "g1": "g'", "gs": "g_s", "v": "v", "lam": r"\lambda",
-    "MT": "m_t", "MB": "m_b", "MTA": r"m_\tau",
-    "MU": "m_u", "MC": "m_c", "MD": "m_d", "MS": "m_s", "ME": "m_e", "MMU": r"m_\mu",
-    "th12": r"\theta_{12}", "th13": r"\theta_{13}", "th23": r"\theta_{23}", "deltaCP": r"\delta",
-    "v1": "v_1", "v2": "v_2", "alpha": r"\alpha", "beta": r"\beta", "theta": r"\theta",
-    "tanb": r"\tan\beta", "m12sq": "m_{12}^2", "mD": "m_D", "MR": "M_R", "yv": r"y_\nu",
-    "lamS": r"\lambda_S", "lamHS": r"\lambda_{HS}", "vS": "v_S",
-    **{f"lam{k}": rf"\lambda_{k}" for k in range(1, 6)},
-}
-
-
 def tex_names(bundle):
-    """``{Symbol: LaTeX}`` for every parameter: metadata ``free_parameters[].tex`` wins."""
-    from . import MODELS_DIR
-    from . import metadata as md
-    names = dict(DEFAULT_TEX)
-    meta_dir = MODELS_DIR / bundle.id
-    if (meta_dir / "metadata.yaml").exists():
-        for fp in md.load(meta_dir)["free_parameters"]:
-            if fp.get("tex"):
-                names[fp["name"]] = fp["tex"]
-    # braces keep a name with its own sub/superscripts valid when SymPy raises it to a power
-    return {p.symbol: "{" + names[p.name] + "}" for p in bundle.params if p.name in names}
+    """``{Symbol: LaTeX}`` for every parameter, from :data:`feynlag_models.tex.TEX`.
+
+    The symbols carry the same tex themselves; an explicit ``symbol_names`` map still wins in
+    ``sympy.latex``, which keeps these tables independent of how a symbol was declared.
+    """
+    return {p.symbol: TEX[p.name] for p in bundle.params if p.name in TEX}
 
 
 def _math(expr, symbol_names):
@@ -43,12 +26,6 @@ def _math(expr, symbol_names):
     return f"$`{tex}`$"
 
 
-#: LaTeX names of the physical bosons, keyed by the ``bundle.bosons`` keys
-FIELD_TEX = {
-    "h": "h", "h1": "h_1", "h2": "h_2", "H": "H", "A0": "A",
-    "G0": "G^0", "Gp": "G^+", "Gm": "G^-", "Hp": "H^+", "Hm": "H^-",
-    "Z": "Z", "A": r"\gamma", "Wp": "W^+", "Wm": "W^-",
-}
 _VECTOR_KEYS = ("A", "Z", "Wp", "Wm")
 #: section order and titles of the vertex classes (V = vector, S = scalar)
 CLASS_TITLES = {
@@ -69,7 +46,7 @@ FERMION_LONG_TEX = 210
 
 def field_names(bundle):
     """``{field Symbol: LaTeX}`` for the bundle's physical bosons (matched by identity)."""
-    return {sym: FIELD_TEX.get(key, rf"\mathrm{{{key}}}") for key, sym in bundle.bosons.items()}
+    return {sym: TEX.get(sym.name, rf"\mathrm{{{key}}}") for key, sym in bundle.bosons.items()}
 
 
 def _rule_tex(expr, symbol_names, fields):

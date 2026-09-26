@@ -19,16 +19,16 @@ finish on a generic 5×5 (FG-5, resolved in feynlag ``e34b356``).
 import sympy as sp
 
 from feynlag import (
-    Bilinear, ExternalParameter, InternalParameter, MajoranaBilinear,
-    MajoranaRotation, Model, ParameterSet, WeylFermion,
-    diagonalize_takagi, diracC, diracPL, diracPR, fermion_mass_matrix, majorana_mass_matrix,
-    seesaw_light_mass, seesaw_mass_matrix, to_physical_basis,
+    Bilinear, MajoranaBilinear, MajoranaRotation, Model, ParameterSet, WeylFermion,
+    diagonalize_takagi, diracC, diracPL, diracPR, fermion_mass_matrix,
+    majorana_mass_matrix, seesaw_light_mass, seesaw_mass_matrix, to_physical_basis,
 )
 
 from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import ModelBundle
 from feynlag_models.outputs import standard_outputs
+from feynlag_models.tex import TEX, external, internal
 from models.sm import model as sm
 
 ID = "seesaw_type1_2n"
@@ -58,13 +58,13 @@ def build(benchmark=None):
     yv_params = []
     for a in range(N_L):
         for b in range(N_R):
-            par = ExternalParameter(yukawa_name(a, b), bench[yukawa_name(a, b)],
-                                    tex=rf"y^\nu_{{{FLAVOURS[a]}{b + 1}}}")
+            par = external(yukawa_name(a, b), bench[yukawa_name(a, b)])
             yv_params.append(par)
             yv[a, b] = par.s
-    MR = [ExternalParameter(f"MR{k + 1}", bench[f"MR{k + 1}"], positive=True, unit_dim=1)
+    MR = [external(f"MR{k + 1}", bench[f"MR{k + 1}"], positive=True, unit_dim=1)
           for k in range(N_R)]
-    nuR = WeylFermion("nuR", reps={}, chirality="R", nflavors=N_R, component_names=["nuR"])
+    nuR = WeylFermion("nuR", reps={}, chirality="R", nflavors=N_R, component_names=["nuR"],
+                      tex=r"\nu_R")
     Ll = p.fermions["Ll"]
     Gp, H0 = ew.H.components
     nuL, eL = Ll.components
@@ -94,7 +94,7 @@ def build(benchmark=None):
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
                   parameters=p.params, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
-    phys = to_physical_basis(model, ew)
+    phys = to_physical_basis(model, ew, tex=TEX)
 
     # --- seesaw mass matrix (symbolic) ---------------------------------------
     # fermion_mass_matrix is square; no term carries nR[2], so its third column is zero
@@ -122,9 +122,9 @@ def build(benchmark=None):
     conjugates = {phys.Gp: phys.Gm, phys.Gm: phys.Gp, phys.Wp: phys.Wm, phys.Wm: phys.Wp}
 
     g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
-    MW = InternalParameter("MW", g * v / 2, positive=True, unit_dim=1)
-    MZ = InternalParameter("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
-    MH = InternalParameter("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
+    MW = internal("MW", g * v / 2, positive=True, unit_dim=1)
+    MZ = internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
+    MH = internal("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
     params = ParameterSet(*p.params, *sm.width_params(bench), MW, MZ, MH)
 
     # neutrinos are Majorana → not exported (FG-3)

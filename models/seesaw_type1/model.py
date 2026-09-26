@@ -14,16 +14,16 @@ Majorana, mixing ν_L with ν_R^c), following ``examples/sm_seesaw.py``.
 import sympy as sp
 
 from feynlag import (
-    Bilinear, ExternalParameter, InternalParameter, MajoranaBilinear,
-    MajoranaRotation, Model, ParameterSet, WeylFermion, diagonalize_takagi,
-    diracC, diracPL, diracPR, fermion_mass_matrix, majorana_mass_matrix,
-    seesaw_light_mass, seesaw_mass_matrix, to_physical_basis,
+    Bilinear, MajoranaBilinear, MajoranaRotation, Model, ParameterSet, WeylFermion,
+    diagonalize_takagi, diracC, diracPL, diracPR, fermion_mass_matrix,
+    majorana_mass_matrix, seesaw_light_mass, seesaw_mass_matrix, to_physical_basis,
 )
 
 from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import ModelBundle
 from feynlag_models.outputs import standard_outputs
+from feynlag_models.tex import TEX, external, internal
 from models.sm import model as sm
 
 ID = "seesaw_type1"
@@ -45,9 +45,10 @@ def build(benchmark=None):
     i, j = p.idx
 
     # --- delta: ν_R, Dirac Yukawa via H̃, Majorana mass ------------------
-    yv = ExternalParameter("yv", bench["yv"], positive=True)
-    MR = ExternalParameter("MR", bench["MR"], positive=True, unit_dim=1)
-    nuR = WeylFermion("nuR", reps={}, chirality="R", nflavors=1, component_names=["nuR"])
+    yv = external("yv", bench["yv"], positive=True)
+    MR = external("MR", bench["MR"], positive=True, unit_dim=1)
+    nuR = WeylFermion("nuR", reps={}, chirality="R", nflavors=1, component_names=["nuR"],
+                      tex=r"\nu_R")
     Ll = p.fermions["Ll"]
     Gp, H0 = ew.H.components
     nuL, eL = Ll.components
@@ -70,7 +71,7 @@ def build(benchmark=None):
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
                   parameters=p.params, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
-    phys = to_physical_basis(model, ew)
+    phys = to_physical_basis(model, ew, tex=TEX)
 
     # --- seesaw mass matrix (symbolic) and Takagi at the benchmark ----------
     mD = fermion_mass_matrix(LYukD, nuLbar, nR, model.vacuum, 1, (i, j), gamma=diracPR)
@@ -96,15 +97,15 @@ def build(benchmark=None):
     conjugates = {phys.Gp: phys.Gm, phys.Gm: phys.Gp, phys.Wp: phys.Wm, phys.Wm: phys.Wp}
 
     g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
-    MW = InternalParameter("MW", g * v / 2, positive=True, unit_dim=1)
-    MZ = InternalParameter("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
-    MH = InternalParameter("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
-    mDsym = InternalParameter("mD", yv.s * v / sp.sqrt(2), positive=True, unit_dim=1)
+    MW = internal("MW", g * v / 2, positive=True, unit_dim=1)
+    MZ = internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
+    MH = internal("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
+    mDsym = internal("mD", yv.s * v / sp.sqrt(2), positive=True, unit_dim=1)
     # exact 2×2 Takagi singular values of [[0, m_D], [m_D, M_R]]; the light one is
     # written in the rationalised form 2m_D²/(√(M_R²+4m_D²) + M_R) (identical to
     # (√(M_R²+4m_D²) − M_R)/2) so the UFO param card does not lose ~10 digits to cancellation
-    MN1 = InternalParameter("MN1", 2 * mDsym.s**2 / (sp.sqrt(MR.s**2 + 4 * mDsym.s**2) + MR.s), positive=True, unit_dim=1)
-    MN2 = InternalParameter("MN2", (sp.sqrt(MR.s**2 + 4 * mDsym.s**2) + MR.s) / 2, positive=True, unit_dim=1)
+    MN1 = internal("MN1", 2 * mDsym.s**2 / (sp.sqrt(MR.s**2 + 4 * mDsym.s**2) + MR.s), positive=True, unit_dim=1)
+    MN2 = internal("MN2", (sp.sqrt(MR.s**2 + 4 * mDsym.s**2) + MR.s) / 2, positive=True, unit_dim=1)
     params = ParameterSet(*p.params, *sm.width_params(bench), MW, MZ, MH, mDsym, MN1, MN2)
 
     dirac = [d for d in sm.dirac_specs(p) if d.name != "vt"]   # neutrinos are Majorana → not exported (FG-3)
