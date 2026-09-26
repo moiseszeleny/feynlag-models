@@ -14,9 +14,9 @@ d_R and e_R even (couple to H1). Rotations: (H, h) = R(α)(ρ1, ρ2),
 import sympy as sp
 
 from feynlag import (
-    Dmu, ExternalParameter, InternalParameter, Model, ParameterSet, Rotation,
-    Scalar, ZN, charged_current_rotation, conjugate_pair, dag,
-    diagonalize_orthogonal_2x2, rotation_2x2, weinberg_rotation,
+    Dmu, Model, ParameterSet, Rotation, Scalar, ZN, charged_current_rotation,
+    conjugate_pair, dag, diagonalize_orthogonal_2x2, rotation_2x2, weinberg_rotation,
+    tex_symbol,
 )
 from feynlag.export.ufo import UFOParticle
 
@@ -24,6 +24,7 @@ from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import ModelBundle
 from feynlag_models.outputs import standard_outputs
+from feynlag_models.tex import TEX, external, internal
 from models.sm import model as sm
 
 ID = "thdm_type2"
@@ -40,22 +41,24 @@ def build(benchmark=None):
     SU2L, U1Y = p.SU2L, p.U1Y
 
     # --- parameters: (v, tanβ, m12², λ1..λ5) external; v1, v2, m11², m22² internal
-    v = ExternalParameter("v", bench["v"], positive=True, unit_dim=1)
-    tanb = ExternalParameter("tanb", bench["tanb"], positive=True)
-    m12sq = ExternalParameter("m12sq", bench["m12sq"], unit_dim=2)
-    lams = [ExternalParameter(f"lam{k}", bench[f"lam{k}"]) for k in range(1, 6)]
+    v = external("v", bench["v"], positive=True, unit_dim=1)
+    tanb = external("tanb", bench["tanb"], positive=True)
+    m12sq = external("m12sq", bench["m12sq"], unit_dim=2)
+    lams = [external(f"lam{k}", bench[f"lam{k}"]) for k in range(1, 6)]
     l1, l2, l3, l4, l5 = (q.s for q in lams)
-    beta = InternalParameter("beta", sp.atan(tanb.s))
-    v1 = InternalParameter("v1", v.s * sp.cos(beta.s), positive=True, unit_dim=1)
-    v2 = InternalParameter("v2", v.s * sp.sin(beta.s), positive=True, unit_dim=1)
-    m11sq = InternalParameter("m11sq", unit_dim=2)
-    m22sq = InternalParameter("m22sq", unit_dim=2)
+    beta = internal("beta", sp.atan(tanb.s))
+    v1 = internal("v1", v.s * sp.cos(beta.s), positive=True, unit_dim=1)
+    v2 = internal("v2", v.s * sp.sin(beta.s), positive=True, unit_dim=1)
+    m11sq = internal("m11sq", unit_dim=2)
+    m22sq = internal("m22sq", unit_dim=2)
 
     # --- fields ------------------------------------------------------------
-    H1 = Scalar("H1", reps={SU2L: 2, U1Y: sp.Rational(1, 2)}, component_names=["H1p", "H10"])
-    H2 = Scalar("H2", reps={SU2L: 2, U1Y: sp.Rational(1, 2)}, component_names=["H2p", "H20"])
-    H1.expand_vev({H1.components[1]: v1})
-    H2.expand_vev({H2.components[1]: v2})
+    H1 = Scalar("H1", reps={SU2L: 2, U1Y: sp.Rational(1, 2)}, component_names=["H1p", "H10"],
+                component_tex=["H_1^+", "H_1^0"])
+    H2 = Scalar("H2", reps={SU2L: 2, U1Y: sp.Rational(1, 2)}, component_names=["H2p", "H20"],
+                component_tex=["H_2^+", "H_2^0"])
+    H1.expand_vev({H1.components[1]: v1}, tex=TEX)
+    H2.expand_vev({H2.components[1]: v2}, tex=TEX)
     Z2 = ZN("Z2", 2)
     Z2.assign(1, H2)
     Z2.assign(1, p.fermions["uR"])          # type II: u_R odd with H2
@@ -76,9 +79,9 @@ def build(benchmark=None):
 
     # type-II Yukawas: y_b = √2 m_b/v1, y_τ = √2 m_τ/v1, y_t = √2 m_t/v2
     MT, MB, MTA = (p.masses[k] for k in ("MT", "MB", "MTA"))
-    yt = InternalParameter("yt", sp.sqrt(2) * MT.s / v2.s)
-    yb = InternalParameter("yb", sp.sqrt(2) * MB.s / v1.s)
-    ytau = InternalParameter("ytau", sp.sqrt(2) * MTA.s / v1.s)
+    yt = internal("yt", sp.sqrt(2) * MT.s / v2.s)
+    yb = internal("yb", sp.sqrt(2) * MB.s / v1.s)
+    ytau = internal("ytau", sp.sqrt(2) * MTA.s / v1.s)
     p.yukawa_params = dict(yt=yt, yb=yb, ytau=ytau)
     p.yukawa = sm.yukawa_terms(p, H1, H2, ytau.s, yb.s, yt.s)
     for name, expr in p.yukawa.items():
@@ -96,28 +99,28 @@ def build(benchmark=None):
     model.solve_tadpoles([m11sq, m22sq])
 
     # --- physical basis --------------------------------------------------------
-    Z, A = weinberg_rotation(model, SU2L, U1Y)
-    Wp, Wm = charged_current_rotation(model, SU2L)
-    rho1, rho2 = sp.Symbol("H10_r", real=True), sp.Symbol("H20_r", real=True)
-    eta1, eta2 = sp.Symbol("H10_i", real=True), sp.Symbol("H20_i", real=True)
+    Z, A = weinberg_rotation(model, SU2L, U1Y, tex=TEX)
+    Wp, Wm = charged_current_rotation(model, SU2L, tex=TEX)
+    _, rho1, eta1 = H1.vev_expansions[H1.components[1]]
+    _, rho2, eta2 = H2.vev_expansions[H2.components[1]]
     H1p, H2p = H1.components[0], H2.components[0]
 
     M_even = model.mass_matrix([rho1, rho2])
     M_odd = model.mass_matrix([eta1, eta2])
     M_ch = model.mass_matrix([H1p, H2p], charged=True)
 
-    Hh, h = sp.symbols("H h", real=True)
-    alpha = InternalParameter("alpha")
+    Hh, h = (tex_symbol(n, TEX[n], real=True) for n in ("H", "h"))
+    alpha = internal("alpha")
     rot_even = diagonalize_orthogonal_2x2(M_even, [rho1, rho2], [Hh, h], angle=alpha.s)
     alpha.define(rot_even.angle_solution)
-    G0, A0 = sp.symbols("G0 A0", real=True)
+    G0, A0 = (tex_symbol(n, TEX[n], real=True) for n in ("G0", "A0"))
     rot_odd = Rotation([eta1, eta2], [G0, A0], rotation_2x2(beta.s))
-    Gp, Hp = sp.symbols("Gp Hp")
+    Gp, Hp = (tex_symbol(n, TEX[n]) for n in ("Gp", "Hp"))
     rot_ch = Rotation([H1p, H2p], [Gp, Hp], rotation_2x2(beta.s))
     for r in (rot_even, rot_odd, rot_ch):
         model.rotate(r)
-    Gm, cmapG = conjugate_pair(Gp, "Gm")
-    Hm, cmapH = conjugate_pair(Hp, "Hm")
+    Gm, cmapG = conjugate_pair(Gp, "Gm", tex=TEX["Gm"])
+    Hm, cmapH = conjugate_pair(Hp, "Hm", tex=TEX["Hm"])
     cmap = {**cmapG, **cmapH}
 
     mHH2, mh2 = rot_even.masses_squared(M_even, simplifier=sp.expand)
@@ -129,13 +132,13 @@ def build(benchmark=None):
     conjugates = {Gp: Gm, Gm: Gp, Hp: Hm, Hm: Hp, Wp: Wm, Wm: Wp}
 
     g, gp = p.gw.s, p.g1.s
-    MW = InternalParameter("MW", g * v.s / 2, positive=True, unit_dim=1)
-    MZ = InternalParameter("MZ", sp.sqrt(g**2 + gp**2) * v.s / 2, positive=True, unit_dim=1)
-    MH0 = InternalParameter("MH0", sp.sqrt(mh2), positive=True, unit_dim=1)
-    MHH = InternalParameter("MHH", sp.sqrt(mHH2), positive=True, unit_dim=1)
-    MA0 = InternalParameter("MA0", sp.sqrt(mA2), positive=True, unit_dim=1)
-    MHp = InternalParameter("MHp", sp.sqrt(mHp2), positive=True, unit_dim=1)
-    widths = [ExternalParameter(n, bench[n], positive=True, unit_dim=1)
+    MW = internal("MW", g * v.s / 2, positive=True, unit_dim=1)
+    MZ = internal("MZ", sp.sqrt(g**2 + gp**2) * v.s / 2, positive=True, unit_dim=1)
+    MH0 = internal("MH0", sp.sqrt(mh2), positive=True, unit_dim=1)
+    MHH = internal("MHH", sp.sqrt(mHH2), positive=True, unit_dim=1)
+    MA0 = internal("MA0", sp.sqrt(mA2), positive=True, unit_dim=1)
+    MHp = internal("MHp", sp.sqrt(mHp2), positive=True, unit_dim=1)
+    widths = [external(n, bench[n], positive=True, unit_dim=1)
               for n in ("WHH", "WA0", "WHp")]
     params = ParameterSet(*p.params, *sm.width_params(bench), *widths, alpha,
                           MW, MZ, MH0, MHH, MA0, MHp)

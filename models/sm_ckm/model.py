@@ -24,13 +24,15 @@ import math
 
 import sympy as sp
 
-from feynlag import (InternalParameter, Model, ParameterSet, Rotation, WeylFermion,
-                     standard_ckm, to_physical_basis)
+from feynlag import (
+    Model, ParameterSet, Rotation, WeylFermion, standard_ckm, to_physical_basis,
+)
 
 from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import ModelBundle
 from feynlag_models.outputs import standard_outputs
+from feynlag_models.tex import TEX, external, internal
 from models.sm import model as sm
 
 ID = "sm_ckm"
@@ -50,7 +52,7 @@ def ckm(bench):
     Returns ``(params, V, V_expr)``: the 13 parameters, the matrix of internal
     symbols ``Vud…Vtb`` and the same matrix written in the angles.
     """
-    params, V = standard_ckm()
+    params, V = standard_ckm(tex=TEX)
     by_name = {q.name: q for q in params}
     for key, name in CKM_INPUTS.items():
         value = bench[key]
@@ -62,7 +64,8 @@ def ckm(bench):
 def mass_basis_down_left():
     """Auxiliary mass-basis ``d_L`` handles, one ``IndexedBase`` per colour."""
     fields = [WeylFermion(f"dLm{c}", reps={}, chirality="L", nflavors=3,
-                          component_names=[f"dLm_{c}"]) for c in (1, 2, 3)]
+                          component_names=[f"dLm_{c}"],
+                          component_tex=[f"{{d'}}_L^{{{c}}}"]) for c in (1, 2, 3)]
     return [f.components[0] for f in fields], [f.bar_components[0] for f in fields]
 
 
@@ -83,7 +86,7 @@ def build(benchmark=None):
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
                   parameters=p.params, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
-    phys = to_physical_basis(model, ew)
+    phys = to_physical_basis(model, ew, tex=TEX)
 
     # --- mass basis of d_L: d'_L = V d_L, i.e. new = V† old -------------------
     QL = p.fermions["QL"]
@@ -106,9 +109,9 @@ def build(benchmark=None):
     conjugates = {phys.Gp: phys.Gm, phys.Gm: phys.Gp, phys.Wp: phys.Wm, phys.Wm: phys.Wp}
 
     g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
-    MW = InternalParameter("MW", g * v / 2, positive=True, unit_dim=1)
-    MZ = InternalParameter("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
-    MH = InternalParameter("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
+    MW = internal("MW", g * v / 2, positive=True, unit_dim=1)
+    MZ = internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
+    MH = internal("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
     params = ParameterSet(*p.params, *sm.width_params(bench), MW, MZ, MH)
 
     return ModelBundle(
