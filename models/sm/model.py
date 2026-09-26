@@ -10,10 +10,8 @@ itself and returns a :class:`~feynlag_models.bundle.ModelBundle`.
 import sympy as sp
 
 from feynlag import (
-    Bilinear, ExternalParameter, InternalParameter, Model, ParameterSet, SU3,
-    WeylFermion, conjugate_pair, diracPL, diracPR, electroweak_gauge,
-    electroweak_scaffold,
-    fermion_gauge_current, to_physical_basis,
+    Bilinear, Model, ParameterSet, SU3, WeylFermion, conjugate_pair, diracPL, diracPR,
+    electroweak_gauge, electroweak_scaffold, fermion_gauge_current, to_physical_basis,
 )
 from feynlag.export.ufo import UFOParticle
 
@@ -21,6 +19,7 @@ from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import DiracSpec, ModelBundle, SMPieces
 from feynlag_models.outputs import standard_outputs
+from feynlag_models.tex import TEX, external, internal
 
 ID = "sm"
 PARENT = None
@@ -35,10 +34,8 @@ def benchmark_point(model_id=ID):
 #: mass-parameter names per flavour, (up, down, charged lepton) rows
 MASS_NAMES = {1: (("MT",), ("MB",), ("MTA",)),
               3: (("MU", "MC", "MT"), ("MD", "MS", "MB"), ("ME", "MMU", "MTA"))}
-#: LaTeX names of the weak-basis components (feynlag ``component_tex``),
-#: so ``sympy.latex`` of any Lagrangian piece prints physics notation
-HIGGS_TEX = ["G^+", "H^0"]
-W_TEX = ["W^1", "W^2", "W^3"]
+#: LaTeX names of the weak-basis components declared here (feynlag ``component_tex``);
+#: the scaffold's Higgs doublet and W/B take theirs from ``feynlag_models.tex.TEX``
 G_TEX = [f"G^{{{a}}}" for a in range(1, 9)]
 COLOURS = (1, 2, 3)
 FERMION_TEX = {
@@ -75,14 +72,14 @@ def pieces(benchmark=None, higgs=True, generations=1):
     bench = benchmark_point() if benchmark is None else dict(benchmark)
     if higgs:
         ew = electroweak_scaffold(gw=bench["gw"], g1=bench["g1"], v=bench["v"],
-                                  mh=bench["MH"], higgs_tex=HIGGS_TEX,
-                                  w_tex=W_TEX, b_tex="B")
+                                  mh=bench["MH"], tex=TEX)
         SU2L, U1Y, gw_p, g1_p, W, B = ew.SU2L, ew.U1Y, ew.gw, ew.g1, ew.W, ew.B
     else:
         ew = None
-        SU2L, U1Y, gw_p, g1_p = electroweak_gauge(gw=bench["gw"], g1=bench["g1"])
-        W, B = SU2L.bosons("W", component_tex=W_TEX), U1Y.bosons("B", tex="B")
-    gs = ExternalParameter("gs", bench["gs"], positive=True)
+        SU2L, U1Y, gw_p, g1_p = electroweak_gauge(gw=bench["gw"], g1=bench["g1"], tex=TEX)
+        W = SU2L.bosons("W", component_tex=[TEX[f"W_{a}"] for a in (1, 2, 3)])
+        B = U1Y.bosons("B", tex=TEX["B"])
+    gs = external("gs", bench["gs"], positive=True)
     SU3c = SU3("SU3c", coupling=gs)
     G = SU3c.bosons("G", component_tex=G_TEX)
 
@@ -110,7 +107,7 @@ def pieces(benchmark=None, higgs=True, generations=1):
     # fermion mass inputs (externals) — the Yukawas are internals defined by
     # whichever Higgs sector the model has
     mass_names = [n for row in MASS_NAMES[generations] for n in row]
-    masses = {n: ExternalParameter(n, bench[n], positive=True, unit_dim=1)
+    masses = {n: external(n, bench[n], positive=True, unit_dim=1)
               for n in mass_names}
 
     params = [gw_p, g1_p, gs, *masses.values()]
@@ -136,7 +133,7 @@ def pieces(benchmark=None, higgs=True, generations=1):
         ys = {}
         for yrow, mrow in zip(YUKAWA_NAMES[generations], MASS_NAMES[generations]):
             for yn, mn in zip(yrow, mrow):
-                ys[yn] = InternalParameter(yn, sp.sqrt(2) * masses[mn].s / ew.v.s)
+                ys[yn] = internal(yn, sp.sqrt(2) * masses[mn].s / ew.v.s)
         p.params += list(ys.values())
         p.yukawa_params = ys
         yu, yd, ye = (diagonal_yukawa(ys, row) for row in YUKAWA_NAMES[generations])
@@ -294,7 +291,7 @@ def ew_boson_particles(b, h_mass="MH", h_width="WH"):
 
 
 def width_params(bench):
-    return [ExternalParameter(n, bench[n], positive=True, unit_dim=1)
+    return [external(n, bench[n], positive=True, unit_dim=1)
             for n in ("WZ", "WW", "WH", "WT")]
 
 
@@ -306,7 +303,7 @@ def build(benchmark=None):
     model = Model("SM", gauge_groups=p.gauge_groups, fields=p.fields,
                   parameters=p.params, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
-    phys = to_physical_basis(model, ew, gm_tex="G^-")
+    phys = to_physical_basis(model, ew, tex=TEX)
     bosons = dict(h=phys.h, G0=phys.G0, Gp=phys.Gp, Gm=phys.Gm,
                   Z=phys.Z, A=phys.A, Wp=phys.Wp, Wm=phys.Wm)
     charges = {phys.h: 0, phys.G0: 0, phys.Gp: 1, phys.Gm: -1,
@@ -314,9 +311,9 @@ def build(benchmark=None):
     conjugates = {phys.Gp: phys.Gm, phys.Gm: phys.Gp, phys.Wp: phys.Wm, phys.Wm: phys.Wp}
 
     g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
-    MW = InternalParameter("MW", g * v / 2, positive=True, unit_dim=1)
-    MZ = InternalParameter("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
-    MH = InternalParameter("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
+    MW = internal("MW", g * v / 2, positive=True, unit_dim=1)
+    MZ = internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
+    MH = internal("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
     params = ParameterSet(*p.params, *width_params(p.benchmark), MW, MZ, MH)
 
     return ModelBundle(

@@ -13,8 +13,8 @@ the SM one times cos θ (sin θ).
 import sympy as sp
 
 from feynlag import (
-    ExternalParameter, InternalParameter, Model, ParameterSet, PartialMu, Scalar,
-    ZN, dag, diagonalize_orthogonal_2x2, to_physical_basis,
+    Model, ParameterSet, PartialMu, Scalar, ZN, dag, diagonalize_orthogonal_2x2,
+    to_physical_basis, tex_symbol,
 )
 from feynlag.export.ufo import UFOParticle
 
@@ -22,6 +22,7 @@ from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import ModelBundle
 from feynlag_models.outputs import standard_outputs
+from feynlag_models.tex import TEX, external, internal
 from models.sm import model as sm
 
 ID = "sm_singlet_z2"
@@ -38,10 +39,10 @@ def build(benchmark=None):
     ew = p.ew
 
     # --- delta: the singlet ---------------------------------------------
-    vS = ExternalParameter("vS", bench["vS"], positive=True, unit_dim=1)
-    lamS = ExternalParameter("lamS", bench["lamS"])
-    lamHS = ExternalParameter("lamHS", bench["lamHS"])
-    muS2 = InternalParameter("muS2", unit_dim=2)
+    vS = external("vS", bench["vS"], positive=True, unit_dim=1)
+    lamS = external("lamS", bench["lamS"])
+    lamHS = external("lamHS", bench["lamHS"])
+    muS2 = internal("muS2", unit_dim=2)
     S = Scalar("S", reps={}, component_names=["S"], real=True, tex="S")
     s0 = S.components[0]
     S.expand_vev({s0: vS})
@@ -59,12 +60,12 @@ def build(benchmark=None):
     model = Model(ID, gauge_groups=p.gauge_groups, discrete_groups=[Z2],
                   fields=p.fields, parameters=p.params, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2, muS2])
-    phys = to_physical_basis(model, ew, gm_tex="G^-")
+    phys = to_physical_basis(model, ew, tex=TEX)
 
     # --- CP-even mixing (h, s) → (h1, h2) ------------------------------------
     M_even = model.mass_matrix([phys.h, s0])
-    h1, h2 = sp.symbols("h1 h2", real=True)
-    theta = InternalParameter("theta")
+    h1, h2 = (tex_symbol(n, TEX[n], real=True) for n in ("h1", "h2"))
+    theta = internal("theta")
     rot = diagonalize_orthogonal_2x2(M_even, [phys.h, s0], [h1, h2], angle=theta.s)
     theta.define(rot.angle_solution)
     model.rotate(rot)
@@ -77,11 +78,11 @@ def build(benchmark=None):
     conjugates = {phys.Gp: phys.Gm, phys.Gm: phys.Gp, phys.Wp: phys.Wm, phys.Wm: phys.Wp}
 
     g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
-    MW = InternalParameter("MW", g * v / 2, positive=True, unit_dim=1)
-    MZ = InternalParameter("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
-    MH1 = InternalParameter("MH1", sp.sqrt(m1sq), positive=True, unit_dim=1)
-    MH2 = InternalParameter("MH2", sp.sqrt(m2sq), positive=True, unit_dim=1)
-    WH2 = ExternalParameter("WH2", bench["WH2"], positive=True, unit_dim=1)
+    MW = internal("MW", g * v / 2, positive=True, unit_dim=1)
+    MZ = internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
+    MH1 = internal("MH1", sp.sqrt(m1sq), positive=True, unit_dim=1)
+    MH2 = internal("MH2", sp.sqrt(m2sq), positive=True, unit_dim=1)
+    WH2 = external("WH2", bench["WH2"], positive=True, unit_dim=1)
     params = ParameterSet(*p.params, *sm.width_params(bench), WH2, MW, MZ, theta, MH1, MH2)
 
     b_for_particles = dict(bosons, h=h1)
