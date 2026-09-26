@@ -22,7 +22,11 @@ def _git(*args):
 
 
 def feynlag_pin():
-    """The feynlag git commit pinned in pyproject.toml (None if unpinned)."""
+    """The feynlag git commit pinned in pyproject.toml.
+
+    ``None`` when feynlag is pinned to a PyPI release (``feynlag==X``); the stamp's
+    ``feynlag_version`` then identifies it exactly.
+    """
     text = (ROOT / "pyproject.toml").read_text()
     m = re.search(r"feynlag\.git@([0-9a-f]{7,40})", text)
     return m.group(1) if m else None
