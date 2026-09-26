@@ -6,7 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A **verified library of minimal Standard Model extensions** built with
 [`feynlag`](https://github.com/moiseszeleny/feynlag), a SymPy library that derives tree-level
-Feynman rules. feynlag is pinned to an exact git commit in `pyproject.toml` / `uv.lock`, and
+Feynman rules. feynlag is pinned to an exact PyPI release (`feynlag==0.2.0`) in `pyproject.toml` / `uv.lock`
+(a git commit pin, `feynlag @ git+…@<sha>`, is the way to test an unreleased feynlag change), and
 its local checkout is `../lagrangian`. Every model ships a physics card (`README.md`), a
 `NEXT_STEPS.md`, machine-readable `metadata.yaml`, tests that pin its physics against the
 literature, and stamped outputs (UFO, LaTeX). The repository supports a SciPost Physics
