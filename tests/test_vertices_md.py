@@ -23,6 +23,8 @@ EXPECTED_FERMIONS = {
     "thdm_type2": [r"\bar{t} t h", r"\bar{t} b H^+"],
     "seesaw_type1": [r"\bar{t} t h"],
     "seesaw_type1_2n": [r"\bar{t} t h", r"\bar{c} c h", r"\bar{\mu} \mu \gamma"],
+    # weak-basis legs: flavour-changing Yukawa-type and flavon vertices are present
+    "froggatt_nielsen": [r"\bar{t} t h_1", r"\bar{u} c h_2", r"\bar{d} s a", r"\bar{c} s W^+"],
 }
 
 

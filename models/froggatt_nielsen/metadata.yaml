@@ -129,19 +129,110 @@ key_results:
   - {statement: "global U(1)_FN holds monomial by monomial (phi: +1, per-generation fermion charges, H: 0)", test: "tests/test_l0_l1.py::test_global_u1_fn_every_term"}
   - {statement: "M_f = (v/sqrt2) c^f_ij eps^n_ij, n_ij = q(F_L,i) - q(f_R,j), eps = v_phi/(sqrt2 Lambda)", test: "tests/test_l0_l1.py::test_fermion_mass_matrices"}
   - {statement: "four massless real scalars: G0, G+- (eaten) and the U(1)_FN Goldstone a", test: "tests/test_l0_l1.py::test_goldstone_count"}
-maturity_level: 1
+  - {statement: "Y^f textures and det Y^f = det(c) eps^(sum of charges) reproduce LNS-2 Eqs. (2.6), (2.7), (2.19)", test: "tests/test_l2_literature.py::test_determinant_is_charge_sum_lns_eq_2_19"}
+  - {statement: "m_i ~ v eps^n_ii and |V_ij| ~ eps^|q(Q_i)-q(Q_j)| as finite O(1) limits (LNS-2 Eqs. 2.3, 2.4)", test: "tests/test_l2_literature.py::test_ckm_scaling_lns_eq_2_3"}
+  - {statement: "one-flavon couplings: -M_ij (h/v + n_ij (s + i a)/v_phi) dbar_L,i d_R,j (physics judgment, not from LNS)", test: "tests/test_l2_literature.py::test_flavon_couplings"}
+maturity_level: 2
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_exact_operators", "tests/test_l0_l1.py::test_global_u1_fn_every_term",
        "tests/test_l0_l1.py::test_flavon_powers_follow_the_charges"]
   L1: ["tests/test_l0_l1.py::test_tadpoles", "tests/test_l0_l1.py::test_cp_even_mass_matrix_and_spectrum",
        "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_mass_matrices"]
-  L2: []
+  L2: ["tests/test_l2_literature.py::test_benchmark_charges_are_lns_master_model",
+       "tests/test_l2_literature.py::test_yukawa_texture_lns_eq_2_6",
+       "tests/test_l2_literature.py::test_determinant_is_charge_sum_lns_eq_2_19",
+       "tests/test_l2_literature.py::test_mass_scaling_lns_eq_2_4",
+       "tests/test_l2_literature.py::test_ckm_scaling_lns_eq_2_3",
+       "tests/test_l2_literature.py::test_unitarity_and_benchmark_spectrum",
+       "tests/test_l2_literature.py::test_flavon_couplings"]
   L3: []
   L4: []
 slow_evidence: []
-literature_checks: []
-discrepancies: []
-references: []
+literature_checks:
+  - quantity: "FN charges of the benchmark (quark sector)"
+    ref: lns1994
+    location: {equation: "(2.5)", section: "2.1", note: "H(Q) = (3,2,0), H(dbar) = (3,2,2), H(ubar) = (3,1,0); mapped by conventions_map"}
+    source_version: "arXiv:hep-ph/9310320v1 (20 Oct 1993)"
+    checked_on: 2026-10-05
+    test: "tests/test_l2_literature.py::test_benchmark_charges_are_lns_master_model"
+  - quantity: "Yukawa texture Y_ij ~ lambda^(H(Q_i)+H(fbar_j)) and the resulting M^u, M^d powers"
+    ref: lns1994
+    location: {equation: "(2.2), (2.6)", section: "2.1", note: "exponents checked against rendered page images (pdftotext scrambles superscripts)"}
+    source_version: "arXiv:hep-ph/9310320v1 (20 Oct 1993)"
+    checked_on: 2026-10-05
+    test: "tests/test_l2_literature.py::test_yukawa_texture_lns_eq_2_6"
+  - quantity: "det M^f = lambda^(sum_i H(Q_i)+H(fbar_i)); det M^d ~ lambda^12, det M^u ~ lambda^9"
+    ref: lns1994
+    location: {equation: "(2.7), (2.19)", note: "exact here for additive non-negative exponents, det Y = det(c) eps^power"}
+    source_version: "arXiv:hep-ph/9310320v1 (20 Oct 1993)"
+    checked_on: 2026-10-05
+    test: "tests/test_l2_literature.py::test_determinant_is_charge_sum_lns_eq_2_19"
+  - quantity: "quark mass scaling m_i/m_j ~ lambda^(H(Q_i)-H(Q_j)+H(fbar_i)-H(fbar_j))"
+    ref: lns1994
+    location: {equation: "(2.4)", note: "checked as a finite O(1) limit of m_i/eps^n_ii as eps -> 0 over 20 random O(1) draws of c_ij"}
+    source_version: "arXiv:hep-ph/9310320v1 (20 Oct 1993)"
+    checked_on: 2026-10-05
+    test: "tests/test_l2_literature.py::test_mass_scaling_lns_eq_2_4"
+  - quantity: "CKM scaling |V_ij| ~ lambda^|H(Q_i)-H(Q_j)|"
+    ref: lns1994
+    location: {equation: "(2.3)", note: "finite O(1) limit of |V_ij|/eps^p as eps -> 0, 20 random draws; (2.3) and (2.4) stated there for i < j"}
+    source_version: "arXiv:hep-ph/9310320v1 (20 Oct 1993)"
+    checked_on: 2026-10-05
+    test: "tests/test_l2_literature.py::test_ckm_scaling_lns_eq_2_3"
+  - quantity: "|V_us|, |V_cb|, |V_ub| scaling and |V_ub| ~ |V_us V_cb|"
+    ref: lns1993
+    location: {equation: "(5.7), (5.8)", section: "5", note: "(5.7) is printed with square brackets, not absolute values; for H(Q) ordered as here they coincide"}
+    source_version: "arXiv:hep-ph/9212278v1 (17 Dec 1992)"
+    checked_on: 2026-10-05
+    test: "tests/test_l2_literature.py::test_ckm_scaling_lns_eq_2_3"
+discrepancies:
+  - id: D-1
+    quantity: "negative powers of the flavon (charge-violating entries with n_ij < 0)"
+    ref: lns1994
+    location: {section: "2.1, 4.1", note: "holomorphy statement in 2.1; Eq. (4.3) text: S^dagger cannot take part in the Yukawa sector"}
+    ours: "phi^* to the power |n| for n < 0 (non-supersymmetric EFT, every U(1)_FN-invariant operator kept)"
+    theirs: "entries with n < 0 vanish (supersymmetric, holomorphic superpotential); LNS-1 (5.6) notes powers of S^dagger in non-SUSY models but ignores them"
+    status: convention
+    note: "At the benchmark every n_ij >= 0, so the two agree there; a benchmark with negative n would differ from LNS by these entries."
+references:
+  - key: lns1993
+    kind: article
+    authors: "M. Leurer, Y. Nir, N. Seiberg"
+    title: "Mass matrix models"
+    venue: "Nucl. Phys. B 398 (1993) 319"
+    year: 1993
+    arxiv: "hep-ph/9212278"
+    inspire: "341758"
+    doi: "10.1016/0550-3213(93)90112-3"
+    verified_against: arxiv_text
+    conventions_map:
+      - {theirs: "H(Q_i), H(dbar_j), H(ubar_j); S with H(S) = -1 (Eqs. 5.3-5.4)", ours: "q(QL_i) = H(Q_i), q(dR_j) = -H(dbar_j), q(uR_j) = -H(ubar_j); phi with q = +1, S = phi^*", note: "their Q_i dbar_j S^m is the h.c. of our Qbar_i H d_j phi^n"}
+      - {theirs: "epsilon = Lambda_H/M (Eq. 5.6)", ours: "eps = v_phi/(sqrt2 Lam)"}
+  - key: lns1994
+    kind: article
+    authors: "M. Leurer, Y. Nir, N. Seiberg"
+    title: "Mass matrix models: The Sequel"
+    venue: "Nucl. Phys. B 420 (1994) 468"
+    year: 1994
+    arxiv: "hep-ph/9310320"
+    inspire: "359267"
+    doi: "10.1016/0550-3213(94)90074-4"
+    verified_against: arxiv_text
+    conventions_map:
+      - {theirs: "H(Q), H(dbar), H(ubar), lambda ~ 0.2 (Sec. 2.1)", ours: "q(QL) = H(Q), q(dR) = -H(dbar), q(uR) = -H(ubar); eps (benchmark 0.2)"}
+      - {theirs: "lambda = <S>/M, S(-1) (Eq. 4.1)", ours: "eps = v_phi/(sqrt2 Lam), phi = S^* with q = +1"}
+      - {theirs: "Y^d_ij ~ lambda^(H(Q_i)+H(dbar_j)) (Eq. 2.2)", ours: "Y^d_ij = c^d_ij eps^(q(QL_i) - q(dR_j)), c complex O(1)"}
+  - key: fn1979
+    kind: article
+    authors: "C. D. Froggatt, H. B. Nielsen"
+    title: "Hierarchy of Quark Masses, Cabibbo Angles and CP Violation"
+    venue: "Nucl. Phys. B 147 (1979) 277"
+    year: 1979
+    arxiv: null
+    inspire: "131306"
+    doi: "10.1016/0550-3213(79)90316-X"
+    verified_against: inspire_record
+    conventions_map: []
 feynlag_gaps:
   - {id: FG-6, test: "tests/test_l0_l1.py::test_feynlag_svd_complex_gap"}
   - {id: FG-7, test: "tests/test_l0_l1.py::test_feynlag_flavour_dependent_charge_gap"}

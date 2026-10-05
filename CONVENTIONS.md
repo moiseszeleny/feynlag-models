@@ -100,6 +100,15 @@ R(\theta) = \begin{pmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta 
 - **CKM matrix**: feynlag's `standard_ckm`, the PDG standard parametrization (PDG 2024 CKM review,
   Eq. 12.3) in `th12`, `th13`, `th23` ($\theta_{ij}$, first quadrant) and `deltaCP` ($\delta$), with
   complex internals `Vud` … `Vtb`. Leptons have no mixing (neutrinos are massless).
+- **Froggatt-Nielsen** (`froggatt_nielsen`): the flavon $\phi$ has $U(1)_{\rm FN}$ charge $+1$
+  and $`\phi = (v_\phi + s + i a)/\sqrt2`$; $H$ is uncharged. Each Yukawa is
+  $`-c_{ij}(\phi/\Lambda)^{n_{ij}}\,\bar\psi_{L i}\Phi\psi_{R j} + \text{h.c.}`$ with
+  $`n_{ij} = q(\psi_{L i}) - q(\psi_{R j})`$, and $\phi^*$ to the power $\lvert n_{ij}\rvert$ when
+  $n_{ij} \lt 0$. Then $`Y_{ij} = c_{ij}\,\epsilon^{\lvert n_{ij}\rvert}`$ with
+  $`\epsilon = v_\phi/(\sqrt2\Lambda)`$ and $`c_{ij} = \lvert c_{ij}\rvert e^{i\alpha_{ij}}`$. In
+  Leurer-Nir-Seiberg notation $`q(Q_L) = H(Q)`$, $`q(f_R) = -H(\bar f)`$ and their $S$ is our
+  $\phi^*$. Mass basis: $`M = U_L\,\mathrm{diag}(m)\,U_R^\dagger`$ with the masses ascending, and
+  $`V_{\rm CKM} = U_{L,u}^\dagger U_{L,d}`$ (`feynlag_models.flavor`).
 - The Majorana mass is $`-\tfrac12 M_R\,\nu_R^T C\nu_R + \text{h.c.}`$ In the seesaw basis
   $n = (\nu_L, \nu_R^c)$:
 

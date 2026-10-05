@@ -199,9 +199,39 @@ def build(benchmark=None):
     )
 
 
+WEAK_BASIS_NOTE = """## Fermion legs are weak-basis states
+
+The fermion vertices above are in the **weak (flavour) basis**: a leg named $`u`$, $`c`$, $`t`$ (or
+$`d`$, $`s`$, $`b`$; $`e`$, $`\\mu`$, $`\\tau`$) is the generation-1, 2, 3 weak state, not a mass
+eigenstate, and the Yukawa-type couplings are the entries of $`M = v\\,Y/\\sqrt2`$ with
+$`Y_{ij} = c_{ij}\\,\\epsilon^{n_{ij}}`$. The complex $`3\\times3`$ Yukawas are diagonalised only
+numerically (`feynlag_models.flavor`, FEYNLAG_GAPS.md FG-6); the resulting masses and
+$`\\lvert V_{ij}\\rvert`$ at the benchmark are in [`spectrum.md`](spectrum.md). The flavon couplings
+are those of the operators linearised in the flavon fluctuation (see the [card](../README.md)).
+"""
+
+
+def benchmark_flavour(bundle, dps=60):
+    """Masses (ascending, per sector) and ``|V_CKM|`` at the benchmark, numeric SVD (FG-6)."""
+    from feynlag_models.flavor import ckm_from_yukawas, mass_spectrum
+    e, vals = bundle.extra, bundle.values()
+    v = e["ew"].v.s
+    masses = {sector: mass_spectrum(e["Y"][sector], v, vals, dps) for sector in SECTORS}
+    return masses, abs(ckm_from_yukawas(e["Yu"], e["Yd"], vals, dps))
+
+
 def outputs(bundle, out_dir):
     e = bundle.extra
     masses = {"$m_{h_1}$": e["MH1"].expr, "$m_{h_2}$": e["MH2"].expr, r"$\theta$": e["theta"].expr,
               "$m_a$": sp.S.Zero, "$m_W$": e["MW"].expr, "$m_Z$": e["MZ"].expr,
               r"$\epsilon$": e["eps"].expr}
-    return standard_outputs(bundle, out_dir, "FROGGATT_NIELSEN_UFO", masses, ufo=False)
+    fermion_masses, absV = benchmark_flavour(bundle)
+    names = {"up": ("u", "c", "t"), "down": ("d", "s", "b"), "lepton": ("e", r"\mu", r"\tau")}
+    for sector, ms in fermion_masses.items():
+        for name, m in zip(names[sector], ms):
+            masses[f"$m_{{{name}}}$ (numeric SVD)"] = sp.Float(m, 6)
+    for i, up in enumerate(names["up"]):
+        for j, down in enumerate(names["down"]):
+            masses[rf"$\vert V_{{{up}{down}}}\vert$ (numeric SVD)"] = sp.Float(absV[i, j], 6)
+    return standard_outputs(bundle, out_dir, "FROGGATT_NIELSEN_UFO", masses, ufo=False,
+                            extra_vertex_sections=[WEAK_BASIS_NOTE])
