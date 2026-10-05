@@ -42,6 +42,10 @@ PARAM_TEX = {
     "WHH": r"\Gamma_H", "WA0": r"\Gamma_A", "WHp": r"\Gamma_{H^\pm}",
     # seesaw (seesaw_type1, seesaw_type1_2n)
     "yv": r"y_\nu", "MR": "M_R", "mD": "m_D", "MN1": "m_{N_1}", "MN2": "m_{N_2}",
+    # Froggatt-Nielsen (froggatt_nielsen): flavon, expansion parameter, c_ij = |c| exp(i alpha)
+    "muPhi2": r"\mu_\phi^2", "eps": r"\epsilon",
+    **{f"c{f}{i}{j}_abs": rf"\lvert c^{f}_{{{i}{j}}}\rvert" for f in "ude" for i in "123" for j in "123"},
+    **{f"c{f}{i}{j}_arg": rf"\alpha^{f}_{{{i}{j}}}" for f in "ude" for i in "123" for j in "123"},
 }
 
 #: bosons: the SM scaffold's weak-basis components and fluctuations, and every physical state
@@ -50,6 +54,8 @@ BOSON_TEX = {
     "W_1": "W^1", "W_2": "W^2", "W_3": "W^3", "B": "B",
     "Z": "Z", "A": r"\gamma", "Wp": "W^+", "Wm": "W^-",
     "h1": "h_1", "h2": "h_2",
+    # Froggatt-Nielsen flavon fluctuations, phi = (v_phi + s + i a)/sqrt2
+    "phi_r": "s", "phi_i": "a",
     # 2HDM: doublet fluctuations and the physical states
     "H10_r": r"\rho_1", "H20_r": r"\rho_2", "H10_i": r"\eta_1", "H20_i": r"\eta_2",
     "h": "h", "H": "H", "G0": "G^0", "A0": "A", "Hp": "H^+", "Hm": "H^-",
