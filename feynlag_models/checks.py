@@ -67,3 +67,59 @@ def only_failures(report, names):
     """
     failing = sorted(term.name for term, _check, _d in report.failures)
     return failing == sorted(names), failing
+
+
+def global_u1_table(fermion_charges, scalar_charges):
+    """Charge lookup for :func:`global_u1_violations` (FG-7 workaround: no global U(1) in feynlag).
+
+    ``fermion_charges`` maps a ``WeylFermion`` to one charge per flavour (every gauge component
+    shares it; bar legs carry minus it); ``scalar_charges`` maps a scalar component symbol to its
+    charge (its ``conjugate`` carries minus it).
+    """
+    legs = {}
+    for F, qs in fermion_charges.items():
+        for comp, bar in zip(F.components, F.bar_components):
+            for k, q in enumerate(qs):
+                legs[(comp, k)], legs[(bar, k)] = sp.Integer(q), -sp.Integer(q)
+    return legs, {s: sp.Integer(q) for s, q in scalar_charges.items()}
+
+
+def _u1_charge(node, legs, scalars):
+    from feynlag import Bilinear, PartialMu
+    if node.is_Number or node.is_NumberSymbol or node is sp.I:
+        return 0
+    if isinstance(node, Bilinear):
+        total = 0
+        for leg in (node.bar, node.field):
+            k = leg.indices[0]
+            if not k.is_Integer:
+                raise ValueError(f"symbolic flavour index in {node}")
+            total += legs.get((leg.base, int(k)), 0)
+        return total
+    if isinstance(node, sp.Pow):
+        if node.exp.is_Integer:
+            return int(node.exp) * _u1_charge(node.base, legs, scalars)
+        if node.base.free_symbols & set(scalars):
+            raise ValueError(f"non-integer power of a charged field: {node}")
+        return 0
+    if isinstance(node, sp.Mul):
+        return sum(_u1_charge(f, legs, scalars) for f in node.args)
+    if isinstance(node, sp.conjugate):
+        return -_u1_charge(node.args[0], legs, scalars)
+    if isinstance(node, PartialMu):
+        return _u1_charge(node.args[0], legs, scalars)
+    if isinstance(node, sp.Symbol):
+        return scalars.get(node, 0)
+    if node.free_symbols & set(scalars):
+        raise ValueError(f"cannot assign a U(1) charge to {type(node).__name__}: {node}")
+    return 0       # a function of parameters only (exp(i alpha), ...)
+
+
+def global_u1_violations(expr, legs, scalars):
+    """``[(charge, monomial)]`` for every monomial of ``expand(expr)`` with non-zero total charge."""
+    out = []
+    for term in sp.Add.make_args(sp.expand(expr)):
+        q = _u1_charge(term, legs, scalars)
+        if q != 0:
+            out.append((q, term))
+    return out

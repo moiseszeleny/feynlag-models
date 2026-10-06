@@ -1,4 +1,15 @@
 {
+  "froggatt_nielsen": {
+    "children": [],
+    "maturity_level": 2,
+    "name": "SM + Froggatt-Nielsen flavon (global U(1)_FN, three generations)",
+    "parents": [
+      "sm_ckm"
+    ],
+    "relations": {
+      "sm_ckm": "replaces yukawa"
+    }
+  },
   "seesaw_type1": {
     "children": [],
     "maturity_level": 2,
@@ -35,7 +46,9 @@
     "relations": {}
   },
   "sm_ckm": {
-    "children": [],
+    "children": [
+      "froggatt_nielsen"
+    ],
     "maturity_level": 3,
     "name": "Standard Model with three generations and CKM quark mixing",
     "parents": [
