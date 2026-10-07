@@ -131,7 +131,7 @@ key_results:
   - {statement: "four massless real scalars: G0, G+- (eaten) and the U(1)_FN Goldstone a", test: "tests/test_l0_l1.py::test_goldstone_count"}
   - {statement: "Y^f textures and det Y^f = det(c) eps^(sum of charges) reproduce LNS-2 Eqs. (2.6), (2.7), (2.19)", test: "tests/test_l2_literature.py::test_determinant_is_charge_sum_lns_eq_2_19"}
   - {statement: "m_i ~ v eps^n_ii and |V_ij| ~ eps^|q(Q_i)-q(Q_j)| as finite O(1) limits (LNS-2 Eqs. 2.3, 2.4)", test: "tests/test_l2_literature.py::test_ckm_scaling_lns_eq_2_3"}
-  - {statement: "one-flavon couplings: -M_ij (h/v + n_ij (s + i a)/v_phi) dbar_L,i d_R,j (physics judgment, not from LNS)", test: "tests/test_l2_literature.py::test_flavon_couplings"}
+  - {statement: "one-flavon couplings: -M_ij (h/v + (|n_ij| s + i n_ij a)/v_phi) dbar_L,i d_R,j for either sign of n_ij (physics judgment, not from LNS)", test: "tests/test_l2_literature.py::test_flavon_couplings_negative_powers"}
 maturity_level: 2
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_exact_operators", "tests/test_l0_l1.py::test_global_u1_fn_every_term",
@@ -144,7 +144,8 @@ maturity_evidence:
        "tests/test_l2_literature.py::test_mass_scaling_lns_eq_2_4",
        "tests/test_l2_literature.py::test_ckm_scaling_lns_eq_2_3",
        "tests/test_l2_literature.py::test_unitarity_and_benchmark_spectrum",
-       "tests/test_l2_literature.py::test_flavon_couplings"]
+       "tests/test_l2_literature.py::test_flavon_couplings",
+       "tests/test_l2_literature.py::test_flavon_couplings_negative_powers"]
   L3: []
   L4: []
 slow_evidence: []

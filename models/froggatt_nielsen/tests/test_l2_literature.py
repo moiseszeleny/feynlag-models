@@ -145,10 +145,9 @@ def test_unitarity_and_benchmark_spectrum(fn):
         assert 0 < m[0] < m[1] < m[2]
 
 
-def test_flavon_couplings(fn):
-    """One-flavon couplings from the linearised operators, weak basis (physics judgment; LNS do
-    not state them):  L ⊃ −M_ij (h/v + n_ij (s + i a)/v_φ) d̄_{L,i} d_{R,j} + h.c.,
-    M = v Y/√2, with h = c_θ h_1 − s_θ h_2, s = s_θ h_1 + c_θ h_2 (CONVENTIONS.md R(θ))."""
+def _assert_flavon_couplings(fn):
+    """Down-sector one-flavon couplings of ``fn`` against
+    −M_ij (h/v + (|n_ij| s + i n_ij a)/v_φ), entry by entry."""
     from feynlag import diracPR
     e, b = fn.extra, fn.bosons
     table = fn.fermion_table()
@@ -163,10 +162,32 @@ def test_flavon_couplings(fn):
         for j in range(3):
             key = (QL.bar_components[3][i], diracPR, dR.components[0][j])
             got = table[key][1]
+            ns, na = abs(n[i, j]), n[i, j]            # s and a weights: |n| s + i n a
             expected = {
-                b["h1"]: -M[i, j] * (sp.cos(th) / v + n[i, j] * sp.sin(th) / vphi),
-                b["h2"]: -M[i, j] * (-sp.sin(th) / v + n[i, j] * sp.cos(th) / vphi),
-                b["a"]: -sp.I * M[i, j] * n[i, j] / vphi,
+                b["h1"]: -M[i, j] * (sp.cos(th) / v + ns * sp.sin(th) / vphi),
+                b["h2"]: -M[i, j] * (-sp.sin(th) / v + ns * sp.cos(th) / vphi),
+                b["a"]: -sp.I * M[i, j] * na / vphi,
             }
             for boson, coeff in expected.items():
-                assert_dual_equal(got.get((boson,), 0), coeff, msg=f"{boson} d[{i},{j}]")
+                assert_dual_equal(got.get((boson,), 0), coeff, msg=f"{boson} d[{i},{j}] (n={n[i, j]})")
+
+
+def test_flavon_couplings(fn):
+    """One-flavon couplings from the linearised operators, weak basis (physics judgment; LNS do
+    not state them):  L ⊃ −M_ij (h/v + (|n_ij| s + i n_ij a)/v_φ) d̄_{L,i} d_{R,j} + h.c.,
+    M = v Y/√2, with h = c_θ h_1 − s_θ h_2, s = s_θ h_1 + c_θ h_2 (CONVENTIONS.md R(θ)).
+    φ^n (n ≥ 0) gives n(s + i a); (φ^*)^{|n|} (n < 0) gives |n|(s − i a) = |n| s + i n a.
+    At the benchmark every n_ij ≥ 0; ``test_flavon_couplings_negative_powers`` covers n < 0."""
+    _assert_flavon_couplings(fn)
+
+
+def test_flavon_couplings_negative_powers():
+    """Same couplings at a charge set with negative powers: qd1 = +4 gives n^d_i1 = (−1, −2, −4),
+    so those entries come from (φ^*)^{|n|} and their s coupling has the sign of |n|, not n."""
+    from models.froggatt_nielsen.model import benchmark_point, build
+    bench = dict(benchmark_point(), qd1=4)
+    fn_neg = build(bench)
+    n = fn_neg.extra["powers"]["down"]
+    assert [n[i, 0] for i in range(3)] == [-1, -2, -4]
+    assert all(n[i, j] >= 0 for i in range(3) for j in (1, 2))
+    _assert_flavon_couplings(fn_neg)
