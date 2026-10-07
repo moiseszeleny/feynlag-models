@@ -161,7 +161,7 @@ Y^f_{ij} = c^f_{ij}\, \epsilon^{\,n^f_{ij}}, \qquad \epsilon = \frac{v_\phi}{\sq
 The benchmark has $\epsilon = 0.2$, the order of the expansion parameter $\lambda \sim 0.2$ of LNS-2 (Sec. 2.1), from
 $v_\phi = 2\sqrt2$ TeV and $\Lambda = 10$ TeV. $\Lambda$, $`\lambda_\phi = 0.1`$ and
 $`\lambda_{H\phi} = 0.01`$ are placeholders. Only $\epsilon$ enters the fermion masses and mixings;
-$v_\phi$ alone sets the flavon couplings ($`n_{ij} M_{ij}/v_\phi`$) and, with $`\lambda_\phi`$,
+$v_\phi$ alone sets the flavon couplings ($`\lvert n_{ij}\rvert M_{ij}/v_\phi`$ for $s$, $`n_{ij} M_{ij}/v_\phi`$ for $a$) and, with $`\lambda_\phi`$,
 the mass of $h_2$. At the benchmark $`m_{h_1} \approx 124.9`$ GeV, $`m_{h_2} \approx 1.26`$ TeV
 and $\theta \approx -0.0044$ (computed with `bundle.values()` on 2026-10-05; see
 [`outputs/spectrum.md`](outputs/spectrum.md)). [physics judgment] The FN messengers of mass

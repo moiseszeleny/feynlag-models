@@ -265,7 +265,7 @@ route to masses and $`V_{\rm CKM}`$. The request asked for L2; L2 is reached.
   $\epsilon^{12}$ and $\epsilon^{9}$ (Eqs. (2.7), (2.19)), and the mass (Eq. (2.4)) and CKM (Eq. (2.3);
   LNS-1 Eqs. (5.7), (5.8)) scaling. "$X \sim \epsilon^p$" is tested as $`X/\epsilon^p`$ converging to a
   finite $O(1)$ limit between $\epsilon = 10^{-3}$ and $10^{-4}$ at 20 random $O(1)$ draws. The one-flavon
-  couplings $`n_{ij} M_{ij}/v_\phi`$ are derived, not a literature check: LNS do not state them
+  couplings ($`\lvert n_{ij}\rvert M_{ij}/v_\phi`$ for $s$, $`n_{ij} M_{ij}/v_\phi`$ for $a$) are derived, not a literature check: LNS do not state them
   [physics judgment]. The helper `feynlag_models.flavor` has its own `tests/test_flavor.py` (21 passed).
 - **Two new feynlag gaps.** FG-6 (`diagonalize_svd` real-only; workaround `feynlag_models.flavor`,
   `mpmath.svd_c` at 30 digits) and FG-7 (no global $U(1)$ or per-generation charges; workaround

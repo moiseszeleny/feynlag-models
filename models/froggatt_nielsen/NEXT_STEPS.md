@@ -24,7 +24,7 @@ Write formulas in LaTeX and code in backticks (`CONVENTIONS.md`, section "Markdo
   `feynlag_models.flavor`, and compare the span of $`\log_{10}\lvert c_{ij}\rvert`$ with the SM's.
   That fit belongs to `feynlag-anomalies`, not to this repository; the benchmark $`c_{ij}`$ are a
   seeded draw and stay one.
-- **Flavon FCNC.** The couplings $`n_{ij} M_{ij}/v_\phi`$ of $s$ and $a$ are off-diagonal in the
+- **Flavon FCNC.** The couplings $`\lvert n_{ij}\rvert M_{ij}/v_\phi`$ of $s$ and $`n_{ij} M_{ij}/v_\phi`$ of $a$ are off-diagonal in the
   mass basis. Rotating them with the numeric $`U_L`$, $`U_R`$ gives the tree-level
   $\Delta F = 2$ operators that bound $v_\phi$ (LNS-2 Sec. 4.2 estimates
   $`F_K \sim m_d m_s/\langle S\rangle^2`$). A careful confrontation needs stage-2 tools.
