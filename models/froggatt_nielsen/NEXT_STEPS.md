@@ -10,18 +10,19 @@ Write formulas in LaTeX and code in backticks (`CONVENTIONS.md`, section "Markdo
 - **Discrete $`Z_N`$ instead of $U(1)$.** LNS-2 Sec. 2.1 requires the horizontal symmetry of the
   full Lagrangian to be a $`Z_N \subset U(1)`$, so that a term breaking it by $n \gt N$ units is
   suppressed only by $\lambda^{n \bmod N}$. A $`Z_N`$ benchmark would remove the Goldstone and
-  could use feynlag's `ZN`, but only once per-generation charges are expressible (FG-7).
+  needs a discrete group with per-generation charges; feynlag's `ZN` still gives a multiplet one
+  charge (its `GlobalU1` takes per-flavour charges since 0.3.0).
 - **Gauged $`U(1)_{\rm FN}`$.** A new $Z'$ eats $a$. The per-generation charges must then satisfy
   the mixed and cubic anomaly conditions (or be cancelled by extra fermions or a Green–Schwarz
-  mechanism). feynlag's anomaly check would apply once the charges can be declared per generation
-  (FG-7). [physics judgment]
+  mechanism). feynlag's anomaly check covers gauge groups only, and a gauged U(1) takes one charge
+  per multiplet, so per-generation gauge charges are not yet expressible. [physics judgment]
 - **Neutrino masses and lepton mixing.** The lepton charges are placeholders (they copy the down
   sector), and neutrinos are massless as in `sm_ckm`. A Weinberg operator with FN suppression, or
   FN-charged $\nu_R$ in the style of `seesaw_type1_2n`, would give a PMNS matrix with its own
   $\epsilon$ scaling. [physics judgment]
 - **Stage-1 fit (`feynlag-anomalies`, P3 of the flavour puzzle).** Fit $\epsilon$ and the
   $`c_{ij}`$ to the measured masses and $\lvert V_{ij}\rvert$ with `bundle.extra["Yu"/"Yd"]` and
-  `feynlag_models.flavor`, and compare the span of $`\log_{10}\lvert c_{ij}\rvert`$ with the SM's.
+  `model.mass_basis`/`model.ckm`, and compare the span of $`\log_{10}\lvert c_{ij}\rvert`$ with the SM's.
   That fit belongs to `feynlag-anomalies`, not to this repository; the benchmark $`c_{ij}`$ are a
   seeded draw and stay one.
 - **Flavon FCNC.** The couplings $`\lvert n_{ij}\rvert M_{ij}/v_\phi`$ of $s$ and $`n_{ij} M_{ij}/v_\phi`$ of $a$ are off-diagonal in the
@@ -56,16 +57,12 @@ Write formulas in LaTeX and code in backticks (`CONVENTIONS.md`, section "Markdo
   draw $\lvert c\rvert$ uniformly in $[0.5, 2]$, which is a choice. [physics judgment]
 
 ## 4. What feynlag cannot yet do for this model
-- **FG-6.** `diagonalize_svd` is real-only: on a complex $3\times3$ it returns a non-unitary $U_L$
-  and complex "masses" without error. Masses and $`V_{\rm CKM}`$ come from the workaround
-  `feynlag_models.flavor` (`numeric_biunitary`, `ckm_from_yukawas`, `mass_spectrum`), pinned by
-  `test_feynlag_svd_complex_gap` (strict xfail).
-- **FG-7.** No global continuous symmetry, and `ZN.assign` gives a multiplet one charge, so
-  per-generation FN charges cannot be declared on the `Model`. Invariance is counted outside
-  feynlag (`feynlag_models.checks.global_u1_violations`), pinned by
-  `test_feynlag_flavour_dependent_charge_gap` (strict xfail).
-- **Mass-basis vertices.** There is no numeric mass-basis rotation for the complex Yukawas, so the
-  vertices are in the weak basis. Extracting vertices from the exact operators (up to nine bosons
+- FG-6 and FG-7 are resolved in feynlag 0.3.0 (numeric complex `diagonalize_svd`; `GlobalU1`
+  with per-flavour charges); see `FEYNLAG_GAPS.md`.
+- **Mass-basis vertices.** The vertices are still in the weak basis. feynlag 0.3.0's numeric
+  `diagonalize_svd` returns unitary rotations, and `Rotation.bar` rotates the bar legs with
+  $`R^*`$, so rotating the linearised model to the mass basis is now possible; it is not done
+  yet. Extracting vertices from the exact operators (up to nine bosons
   per vertex) was about ten times slower than from the linearised model (probe on 2026-10-05),
   which is why `bundle.model` is linearised. Not a gap row: it is a cost, not a wrong result.
 - **No UFO.** Not attempted (not requested). Unitary-gauge export would have to handle the

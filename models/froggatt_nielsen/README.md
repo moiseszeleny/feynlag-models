@@ -47,13 +47,12 @@ $`\langle\phi\rangle = v_\phi/\sqrt2`$, with $`\phi = (v_\phi + s + i a)/\sqrt2`
 global, exact $U(1)$ (rather than a $`Z_N`$, explicit soft breaking, or a gauged $U(1)$) was left
 to the implementer by the request and is recorded in `metadata.yaml`. [physics judgment]
 
-- Invariance holds monomial by monomial in every term of the exact Lagrangian, with $\phi$: $+1$,
-  the per-generation fermion charges and $H$: $0$. One wrong charge breaks the up Yukawa, so the
-  check has teeth **[feynlag-verified: `tests/test_l0_l1.py::test_global_u1_fn_every_term`]**.
-  feynlag has no global continuous symmetry and no per-generation charges (FG-7), so the charges
-  are counted outside feynlag (`feynlag_models.checks.global_u1_violations`); a $`Z_N`$ with one
-  charge per multiplet cannot express them
-  **[feynlag-verified: `test_feynlag_flavour_dependent_charge_gap`, strict xfail]**.
+- Invariance holds in every term of the exact Lagrangian, with $\phi$: $+1$, the per-generation
+  fermion charges and $H$: $0$. The symmetry is declared on the exact `Model` as a feynlag
+  `GlobalU1` with one charge per generation (`extra["U1_FN"]`), so `validate()` checks it. One wrong
+  $u_R$ charge breaks exactly the up Yukawa, so the check has teeth, and a $`Z_N`$ with one charge
+  per multiplet cannot express the symmetry
+  **[feynlag-verified: `tests/test_l0_l1.py::test_global_u1_fn_every_term`]**.
 - The flavon phase $a$ is an exactly massless Goldstone. With the three would-be Goldstones eaten
   by $W^\pm$ and $Z$, there are four massless real scalars
   **[feynlag-verified: `test_goldstone_count`]**.
@@ -148,10 +147,10 @@ Y^f_{ij} = c^f_{ij}\, \epsilon^{\,n^f_{ij}}, \qquad \epsilon = \frac{v_\phi}{\sq
   (they estimate FCNC coefficients only, LNS-2 Sec. 4.2), so the formula is a derivation, not a
   literature check. [physics judgment] Because $`n_{ij}`$ is not a constant, the flavon couplings
   are not aligned with the masses: $s$ and $a$ mediate tree-level FCNC. [physics judgment]
-- **Mass basis.** The $3\times3$ Yukawas are generic complex matrices, and feynlag's
-  `diagonalize_svd` is real-only (FG-6). The masses and $`V_{\rm CKM}`$ come from a numeric
-  biunitary decomposition outside feynlag (`feynlag_models.flavor`, `mpmath.svd_c`)
-  **[feynlag-verified: `test_feynlag_svd_complex_gap`, strict xfail; `tests/test_flavor.py`]**.
+- **Mass basis.** The $3\times3$ Yukawas are generic complex matrices. The masses and
+  $`V_{\rm CKM}`$ come from feynlag's numeric `diagonalize_svd` (mpmath complex SVD at 60 digits)
+  through `model.mass_basis` and `model.ckm`
+  **[feynlag-verified: `tests/test_l2_literature.py::test_unitarity_and_benchmark_spectrum`]**.
 - **Scalar spectrum.** The CP-even block in the basis $(h, s)$ is
   $`[[2\lambda v^2, \lambda_{H\phi} v v_\phi], [\lambda_{H\phi} v v_\phi, 2\lambda_\phi v_\phi^2]]`$,
   rotated to $(h_1, h_2)$ by $R(\theta)$ with $h_1$ the lighter state
@@ -190,13 +189,14 @@ $\Lambda$ are integrated out and not in the model. [physics judgment]
 - `bundle.extra["eps"]` is the internal parameter $\epsilon$ (`.s` its symbol, `.expr` its
   definition $`v_\phi/(\sqrt2\Lambda)`$); `extra["c_params"]` lists the 54 coefficient parameters,
   and `extra["c_abs"]`, `extra["c_arg"]` hold them per sector; `extra["C"]` the complex $c$ matrices.
-- `feynlag_models.flavor.ckm_from_yukawas(Yu, Yd, values)` returns
-  $`V = U_{L,u}^\dagger U_{L,d}`$ as a numpy array (rows $u, c, t$; columns $d, s, b$),
-  `mass_spectrum(Y, v, values)` the ascending Dirac masses, and `numeric_biunitary(M, values)` the
-  triple $`(U_L, m, U_R)`$ with $`M = U_L\,\mathrm{diag}(m)\,U_R^\dagger`$. `values` maps symbols
-  to numbers, for example `bundle.values()` with `eps` and the $`c_{ij}`$ overridden. Rotations and
-  $V$ are defined up to rephasing; $\lvert V\rvert$ and the masses are physical
-  **[feynlag-verified: `tests/test_flavor.py`]**.
+- `models.froggatt_nielsen.model.ckm(Yu, Yd, values)` returns
+  $`V = R_{L,u} R_{L,d}^\dagger`$ as a numpy array (rows $u, c, t$; columns $d, s, b$), and
+  `mass_basis(Y, values)` the triple $`(R_L, R_R, y)`$ from feynlag's numeric `diagonalize_svd`,
+  with $`R_L Y R_R^\dagger = \mathrm{diag}(y)`$ and $y$ ascending (the Dirac masses are
+  $`y\,v/\sqrt2`$). `values` maps symbols to numbers, for example `bundle.values()` with `eps`
+  and the $`c_{ij}`$ overridden. Rotations and $V$ are defined up to rephasing; $\lvert V\rvert$
+  and the masses are physical
+  **[feynlag-verified: `tests/test_l2_literature.py`]**.
 
 Generated pages: [`outputs/vertices.md`](outputs/vertices.md) (bosonic and fermion Feynman rules of the linearised model, grouped by vertex class) and [`outputs/spectrum.md`](outputs/spectrum.md) (masses at the benchmark).
 

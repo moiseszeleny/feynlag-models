@@ -1,10 +1,10 @@
 {
   "model": "froggatt_nielsen",
-  "generated": "2026-10-05T07:59:41+00:00",
+  "generated": "2026-10-07T18:16:34+00:00",
   "feynlag_models_version": "0.1.0",
-  "repo_commit": "6581bcb520be354818ff8d3eeb208e8891833b0f",
+  "repo_commit": "622fe9ac9bf8f72f53f1c1b62beecc192f005a64",
   "repo_dirty": true,
-  "feynlag_version": "0.2.0",
+  "feynlag_version": "0.3.0",
   "feynlag_commit": null,
   "sympy_version": "1.14.0",
   "python": "3.13.2",

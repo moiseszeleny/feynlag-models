@@ -108,7 +108,8 @@ R(\theta) = \begin{pmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta 
   $`\epsilon = v_\phi/(\sqrt2\Lambda)`$ and $`c_{ij} = \lvert c_{ij}\rvert e^{i\alpha_{ij}}`$. In
   Leurer-Nir-Seiberg notation $`q(Q_L) = H(Q)`$, $`q(f_R) = -H(\bar f)`$ and their $S$ is our
   $\phi^*$. Mass basis: $`M = U_L\,\mathrm{diag}(m)\,U_R^\dagger`$ with the masses ascending, and
-  $`V_{\rm CKM} = U_{L,u}^\dagger U_{L,d}`$ (`feynlag_models.flavor`).
+  $`V_{\rm CKM} = U_{L,u}^\dagger U_{L,d}`$ (feynlag's numeric `diagonalize_svd`, whose
+  rotations are $`R_L = U_L^\dagger`$, $`R_R = U_R^\dagger`$, so $`V_{\rm CKM} = R_{L,u} R_{L,d}^\dagger`$).
 - The Majorana mass is $`-\tfrac12 M_R\,\nu_R^T C\nu_R + \text{h.c.}`$ In the seesaw basis
   $n = (\nu_L, \nu_R^c)$:
 

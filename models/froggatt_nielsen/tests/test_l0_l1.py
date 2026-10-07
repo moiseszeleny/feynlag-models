@@ -1,24 +1,17 @@
 """L0 (declared, invariant, anomaly-free) and L1 (tadpoles, spectrum, Goldstones, fermion masses)."""
 
-import numpy as np
-import pytest
 import sympy as sp
 
-from feynlag import ZN, check_discrete_invariance, diagonalize_svd, diracPR, fermion_mass_matrix
-from feynlag_models.checks import (assert_dual_equal, global_u1_table, global_u1_violations,
-                                   massive_gauge_boson_count, zero_eigenvalue_count)
-from models.froggatt_nielsen.model import CHARGE_KEYS, SECTORS
-
-
-def _u1_table(fn, charges=None):
-    charges = charges or fn.extra["fn_charges"]
-    p = fn.pieces
-    return global_u1_table({p.fermions[k]: charges[k] for k in CHARGE_KEYS}, {fn.extra["phi"]: 1})
+from feynlag import (ZN, Model, check_discrete_invariance, check_global_invariance, diracPR,
+                     fermion_mass_matrix)
+from feynlag_models.checks import (assert_dual_equal, massive_gauge_boson_count,
+                                   zero_eigenvalue_count)
+from models.froggatt_nielsen.model import SECTORS, fn_symmetry
 
 
 def test_validate_exact_operators(fn):
-    """The exact c (φ/Λ)^n operators: gauge invariant, hermitian, anomaly-free, and of
-    mass dimension 4 once Λ is counted (each 1/Λ^n balances φ^n)."""
+    """The exact c (φ/Λ)^n operators: gauge invariant, U(1)_FN invariant, hermitian,
+    anomaly-free, and of mass dimension 4 once Λ is counted (each 1/Λ^n balances φ^n)."""
     report = fn.extra["model_exact"].validate()
     assert report.ok, report.summary()
     assert report.checks["anomalies"] is not None and report.checks["anomalies"].ok
@@ -27,15 +20,30 @@ def test_validate_exact_operators(fn):
 
 
 def test_global_u1_fn_every_term(fn):
-    """U(1)_FN (φ: +1, fermions: per-generation benchmark charges, H: 0) holds monomial by
-    monomial in every term of the exact Lagrangian; charges are counted outside feynlag (FG-7)."""
-    legs, scalars = _u1_table(fn)
-    for term in fn.extra["model_exact"].lagrangian:
-        assert not global_u1_violations(term.expr, legs, scalars), term.name
-    # the check has teeth: one wrong charge breaks the up Yukawa
+    """U(1)_FN (φ: +1, fermions: per-generation benchmark charges, H: 0) is declared on the exact
+    model as a feynlag ``GlobalU1`` and holds in every term; one wrong charge breaks exactly the
+    Yukawa it enters, and a Z_N with one charge per multiplet cannot express the symmetry."""
+    model = fn.extra["model_exact"]
+    assert model.global_groups == [fn.extra["U1_FN"]]
+    report = model.check_invariance(hermiticity=False, dimension=False)
+    assert not report.failures, report.failures
+    # the check has teeth: one wrong u_R charge breaks the up Yukawa and nothing else
     wrong = dict(fn.extra["fn_charges"], uR=(-3, -1, 1))
-    legs, scalars = _u1_table(fn, wrong)
-    assert global_u1_violations(fn.extra["L_exact"]["yukawa_up"], legs, scalars)
+    bad = fn_symmetry(fn.pieces, fn.extra["phiF"], wrong, name="U1_FN_wrong")
+    probe = Model("fn_wrong_charges", gauge_groups=[], global_groups=[bad],
+                  fields=model.fields, lagrangian=model.lagrangian)
+    report = probe.check_invariance(hermiticity=False, dimension=False)
+    assert {(term.name, label) for term, label, _ in report.failures} == {
+        ("yukawa_up", "global:U1_FN_wrong")}
+    # why a GlobalU1: the closest discrete group, a Z_N with the first-generation charges,
+    # flags the off-diagonal entries of the same (U(1)_FN-invariant) up Yukawa
+    p, q = fn.pieces, fn.extra["fn_charges"]
+    Z = ZN("Z_FN", 64)
+    Z.assign(1, fn.extra["phiF"])
+    for k in ("QL", "uR"):
+        Z.assign(q[k][0] % 64, p.fermions[k])
+    assert check_global_invariance(fn.extra["L_exact"]["yukawa_up"], fn.extra["U1_FN"])[0]
+    assert not check_discrete_invariance(fn.extra["L_exact"]["yukawa_up"], Z)[0]
 
 
 def test_flavon_powers_follow_the_charges(fn):
@@ -117,32 +125,3 @@ def test_fermion_mass_matrices(fn):
             for a in range(3):
                 for b in range(3):
                     assert_dual_equal(M[a, b], expected[a, b], msg=f"{model.name} {sector}[{a},{b}]")
-
-
-@pytest.mark.xfail(strict=True, reason="FG-6: diagonalize_svd is real-only (M Mᵀ, kind='orthogonal')")
-def test_feynlag_svd_complex_gap():
-    """feynlag's diagonalize_svd on a complex numeric 3×3 should give unitary rotations and the
-    singular values; it returns a non-unitary U_L and complex 'masses' (FG-6)."""
-    M = sp.Matrix([[3.0 + 1.0j, 1.0, 0.5j], [0.5, 2.0 - 1.0j, 1.0], [0.0, 0.3j, 5.0]])
-    rot_l, rot_r = diagonalize_svd(M, sp.symbols("l0:3"), sp.symbols("r0:3"),
-                                   sp.symbols("L0:3"), sp.symbols("R0:3"))
-    UL, UR = rot_l.matrix.evalf(), rot_r.matrix.evalf()
-    assert max(abs(complex(x)) for x in UL * UL.H - sp.eye(3)) < 1e-10
-    D = UL * M * UR.T
-    sv = sorted(np.linalg.svd(np.array(M.tolist(), dtype=complex), compute_uv=False))
-    assert np.allclose(sorted(complex(D[i, i]).real for i in range(3)), sv)
-    assert all(abs(complex(D[i, i]).imag) < 1e-10 for i in range(3))
-
-
-@pytest.mark.xfail(strict=True, reason="FG-7: no global U(1) / per-flavour charges in feynlag")
-def test_feynlag_flavour_dependent_charge_gap(fn):
-    """The closest feynlag can do is a Z_N with one charge per multiplet. With the
-    first-generation FN charges (φ: 1) the exact up Yukawa should be invariant, as it is under
-    U(1)_FN; it is not, because the other generations carry other charges (FG-7)."""
-    p, q = fn.pieces, fn.extra["fn_charges"]
-    Z = ZN("Z_FN", 64)
-    Z.assign(1, fn.extra["phiF"])
-    for k in ("QL", "uR"):
-        Z.assign(q[k][0] % 64, p.fermions[k])
-    ok, _viol = check_discrete_invariance(fn.extra["L_exact"]["yukawa_up"], Z)
-    assert ok
