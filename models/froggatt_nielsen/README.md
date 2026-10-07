@@ -137,11 +137,14 @@ Y^f_{ij} = c^f_{ij}\, \epsilon^{\,n^f_{ij}}, \qquad \epsilon = \frac{v_\phi}{\sq
 - **Flavon couplings.** Expanding $\phi^n$ around the vacuum gives, in the weak basis,
 
 ```math
-\mathcal L \supset -M_{ij}\left(\frac{h}{v} + n_{ij}\,\frac{s + i a}{v_\phi}\right) \bar f_{L,i} f_{R,j} + \text{h.c.}, \qquad h = c_\theta h_1 - s_\theta h_2, \quad s = s_\theta h_1 + c_\theta h_2 ,
+\mathcal L \supset -M_{ij}\left(\frac{h}{v} + \frac{\lvert n_{ij}\rvert\, s + i\, n_{ij}\, a}{v_\phi}\right) \bar f_{L,i} f_{R,j} + \text{h.c.}, \qquad h = c_\theta h_1 - s_\theta h_2, \quad s = s_\theta h_1 + c_\theta h_2 ,
 ```
 
-  checked entry by entry for the down sector against feynlag's vertices
-  **[feynlag-verified: `test_flavon_couplings`]**. LNS do not state this coupling in this form
+  for either sign of $`n_{ij}`$: $\phi^n$ gives $n(s + ia)$, while $`(\phi^*)^{\lvert n\rvert}`$
+  (used when $n \lt 0$) gives $`\lvert n\rvert(s - ia)`$. Checked entry by entry for the down sector
+  against feynlag's vertices, at the benchmark (every $n \ge 0$)
+  **[feynlag-verified: `test_flavon_couplings`]** and at a charge set with $`q(d_{R,1}) = +4`$, whose
+  first column has $n = -1, -2, -4$ **[feynlag-verified: `test_flavon_couplings_negative_powers`]**. LNS do not state this coupling in this form
   (they estimate FCNC coefficients only, LNS-2 Sec. 4.2), so the formula is a derivation, not a
   literature check. [physics judgment] Because $`n_{ij}`$ is not a constant, the flavon couplings
   are not aligned with the masses: $s$ and $a$ mediate tree-level FCNC. [physics judgment]
@@ -158,7 +161,7 @@ Y^f_{ij} = c^f_{ij}\, \epsilon^{\,n^f_{ij}}, \qquad \epsilon = \frac{v_\phi}{\sq
 The benchmark has $\epsilon = 0.2$, the order of the expansion parameter $\lambda \sim 0.2$ of LNS-2 (Sec. 2.1), from
 $v_\phi = 2\sqrt2$ TeV and $\Lambda = 10$ TeV. $\Lambda$, $`\lambda_\phi = 0.1`$ and
 $`\lambda_{H\phi} = 0.01`$ are placeholders. Only $\epsilon$ enters the fermion masses and mixings;
-$v_\phi$ alone sets the flavon couplings ($`n_{ij} M_{ij}/v_\phi`$) and, with $`\lambda_\phi`$,
+$v_\phi$ alone sets the flavon couplings ($`\lvert n_{ij}\rvert M_{ij}/v_\phi`$ for $s$, $`n_{ij} M_{ij}/v_\phi`$ for $a$) and, with $`\lambda_\phi`$,
 the mass of $h_2$. At the benchmark $`m_{h_1} \approx 124.9`$ GeV, $`m_{h_2} \approx 1.26`$ TeV
 and $\theta \approx -0.0044$ (computed with `bundle.values()` on 2026-10-05; see
 [`outputs/spectrum.md`](outputs/spectrum.md)). [physics judgment] The FN messengers of mass
