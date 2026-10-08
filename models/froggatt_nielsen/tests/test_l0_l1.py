@@ -6,7 +6,7 @@ from feynlag import (ZN, Model, check_discrete_invariance, check_global_invarian
                      fermion_mass_matrix)
 from feynlag_models.checks import (assert_dual_equal, massive_gauge_boson_count,
                                    zero_eigenvalue_count)
-from models.froggatt_nielsen.model import SECTORS, fn_symmetry
+from models.froggatt_nielsen.model import SECTORS, benchmark_flavour, fn_symmetry, mass_basis
 
 
 def test_validate_exact_operators(fn):
@@ -125,3 +125,40 @@ def test_fermion_mass_matrices(fn):
             for a in range(3):
                 for b in range(3):
                     assert_dual_equal(M[a, b], expected[a, b], msg=f"{model.name} {sector}[{a},{b}]")
+
+
+DPS = 60
+TOL = sp.Float("1e-40", DPS)
+
+
+def _max_abs(M):
+    return max(abs(x) for x in M)
+
+
+def test_mass_basis_diagonalises_yukawas(fn):
+    """feynlag's numeric SVD (``model.mass_basis``) at the benchmark, for Y_u, Y_d, Y_e:
+    R_L Y R_R† = diag(y) to 1e-40, y real, non-negative and ascending, R_L and R_R unitary to
+    1e-40. ``mass_basis`` returns only Re D_kk, so the off-diagonal entries and Im D_kk are
+    checked here from the rotations themselves."""
+    vals = fn.values()
+    for sector in SECTORS:
+        R_L, R_R, y = mass_basis(fn.extra["Y"][sector], vals, DPS)
+        Yn = sp.Matrix(fn.extra["Y"][sector]).subs(vals).evalf(DPS + 10)
+        D = (R_L * Yn * R_R.H).evalf(DPS)
+        assert _max_abs(D - sp.diag(*y)) < TOL, sector                      # off-diagonal and Im D_kk
+        assert all(abs(sp.im(D[k, k])) < TOL for k in range(3)), sector
+        assert all(yk >= 0 for yk in y) and y[0] < y[1] < y[2], (sector, y)
+        for name, R in (("R_L", R_L), ("R_R", R_R)):
+            assert _max_abs((R * R.H).evalf(DPS) - sp.eye(3)) < TOL, (sector, name)
+
+
+def test_benchmark_flavour_values_match_spectrum_md(fn):
+    """Regression pin: |V_us|, |V_cb|, |V_ub|, m_t, m_b at the benchmark equal the values printed
+    in ``outputs/spectrum.md`` (6 significant figures), so a regenerated output cannot change
+    them silently."""
+    masses, absV = benchmark_flavour(fn)
+    printed = {"|V_us|": (absV[0, 1], 0.191037), "|V_cb|": (absV[1, 2], 0.100278),
+               "|V_ub|": (absV[0, 2], 0.0377582), "m_t": (masses["up"][2], 94.927),
+               "m_b": (masses["down"][2], 12.4581)}
+    for name, (value, expected) in printed.items():
+        assert float(f"{float(value):.6g}") == expected, (name, value)

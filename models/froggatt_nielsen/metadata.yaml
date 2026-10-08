@@ -137,6 +137,7 @@ maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_exact_operators", "tests/test_l0_l1.py::test_global_u1_fn_every_term",
        "tests/test_l0_l1.py::test_flavon_powers_follow_the_charges"]
   L1: ["tests/test_l0_l1.py::test_tadpoles", "tests/test_l0_l1.py::test_cp_even_mass_matrix_and_spectrum",
+       "tests/test_l0_l1.py::test_mass_basis_diagonalises_yukawas",
        "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_mass_matrices"]
   L2: ["tests/test_l2_literature.py::test_benchmark_charges_are_lns_master_model",
        "tests/test_l2_literature.py::test_yukawa_texture_lns_eq_2_6",
