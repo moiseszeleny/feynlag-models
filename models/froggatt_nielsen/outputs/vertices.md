@@ -995,6 +995,6 @@ The fermion vertices above are in the **weak (flavour) basis**: a leg named $`u`
 $`d`$, $`s`$, $`b`$; $`e`$, $`\mu`$, $`\tau`$) is the generation-1, 2, 3 weak state, not a mass
 eigenstate, and the Yukawa-type couplings are the entries of $`M = v\,Y/\sqrt2`$ with
 $`Y_{ij} = c_{ij}\,\epsilon^{n_{ij}}`$. The complex $`3\times3`$ Yukawas are diagonalised only
-numerically (`feynlag_models.flavor`, FEYNLAG_GAPS.md FG-6); the resulting masses and
+numerically (feynlag's `diagonalize_svd(method="numeric")`); the resulting masses and
 $`\lvert V_{ij}\rvert`$ at the benchmark are in [`spectrum.md`](spectrum.md). The flavon couplings
 are those of the operators linearised in the flavon fluctuation (see the [card](../README.md)).

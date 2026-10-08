@@ -21,16 +21,17 @@ Two feynlag ``Model``s are built from the same declarations:
   attached to a fermion pair. Spectrum, rotations and vertices use this model: extracting the
   exact operators gives up to 9-boson vertices and is ~10× slower (probe, 2026-10-05).
 
-U(1)_FN is exact in the Lagrangian, so the flavon phase ``a`` is a massless Goldstone. feynlag
-has no global U(1) (FEYNLAG_GAPS.md FG-7); invariance is checked in the tests by counting charges
-per monomial. The 3×3 Yukawas are generic complex matrices, so masses and V_CKM come from a
-numeric biunitary SVD outside feynlag (``feynlag_models.flavor``, FG-6 workaround).
+U(1)_FN is exact in the Lagrangian, so the flavon phase ``a`` is a massless Goldstone. It is
+declared on ``model_exact`` as a feynlag ``GlobalU1`` with the per-generation charges
+(``extra["U1_FN"]``), so ``validate()`` checks it on every term. The linearised model breaks it
+explicitly (the constant piece of ``φ^n``) and does not carry it. The 3×3 Yukawas are generic complex
+matrices, so masses and V_CKM come from feynlag's numeric SVD (:func:`mass_basis`, :func:`ckm`).
 """
 
 import sympy as sp
 
 from feynlag import (
-    Model, ParameterSet, PartialMu, Scalar, dag, diagonalize_orthogonal_2x2,
+    GlobalU1, Model, ParameterSet, PartialMu, Scalar, dag, diagonalize_orthogonal_2x2,
     to_physical_basis, tex_symbol,
 )
 from feynlag.export.ufo import UFOParticle
@@ -84,6 +85,14 @@ def linear_flavon_power(phi, n, w):
     """``φ^n`` to linear order around ``⟨φ⟩ = w``: ``w^{n−1}(n φ − (n−1) w)`` (``φ^*`` if n < 0)."""
     x, m = (phi, n) if n >= 0 else (sp.conjugate(phi), -n)
     return w ** (m - 1) * (m * x - (m - 1) * w)
+
+
+def fn_symmetry(pieces, phiF, charges, name="U1_FN"):
+    """The global U(1)_FN: φ carries +1, each fermion multiplet its per-generation charges, H 0."""
+    G = GlobalU1(name).assign(1, phiF)
+    for field in CHARGE_KEYS:
+        G.assign(charges[field], pieces.fermions[field])
+    return G
 
 
 def coefficient_params(bench, prefix):
@@ -146,8 +155,9 @@ def build(benchmark=None):
     c_params = [q for sector in SECTORS for q in (*c_abs[sector], *c_arg[sector])]
     p.params += [vphi, Lam, lamPhi, lamHPhi, muPhi2, eps, *c_params]
 
-    model_exact = Model(f"{ID}_exact", gauge_groups=p.gauge_groups, fields=p.fields,
-                        parameters=p.params, lagrangian=p.lagrangian())
+    U1_FN = fn_symmetry(p, phiF, charges)
+    model_exact = Model(f"{ID}_exact", gauge_groups=p.gauge_groups, global_groups=[U1_FN],
+                        fields=p.fields, parameters=p.params, lagrangian=p.lagrangian())
 
     # --- the linearised model: spectrum, rotations, vertices --------------------------
     for name, expr in L_linear.items():
@@ -194,7 +204,7 @@ def build(benchmark=None):
                    C=C, c_abs=c_abs, c_arg=c_arg, c_params=c_params,
                    Y=Y, Yu=Y["up"], Yd=Y["down"], Ye=Y["lepton"],
                    Y_exact=Y_exact, Y_linear=Y_linear, L_exact=L_exact, L_linear=L_linear,
-                   model_exact=model_exact, M_even=M_even, rot=rot, theta=theta,
+                   model_exact=model_exact, U1_FN=U1_FN, M_even=M_even, rot=rot, theta=theta,
                    MW=MW, MZ=MZ, MH1=MH1, MH2=MH2, h_weak=phys.h, ufo=False),
     )
 
@@ -205,19 +215,44 @@ The fermion vertices above are in the **weak (flavour) basis**: a leg named $`u`
 $`d`$, $`s`$, $`b`$; $`e`$, $`\\mu`$, $`\\tau`$) is the generation-1, 2, 3 weak state, not a mass
 eigenstate, and the Yukawa-type couplings are the entries of $`M = v\\,Y/\\sqrt2`$ with
 $`Y_{ij} = c_{ij}\\,\\epsilon^{n_{ij}}`$. The complex $`3\\times3`$ Yukawas are diagonalised only
-numerically (`feynlag_models.flavor`, FEYNLAG_GAPS.md FG-6); the resulting masses and
+numerically (feynlag's `diagonalize_svd(method="numeric")`); the resulting masses and
 $`\\lvert V_{ij}\\rvert`$ at the benchmark are in [`spectrum.md`](spectrum.md). The flavon couplings
 are those of the operators linearised in the flavon fluctuation (see the [card](../README.md)).
 """
 
 
+def mass_basis(Y, values, dps=60):
+    """``(R_L, R_R, y)`` for a complex 3×3 Yukawa at ``values``: feynlag's numeric
+    ``diagonalize_svd``, ``R_L Y R_R† = diag(y)`` with ``y`` real, non-negative and ascending.
+
+    Each row of ``R_L``/``R_R`` is fixed only up to a phase common to both, so only ``y`` and
+    rephasing invariants such as ``|V_CKM|`` are physical.
+    """
+    from feynlag import diagonalize_svd
+    Yn = sp.Matrix(Y).subs(values)
+    if Yn.free_symbols:
+        raise ValueError(f"Yukawa not numeric at these values: {sorted(Yn.free_symbols, key=str)}")
+    Yn = Yn.evalf(dps + 10)
+    legs = [list(sp.symbols(f"_{side}0:3")) for side in ("l", "r", "L", "R")]
+    rot_l, rot_r = diagonalize_svd(Yn, *legs, method="numeric", dps=dps)
+    D = rot_l.matrix * Yn * rot_r.matrix.H
+    return rot_l.matrix, rot_r.matrix, [sp.re(D[k, k]) for k in range(3)]
+
+
+def ckm(Yu, Yd, values, dps=60):
+    """``V = R_L^u R_L^d†`` for ``−Q̄ Y H f_R`` Yukawas (rows u, c, t; columns d, s, b), numpy."""
+    import numpy as np
+    V = mass_basis(Yu, values, dps)[0] * mass_basis(Yd, values, dps)[0].H
+    return np.array([[complex(V[i, j]) for j in range(3)] for i in range(3)])
+
+
 def benchmark_flavour(bundle, dps=60):
-    """Masses (ascending, per sector) and ``|V_CKM|`` at the benchmark, numeric SVD (FG-6)."""
-    from feynlag_models.flavor import ckm_from_yukawas, mass_spectrum
+    """Masses (ascending, per sector) and ``|V_CKM|`` at the benchmark (feynlag's numeric SVD)."""
     e, vals = bundle.extra, bundle.values()
-    v = e["ew"].v.s
-    masses = {sector: mass_spectrum(e["Y"][sector], v, vals, dps) for sector in SECTORS}
-    return masses, abs(ckm_from_yukawas(e["Yu"], e["Yd"], vals, dps))
+    w = (e["ew"].v.s / sp.sqrt(2)).subs(vals)
+    masses = {sector: [float(w * y) for y in mass_basis(e["Y"][sector], vals, dps)[2]]
+              for sector in SECTORS}
+    return masses, abs(ckm(e["Yu"], e["Yd"], vals, dps))
 
 
 def outputs(bundle, out_dir):

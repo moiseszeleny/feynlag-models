@@ -7,12 +7,11 @@ so the scaling tests check that X/ε^p tends to a finite, non-zero limit as ε �
 coefficients, the precise meaning of X ~ ε^p.
 """
 
-import mpmath as mp
 import numpy as np
 import sympy as sp
 
 from feynlag_models.checks import assert_dual_equal
-from feynlag_models.flavor import ckm_from_yukawas, mp_biunitary, mp_matrix
+from models.froggatt_nielsen.model import ckm, mass_basis
 
 # LNS-2 Eq. (2.5): the "master model" charges (H(Q), H(d̄), H(ū)) for generations 1, 2, 3
 LNS2_H_Q, LNS2_H_DBAR, LNS2_H_UBAR = (3, 2, 0), (3, 2, 2), (3, 1, 0)
@@ -49,19 +48,18 @@ def test_yukawa_texture_lns_eq_2_6(fn):
 
 def test_determinant_is_charge_sum_lns_eq_2_19(fn):
     """det Y^f = det(c^f) ε^{Σ_i (H(Q_i) + H(f̄_i))} exactly (LNS-2 Eq. 2.19, n_ij additive and
-    non-negative), giving ε^12 (down) and ε^9 (up) as in LNS-2 Eq. (2.7). The numeric SVD
-    (FG-6 workaround) agrees: the product of the singular values of Y is |det Y| at the benchmark,
-    so m_1 m_2 m_3 = |det Y| (v/√2)^3."""
+    non-negative), giving ε^12 (down) and ε^9 (up) as in LNS-2 Eq. (2.7). feynlag's numeric SVD
+    agrees: the product of the singular values of Y is |det Y| at the benchmark, so
+    m_1 m_2 m_3 = |det Y| (v/√2)^3."""
     e, vals = fn.extra, fn.values()
     eps, q = e["eps"].s, e["fn_charges"]
     for sector, right in (("down", "dR"), ("up", "uR")):
         power = sum(q["QL"][i] - q[right][i] for i in range(3))
         assert power == LNS2_DET_POWER[sector]
         assert_dual_equal(e["Y"][sector].det(), e["C"][sector].det() * eps**power, msg=sector)
-        m = mp_biunitary(e["Y"][sector], vals, DPS)[1]
-        with mp.workdps(DPS):
-            detY = abs(mp.det(mp_matrix(e["Y"][sector], vals, DPS)))
-            assert abs(m[0] * m[1] * m[2] / detY - 1) < mp.mpf(10) ** (-40)
+        m = mass_basis(e["Y"][sector], vals, DPS)[2]
+        detY = abs(e["Y"][sector].subs(vals).evalf(DPS + 10).det())
+        assert abs(m[0] * m[1] * m[2] / detY - 1) < sp.Float(10, DPS) ** (-40)
 
 
 def _draw(rng):
@@ -105,7 +103,7 @@ def test_mass_scaling_lns_eq_2_4(fn):
         n = e["powers"][sector]
 
         def masses(vals, eps, sector=sector, n=n):
-            m = mp_biunitary(e["Y"][sector], vals, DPS)[1]
+            m = mass_basis(e["Y"][sector], vals, DPS)[2]
             return [float(m[i]) / eps ** n[i, i] for i in range(3)]
 
         draws = _limits(fn, masses)
@@ -122,7 +120,7 @@ def test_ckm_scaling_lns_eq_2_3(fn):
     pairs = [(0, 1), (1, 2), (0, 2)]
 
     def mixing(vals, eps):
-        V = ckm_from_yukawas(e["Y"]["up"], e["Y"]["down"], vals, DPS)
+        V = ckm(e["Y"]["up"], e["Y"]["down"], vals, DPS)
         return [abs(V[i, j]) / eps ** abs(q[i] - q[j]) for i, j in pairs]
 
     draws = _limits(fn, mixing)
@@ -136,12 +134,12 @@ def test_ckm_scaling_lns_eq_2_3(fn):
 
 def test_unitarity_and_benchmark_spectrum(fn):
     """At the benchmark (ε = 0.2, LNS-2's λ ~ 0.2): V is unitary and the masses are ordered
-    m_1 < m_2 < m_3 in each sector (singular values of c ε^n, numeric SVD)."""
+    m_1 < m_2 < m_3 in each sector (singular values of c ε^n, feynlag's numeric SVD)."""
     e, vals = fn.extra, fn.values()
-    V = ckm_from_yukawas(e["Yu"], e["Yd"], vals, DPS)
+    V = ckm(e["Yu"], e["Yd"], vals, DPS)
     assert np.allclose(V.conj().T @ V, np.eye(3), atol=1e-12)
     for sector in ("up", "down", "lepton"):
-        m = mp_biunitary(e["Y"][sector], vals, DPS)[1]
+        m = mass_basis(e["Y"][sector], vals, DPS)[2]
         assert 0 < m[0] < m[1] < m[2]
 
 

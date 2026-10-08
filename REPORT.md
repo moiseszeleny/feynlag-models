@@ -12,7 +12,7 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 | `seesaw_type1` | **L2** | 10 tests | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
 | `sm_ckm` (added 2026-09-17) | **L3** | 12 passed (the FG-4 strict xfail was removed when FG-4 was resolved) | three generations, CKM through a unitary $d_L$ rotation; PDG 2024 CKM review Eqs. (12.2), (12.3), (12.27), (12.28) and $J$; GIM derived |
 | `seesaw_type1_2n` (added 2026-09-24) | **L2** | 13 passed (FG-5 resolved) | three generations, two $\nu_R$: rank-2 light sector ($m_{\nu_1} = 0$), Atre et al. Eq. (2.5) per flavour, Ibarra–Ross Eq. (6) reproduced, one-generation limit equals `seesaw_type1`; **L3 stopped** (FG-3) |
-| `froggatt_nielsen` (added 2026-10-05) | **L2** | 14 passed + 2 strict xfails (FG-6, FG-7); `tests/test_flavor.py` 21 passed | three generations, global $`U(1)_{\rm FN}`$ flavon, exact $`c_{ij}(\phi/\Lambda)^{n_{ij}}`$ operators; LNS-2 Eqs. (2.3)–(2.7), (2.19) and LNS-1 Eqs. (5.7), (5.8) reproduced as textures, determinants and $\epsilon \to 0$ scaling; no UFO (not requested) |
+| `froggatt_nielsen` (added 2026-10-05) | **L2** | 14 passed (the FG-6, FG-7 strict xfails were removed when both were resolved in feynlag 0.3.0) | three generations, global $`U(1)_{\rm FN}`$ flavon, exact $`c_{ij}(\phi/\Lambda)^{n_{ij}}`$ operators; LNS-2 Eqs. (2.3)–(2.7), (2.19) and LNS-1 Eqs. (5.7), (5.8) reproduced as textures, determinants and $\epsilon \to 0$ scaling; no UFO (not requested) |
 | `thdm_type2` | **L3** | 14 passed + 1 strict xfail | GH Eqs. (6)–(17), Branco Eq. (16)/Table 2; benchmark inverted from (125, 300, 300, 320) GeV re-derived exactly by feynlag |
 
 Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the schema v2 section for the current count. `scripts/build_outputs.py --check` and
@@ -26,6 +26,9 @@ Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the sche
   prefactors (discrepancy D-2).
 - ~~`seesaw_type1_2n::test_feynlag_takagi_generic_matrix_gap`~~ — removed: FG-5 is resolved at the
   `e34b356` pin, and the model now builds with `diagonalize_takagi` itself.
+- ~~`froggatt_nielsen::test_feynlag_svd_complex_gap`~~, ~~`froggatt_nielsen::test_feynlag_flavour_dependent_charge_gap`~~
+  — removed: FG-6 and FG-7 are resolved at the `feynlag==0.3.0` pin, and the model uses
+  `diagonalize_svd(method="numeric")` and `GlobalU1` itself.
 - No test is skipped. No `slow` (MadGraph) test exists yet: **L4 was not attempted** for any model.
 
 ## TODO(verify) list at the end of the pilot (43 markers; 17 after the schema-v2 migration, 6 after 2026-09-17 — see below)
@@ -60,11 +63,14 @@ Categories:
   not finish on the generic $5\times5$ seesaw matrix of `seesaw_type1_2n`. It now goes numeric (mpmath,
   50 digits) for a numeric matrix larger than $2\times2$. The workaround
   `feynlag_models.checks.numeric_takagi` and its `tests/test_checks.py` are removed.
-- **FG-6** (open, 2026-10-05) `diagonalize_svd` is real-only: on a complex $3\times3$ it returns, without
-  error, a non-unitary $U_L$ and complex "masses". `froggatt_nielsen` gets its masses and $`V_{\rm CKM}`$
-  from the workaround `feynlag_models.flavor` (`mpmath.svd_c`).
-- **FG-7** (open, 2026-10-05) No global continuous symmetry and no per-generation charges on a `Model`,
-  so $`U(1)_{\rm FN}`$ is checked outside feynlag (`feynlag_models.checks.global_u1_violations`).
+- **FG-6** (resolved, feynlag PR #31, released in 0.3.0) `diagonalize_svd` was real-only: on a complex
+  $3\times3$ it returned, without error, a non-unitary $U_L$ and complex "masses". It now takes a numeric
+  route (mpmath complex SVD) with unitary rotations. `froggatt_nielsen` gets its masses and
+  $`V_{\rm CKM}`$ from it; the workaround `feynlag_models.flavor` and `tests/test_flavor.py` are removed.
+- **FG-7** (resolved, feynlag PR #32, released in 0.3.0) No global continuous symmetry and no
+  per-generation charges on a `Model`. feynlag's `GlobalU1` takes one charge per flavour, and
+  `froggatt_nielsen` declares $`U(1)_{\rm FN}`$ on its exact model; the workaround
+  `feynlag_models.checks.global_u1_violations` is removed.
 
 Additional limitations recorded in the cards (not gaps stopping an item): unitary-gauge UFO only;
 gluon and QCD vertices are not exported; widths of new scalars are placeholder inputs; every model
@@ -260,16 +266,19 @@ route to masses and $`V_{\rm CKM}`$. The request asked for L2; L2 is reached.
   (`default_rng(20261005)`), **not a fit**.
 - **Tests.** L0/L1: 7 passed (exact operators valid, $`U(1)_{\rm FN}`$ per monomial with a negative
   control, flavon powers, tadpoles, CP-even block, four massless scalars, mass matrices from both models)
-  and 2 strict xfails (FG-6, FG-7). L2: 7 passed against LNS-1 (hep-ph/9212278v1) and LNS-2
+  and 2 strict xfails (FG-6, FG-7; both since removed, see below). L2: 7 passed against LNS-1 (hep-ph/9212278v1) and LNS-2
   (hep-ph/9310320v1): the master-model charges, the Eq. (2.6) textures symbolically, $\det Y$ exactly
   $\epsilon^{12}$ and $\epsilon^{9}$ (Eqs. (2.7), (2.19)), and the mass (Eq. (2.4)) and CKM (Eq. (2.3);
   LNS-1 Eqs. (5.7), (5.8)) scaling. "$X \sim \epsilon^p$" is tested as $`X/\epsilon^p`$ converging to a
   finite $O(1)$ limit between $\epsilon = 10^{-3}$ and $10^{-4}$ at 20 random $O(1)$ draws. The one-flavon
   couplings ($`\lvert n_{ij}\rvert M_{ij}/v_\phi`$ for $s$, $`n_{ij} M_{ij}/v_\phi`$ for $a$) are derived, not a literature check: LNS do not state them
-  [physics judgment]. The helper `feynlag_models.flavor` has its own `tests/test_flavor.py` (21 passed).
+  [physics judgment]. The helper `feynlag_models.flavor` had its own `tests/test_flavor.py` (21 passed).
 - **Two new feynlag gaps.** FG-6 (`diagonalize_svd` real-only; workaround `feynlag_models.flavor`,
   `mpmath.svd_c` at 30 digits) and FG-7 (no global $U(1)$ or per-generation charges; workaround
-  `feynlag_models.checks.global_u1_violations`).
+  `feynlag_models.checks.global_u1_violations`). Both were resolved in feynlag 0.3.0 (2026-10-07):
+  the model now uses feynlag's numeric `diagonalize_svd` and `GlobalU1`, the workarounds and the two
+  strict xfails are removed, and the benchmark masses and $\lvert V_{ij}\rvert$ in `spectrum.md`
+  are unchanged.
 - **No UFO.** Not requested (P3 is gated at L2), and the export would carry the massless $a$; so L3 is
   not attempted, and `outputs` has the LaTeX and Markdown pages only.
 - **Literature.** LNS-1 and LNS-2 read as arXiv v1 text with `pdftotext`, exponents checked against
@@ -284,4 +293,6 @@ route to masses and $`V_{\rm CKM}`$. The request asked for L2; L2 is reached.
 - Attempt L4 for `sm_singlet_z2` ($e^+e^- \to Z h_1$ against the stock `sm` result times $\cos^2\theta$) with the MG5 at `~/.local/mg5dl`.
 - Check 2HDM discrepancy D-2 (Branco Eqs. 5–6 prefactors) against the published Phys. Rept. text (paywalled from here).
 - Fill the experimental-bound tables in each `NEXT_STEPS.md` from current PDG / ATLAS / CMS sources.
-- `froggatt_nielsen`: report FG-6 and FG-7 upstream; the stage-1 fit itself belongs to `feynlag-anomalies` (P3).
+- `froggatt_nielsen`: rotate the linearised model to the quark mass basis with feynlag 0.3.0's unitary
+  `diagonalize_svd` rotations and `Rotation.bar` (flavon FCNC couplings); the stage-1 fit itself belongs
+  to `feynlag-anomalies` (P3).
