@@ -70,9 +70,13 @@ accessible).
   $`(G^+, H^+) = R(\beta)(H_1^+, H_2^+)`$ diagonalise the three blocks, leaving three Goldstones for
   $W^\pm$ and $Z$
   **[feynlag-verified: `test_spectrum_and_rotations_at_benchmark`, `test_goldstone_count_and_gauge_masses`]**.
-  feynlag's $`\alpha = \tfrac12\arctan\big(2M_{12}/(M_{11} - M_{22})\big)`$ has $\cos 2\alpha \gt 0$, so the
-  label $H$ is the heavier state only when $M_{11} \gt M_{22}$. That holds at the benchmark; GH Eq. (17)
-  chooses the branch with $m_H \ge m_h$ instead. [physics judgment on conventions]
+  The angle is Gunion–Haber's branch, $`\alpha = \tfrac12\,\mathrm{atan2}(2M_{12}, M_{11} - M_{22})`$, so
+  $H$ is the heavier state at every benchmark (GH Eq. (17), $m_H \ge m_h$). feynlag's principal
+  $`\tfrac12\arctan\big(2M_{12}/(M_{11} - M_{22})\big)`$ agrees only when $M_{11} \gt M_{22}$ (as at the
+  benchmark); otherwise `alpha_branch` adds $\pm\pi/2$ (UG-4 in feynlag-anomalies)
+  **[feynlag-verified: `test_labels_follow_mass_at_an_inverted_point`, `test_alpha_branch_is_atan2`]**.
+  The closed form of $\alpha$ is valid within the benchmark's signs of $M_{11} - M_{22}$ and $M_{12}$, so
+  a UFO card moved across $M_{11} = M_{22}$ must be rebuilt at the new point. [physics judgment]
 - $hVV = \text{SM} \times \sin(\beta - \alpha)$, $HVV = \text{SM} \times \cos(\beta - \alpha)$, and there is
   no $AVV$ vertex **[feynlag-verified: `tests/test_l2_literature.py::test_hVV_HVV_sin_cos_beta_minus_alpha`]**
 - Type-II Yukawa factors (Branco Table 2), with the $\bar f\gamma_5 f$ chiral structure for $A$

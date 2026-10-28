@@ -64,3 +64,24 @@ def test_goldstone_count_unchanged(xsm):
     M_ch = xsm.model.mass_matrix([xsm.bosons["Gp"]], charged=True)
     assert sp.simplify(M_odd[0, 0]) == 0 and sp.simplify(M_ch[0, 0]) == 0
     assert zero_eigenvalue_count(M_odd, vals) + 2 * zero_eigenvalue_count(M_ch, vals) == 3
+
+
+def test_labels_follow_mixing_with_a_light_singlet():
+    """UG-4: the singlet model labels by mixing, not by mass (CONVENTIONS.md). With the singlet
+    lighter (M22 < M11; here λ_S = λ_HS = 0.01) the principal-branch θ still keeps h1 h-like,
+    so h1 is now the *heavier* state and takes the + root of m²_{1,2} = λv² + λ_S v_S² ± √(…)."""
+    import math
+    from models.sm_singlet_z2.model import benchmark_point, build
+    xsm = build(dict(benchmark_point(), lamS=0.01, lamHS=0.01))
+    e, vals = xsm.extra, xsm.values()
+    M = e["M_even"].subs(vals)
+    assert float(M[1, 1]) < float(M[0, 0])                       # really the light-singlet regime
+    th = float(vals[e["theta"].s])
+    assert abs(math.cos(th)) > abs(math.sin(th))                  # h1 is h-like
+    m1, m2 = float(vals[e["MH1"].s]), float(vals[e["MH2"].s])
+    assert m1 > m2 > 0
+    lam, v = float(vals[e["ew"].lam.s]), float(vals[e["ew"].v.s])
+    lamS, lamHS, x = (float(vals[e[k].s]) for k in ("lamS", "lamHS", "vS"))
+    root = math.sqrt((lam * v**2 - lamS * x**2) ** 2 + (lamHS * v * x) ** 2)
+    assert abs(m1**2 - (lam * v**2 + lamS * x**2 + root)) < 1e-9 * m1**2
+    assert abs(m2**2 - (lam * v**2 + lamS * x**2 - root)) < 1e-9 * m1**2

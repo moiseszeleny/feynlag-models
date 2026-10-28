@@ -52,6 +52,11 @@ M^2 = \begin{pmatrix} 2\lambda v^2 & \lambda_{HS} v v_S \\ \lambda_{HS} v v_S & 
 m_{1,2}^2 = \lambda v^2 + \lambda_S v_S^2 \mp \sqrt{(\lambda v^2 - \lambda_S v_S^2)^2 + (\lambda_{HS} v v_S)^2}.
 ```
 
+  The $\mp$ ordering holds for $M_{11} \lt M_{22}$, as at the benchmark. The labels follow mixing
+  (principal-branch $\theta$, $\lvert\theta\rvert \le \pi/4$): with a lighter singlet $h_1$ stays
+  $h$-like, becomes the heavier state and takes the $+$ root
+  **[feynlag-verified: `test_labels_follow_mixing_with_a_light_singlet`]**.
+
 - Universal rescaling: $h_1 XX = \cos\theta \times \text{SM}$ and $h_2 XX = -\sin\theta \times \text{SM}$
   for $X = W, Z, t, b, \tau$, with the sum rule $`g_{h_1VV}^2 + g_{h_2VV}^2 = g_{hVV,\text{SM}}^2`$
   **[feynlag-verified: `test_coupling_rescaling`]**

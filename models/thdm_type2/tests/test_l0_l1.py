@@ -122,3 +122,61 @@ def test_benchmark_matches_physical_inputs(thdm):
     assert abs(vals[e["m12sq"].s] - phys["m12sq"]) < 1e-9
     cba = math.cos(vals[e["beta"].s] - vals[e["alpha"].s])
     assert abs(cba - phys["cos_beta_minus_alpha"]) < 1e-5, cba
+
+
+def _gh_lambdas(v, m_light, m_heavy, tanb, sin_bma, mA, mHp, m12sq):
+    """λ1..λ5 from the physical basis, Gunion–Haber Eqs. (10)–(13) with λ6 = λ7 = 0:
+    (H, h) = R(α)(ρ1, ρ2), m_H = m_heavy ≥ m_h = m_light, α = β − asin(sin(β − α))."""
+    import math
+    beta = math.atan(tanb)
+    sb, cb = math.sin(beta), math.cos(beta)
+    alpha = beta - math.asin(sin_bma)
+    c, s = math.cos(alpha), math.sin(alpha)
+    # M = Rᵀ diag(m_H², m_h²) R
+    M11 = c * c * m_heavy**2 + s * s * m_light**2
+    M22 = s * s * m_heavy**2 + c * c * m_light**2
+    M12 = c * s * (m_heavy**2 - m_light**2)
+    lam5 = m12sq / (sb * cb * v**2) - mA**2 / v**2
+    lam4 = lam5 - 2 * (mHp**2 - mA**2) / v**2
+    lam345 = (M12 + m12sq) / (v**2 * sb * cb)
+    return dict(lam1=(M11 - m12sq * tanb) / (v**2 * cb**2), lam2=(M22 - m12sq / tanb) / (v**2 * sb**2),
+                lam3=lam345 - lam4 - lam5, lam4=lam4, lam5=lam5), alpha, (M11, M22, M12)
+
+
+def test_labels_follow_mass_at_an_inverted_point():
+    """UG-4: at a point with M11 < M22 (α_GH > π/4) h is still the lighter CP-even state
+    (CONVENTIONS.md, Gunion–Haber's branch m_H ≥ m_h) and the model's α is α_GH. Point:
+    tan β = 2, sin(β − α) = 0.3, m_h = 95, m_H = 125.2, m_A = 300, m_H± = 600 GeV,
+    m12² = 6000 GeV² (feynlag-anomalies higgs_95gev step 4)."""
+    import math
+    from models.thdm_type2.model import benchmark_point, build
+    bench = benchmark_point()
+    lams, alpha_gh, (M11, M22, _) = _gh_lambdas(bench["v"], 95.0, 125.2, 2.0, 0.3, 300.0, 600.0, 6000.0)
+    assert M11 < M22 and alpha_gh > math.pi / 4                  # really the inverted regime
+    thdm = build(dict(bench, tanb=2.0, m12sq=6000.0, **lams))
+    e, vals = thdm.extra, thdm.values()
+    mh, mH = vals[e["MH0"].s], vals[e["MHH"].s]
+    assert abs(mh / 95.0 - 1) < 1e-6 and abs(mH / 125.2 - 1) < 1e-6, (mh, mH)
+    alpha, beta = vals[e["alpha"].s], vals[e["beta"].s]
+    assert abs(alpha - alpha_gh) < 1e-9, (alpha, alpha_gh)
+    assert abs(math.sin(beta - alpha) - 0.3) < 1e-9
+    # R(α) M Rᵀ is diagonal with the heavier state first, relative to the size of M
+    D = e["rot_even"].apply(e["M_even"]).subs(e["alpha"].s, e["rot_even"].angle_solution).subs(vals)
+    D = [[float(sp.N(D[i, j])) for j in range(2)] for i in range(2)]
+    assert abs(D[0][1]) < 1e-12 * abs(D[0][0]) and D[0][0] > D[1][1] > 0, D
+
+
+def test_alpha_branch_is_atan2():
+    """The branch shift of ``alpha_branch`` turns feynlag's principal ½ atan(2M12/(M11−M22)) into
+    ½ atan2(2M12, M11−M22) in all three regions, and R(α) then puts the heavier state first."""
+    import math
+    from feynlag import diagonalize_orthogonal_2x2
+    from models.thdm_type2.model import alpha_branch
+    a, H, h = sp.symbols("a H h")
+    for M11, M22, M12 in ((5.0, 2.0, 0.7), (2.0, 5.0, 0.7), (2.0, 5.0, -0.7), (5.0, 2.0, -0.7)):
+        M = sp.Matrix([[M11, M12], [M12, M22]])
+        rot = diagonalize_orthogonal_2x2(M, sp.symbols("r1 r2"), [H, h], angle=a)
+        alpha = float(rot.angle_solution) + alpha_branch(M, {}) * math.pi / 2
+        assert abs(alpha - math.atan2(2 * M12, M11 - M22) / 2) < 1e-12, (M11, M22, M12)
+        mH2, mh2 = (float(x.subs(a, alpha)) for x in rot.masses_squared(M, simplifier=sp.expand))
+        assert mH2 > mh2, (M11, M22, M12)

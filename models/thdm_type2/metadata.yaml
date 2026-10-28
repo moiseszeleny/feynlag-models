@@ -62,13 +62,14 @@ benchmark:
 key_results:
   - {statement: "m11² = m12² tβ − ½v²(λ1 cβ² + λ345 sβ²) and 1↔2 (tadpoles)", test: "tests/test_l0_l1.py::test_tadpoles_gunion_haber_eq6_eq7"}
   - {statement: "m_A² = m12²/(sβcβ) − λ5 v², m_H±² = m_A² + ½v²(λ5 − λ4)", test: "tests/test_l0_l1.py::test_mA_mHp_gunion_haber_eq10_eq11"}
+  - {statement: "h is the lighter CP-even state at any benchmark: α = ½ atan2(2M12, M11 − M22), also for M11 < M22", test: "tests/test_l0_l1.py::test_labels_follow_mass_at_an_inverted_point"}
   - {statement: "hVV = SM × sin(β−α), HVV = SM × cos(β−α), no AVV", test: "tests/test_l2_literature.py::test_hVV_HVV_sin_cos_beta_minus_alpha"}
   - {statement: "type-II ξ factors: ξ_h^u = cα/sβ, ξ_h^{d,ℓ} = −sα/cβ, ξ_H^u = sα/sβ, ξ_H^{d,ℓ} = cα/cβ, ξ_A^u = cotβ, ξ_A^{d,ℓ} = tanβ", test: "tests/test_l2_literature.py::test_neutral_yukawa_xi_factors_table2"}
   - {statement: "H⁺ t̄ b ∝ (√2/v)(m_t cotβ P_L + m_b tanβ P_R), H⁺ ν̄ τ ∝ (√2/v) m_τ tanβ P_R", test: "tests/test_l2_literature.py::test_charged_higgs_yukawa_eq16"}
 maturity_level: 3
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies", "tests/test_l0_l1.py::test_z2_softly_broken_only_by_m12sq"]
-  L1: ["tests/test_l0_l1.py::test_tadpoles_gunion_haber_eq6_eq7", "tests/test_l0_l1.py::test_mass_blocks", "tests/test_l0_l1.py::test_spectrum_and_rotations_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_and_gauge_masses", "tests/test_l0_l1.py::test_fermion_masses", "tests/test_l0_l1.py::test_benchmark_matches_physical_inputs"]
+  L1: ["tests/test_l0_l1.py::test_tadpoles_gunion_haber_eq6_eq7", "tests/test_l0_l1.py::test_mass_blocks", "tests/test_l0_l1.py::test_spectrum_and_rotations_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_and_gauge_masses", "tests/test_l0_l1.py::test_fermion_masses", "tests/test_l0_l1.py::test_benchmark_matches_physical_inputs", "tests/test_l0_l1.py::test_labels_follow_mass_at_an_inverted_point", "tests/test_l0_l1.py::test_alpha_branch_is_atan2"]
   L2: ["tests/test_l0_l1.py::test_mA_mHp_gunion_haber_eq10_eq11", "tests/test_l2_literature.py::test_hVV_HVV_sin_cos_beta_minus_alpha", "tests/test_l2_literature.py::test_neutral_yukawa_xi_factors_table2", "tests/test_l2_literature.py::test_charged_higgs_yukawa_eq16", "tests/test_l2_literature.py::test_charged_higgs_quark_lepton_same_sign_derived", "tests/test_l2_literature.py::test_charged_higgs_quark_lepton_relative_sign_eq16", "tests/test_l2_literature.py::test_mA_mHp_independent_of_feynlag", "tests/test_l2_literature.py::test_alignment_limit_recovers_sm_h"]
   L3: ["tests/test_l3_ufo.py::test_ufo_roundtrip"]
   L4: []
@@ -138,7 +139,7 @@ references:
     verified_against: arxiv_text
     conventions_map:
       - {theirs: "λ6, λ7", ours: "0", note: "exact Z2 in the quartics"}
-      - {theirs: "H = cα ρ1 + sα ρ2, h = −sα ρ1 + cα ρ2 (Eq. 14)", ours: "(H, h) = R(alpha)(H10_r, H20_r)", note: "identical; GH fix the branch by m_H ≥ m_h, feynlag's alpha = ½ atan(2M12/(M11−M22)) coincides when M11 > M22 (true at the benchmark)"}
+      - {theirs: "H = cα ρ1 + sα ρ2, h = −sα ρ1 + cα ρ2 (Eq. 14)", ours: "(H, h) = R(alpha)(H10_r, H20_r)", note: "identical; alpha = ½ atan2(2M12, M11 − M22), GH's branch (m_H ≥ m_h), at every benchmark: model.alpha_branch shifts feynlag's principal ½ atan(…) by ±π/2 when M11 < M22 (UG-4)"}
   - key: aoki2009
     kind: article
     authors: "M. Aoki, S. Kanemura, K. Tsumura, K. Yagyu"
@@ -187,5 +188,5 @@ outputs:
   vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
-last_reviewed: 2026-09-17
+last_reviewed: 2026-10-28
 reviewed_by: "Moises Zeleny (with Claude)"
