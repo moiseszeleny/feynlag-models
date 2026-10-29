@@ -26,7 +26,7 @@ free_parameters:
   - {name: lamS,  tex: "\\lambda_S",    mass_dim: 0, role: singlet quartic}
   - {name: lamHS, tex: "\\lambda_{HS}", mass_dim: 0, role: portal coupling}
 benchmark:
-  description: "Electroweak block as in models/sm. Singlet block chosen so h1 is the lighter, SM-like state with small mixing. Z2 charge label k means phi -> (-1)^k phi (feynlag ZN.assign)."
+  description: "Electroweak block as in models/sm. Singlet block chosen so h1 is the SM-like state and, here (M11 < M22), also the lighter one, with small mixing; the labels follow mixing, not mass (CONVENTIONS.md). Z2 charge label k means phi -> (-1)^k phi (feynlag ZN.assign)."
   inputs:
     gw: 0.65322889878251
     g1: 0.3491928465111313
@@ -48,12 +48,13 @@ benchmark:
 key_results:
   - {statement: "μ² = λ v² + ½ λ_HS v_S², μ_S² = −λ_S v_S² − ½ λ_HS v²", test: "tests/test_l0_l1.py::test_tadpoles"}
   - {statement: "M² = [[2λv², λ_HS v v_S], [λ_HS v v_S, 2λ_S v_S²]]", test: "tests/test_l2_literature.py::test_mass_matrix_eq7"}
-  - {statement: "tan 2θ = λ_HS v v_S/(λ v² − λ_S v_S²), m²_{1,2} = λv² + λ_S v_S² ∓ √((λv² − λ_S v_S²)² + (λ_HS v v_S)²)", test: "tests/test_l2_literature.py::test_mixing_angle_eq11_eq12"}
+  - {statement: "labels follow mixing: h1 stays h-like (|θ| ≤ π/4) and becomes the heavier state when the singlet is lighter", test: "tests/test_l0_l1.py::test_labels_follow_mixing_with_a_light_singlet"}
+  - {statement: "tan 2θ = λ_HS v v_S/(λ v² − λ_S v_S²), m²_{1,2} = λv² + λ_S v_S² ∓ √((λv² − λ_S v_S²)² + (λ_HS v v_S)²) for M11 < M22 (h1 lighter; ± when the singlet is lighter)", test: "tests/test_l2_literature.py::test_mixing_angle_eq11_eq12"}
   - {statement: "every h1 (h2) coupling to SM particles = SM coupling × cos θ (−sin θ)", test: "tests/test_l2_literature.py::test_coupling_rescaling"}
 maturity_level: 3
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_gauge_hermiticity_dimension_anomalies", "tests/test_l0_l1.py::test_z2_invariance_of_every_term"]
-  L1: ["tests/test_l0_l1.py::test_tadpoles", "tests/test_l0_l1.py::test_cp_even_mass_matrix", "tests/test_l0_l1.py::test_spectrum_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_unchanged"]
+  L1: ["tests/test_l0_l1.py::test_tadpoles", "tests/test_l0_l1.py::test_cp_even_mass_matrix", "tests/test_l0_l1.py::test_spectrum_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_unchanged", "tests/test_l0_l1.py::test_labels_follow_mixing_with_a_light_singlet"]
   L2: ["tests/test_l2_literature.py::test_mass_matrix_eq7", "tests/test_l2_literature.py::test_mass_eigenvalues_eq8_eq9", "tests/test_l2_literature.py::test_mixing_angle_eq11_eq12", "tests/test_l2_literature.py::test_coupling_rescaling", "tests/test_l2_literature.py::test_lambda3_from_masses_eq13", "tests/test_l2_literature.py::test_decoupling_lamHS_to_zero"]
   L3: ["tests/test_l3_ufo.py::test_ufo_roundtrip"]
   L4: []
@@ -89,6 +90,7 @@ references:
       - {theirs: "x", ours: "vS"}
       - {theirs: "−m² Φ†Φ − μ² S² + λ2 S⁴ + λ3 Φ†Φ S² with S = (h0 + x)/√2", ours: "½ μ_S² S² + ¼ λ_S S⁴ + ½ λ_HS H†H S² with S = v_S + s", note: "same physics; the real-field normalisations absorb the factors"}
       - {theirs: "α", ours: "−theta", note: "discrepancy D-1 (convention)"}
+      - {theirs: "Eqs. (8)-(12)", ours: "checked on the M11 < M22 branch (tests' _branch(), D > 0)", note: "outside it our labels follow mixing (h1 h-like), so h1 takes the + root; UG-4"}
   - key: pruna2013
     kind: article
     authors: "G. M. Pruna, T. Robens"
@@ -125,5 +127,5 @@ outputs:
   vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
-last_reviewed: 2026-09-17
+last_reviewed: 2026-10-28
 reviewed_by: "Moises Zeleny (with Claude)"

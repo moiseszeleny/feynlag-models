@@ -50,8 +50,10 @@ $`m_Z = \sqrt{g^2 + g'^2}\,v/2`$.
 - **Real singlet ($Z_2$)**:
   $V \supset \tfrac12\mu_S^2 S^2 + \tfrac14\lambda_S S^4 + \tfrac12\lambda_{HS}(H^\dagger H)S^2$,
   with $S \to v_S + s$ (no $1/\sqrt2$ for a real field). The CP-even block is in the basis
-  $(h, s)$. Mass eigenstates $(h_1, h_2) = R(\theta)(h, s)$; $h_1$ is the lighter state at the
-  benchmark.
+  $(h, s)$. Mass eigenstates $(h_1, h_2) = R(\theta)(h, s)$ with the principal-branch $\theta$
+  ($\lvert\theta\rvert \le \pi/4$): the labels follow **mixing**, so $h_1$ is always the $h$-like state.
+  It is the lighter one only when $M_{11} \lt M_{22}$, as at the benchmark; with a lighter singlet
+  $h_1$ is the heavier state.
 - **2HDM (CP-conserving, softly broken $Z_2$)**, in the Gunion–Haber / Branco et al. form, all
   parameters real:
 
@@ -79,9 +81,12 @@ R(\theta) = \begin{pmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta 
 ```
 
 - $(H, h) = R(\alpha)(\rho_1, \rho_2)$: $H = c_\alpha\rho_1 + s_\alpha\rho_2$,
-  $h = -s_\alpha\rho_1 + c_\alpha\rho_2$; $h$ is the lighter CP-even state.
+  $h = -s_\alpha\rho_1 + c_\alpha\rho_2$; $h$ is the lighter CP-even state at every benchmark: the
+  labels follow **mass**, with Gunion–Haber's branch $`\alpha = \tfrac12\,\mathrm{atan2}(2M_{12}, M_{11} - M_{22})`$
+  (`thdm_type2.model.alpha_branch` shifts feynlag's principal branch by $\pm\pi/2$ when $M_{11} \lt M_{22}$).
 - $(G^0, A) = R(\beta)(\eta_1, \eta_2)$; $(G^+, H^+) = R(\beta)(H_1^+, H_2^+)$.
-- Singlet: $(h_1, h_2) = R(\theta)(h, s)$, with $\tan 2\theta$ from the off-diagonal condition.
+- Singlet: $(h_1, h_2) = R(\theta)(h, s)$, with $\tan 2\theta$ from the off-diagonal condition and the
+  principal branch (labels follow mixing; see the singlet potential above).
 - Weinberg: $(Z, A) = R(-\theta_W)(W^3, B)$, $\tan\theta_W = g'/g$;
   $W^\pm = (W^1 \mp i W^2)/\sqrt2$.
 - Every angle is verified against its defining $\tan 2\theta$ relation, not only

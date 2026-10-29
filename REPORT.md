@@ -288,6 +288,24 @@ route to masses and $`V_{\rm CKM}`$. The request asked for L2; L2 is reached.
   not read; published NPB versions of LNS-1 and LNS-2 not compared with the arXiv text; an exact
   literature source for the flavon couplings; bounds on $v_\phi$ from meson mixing and familon emission.
 
+## CP-even labels: UG-4 (2026-10-28)
+
+The ticket UG-4 in `feynlag-anomalies/docs/upstream_gaps.md` found two models whose CP-even labels
+depend on the ordering of the diagonal entries of the mass matrix.
+
+- **`thdm_type2` (fixed).** feynlag's `diagonalize_orthogonal_2x2` returns the principal branch,
+  $`\tfrac12\arctan\big(2M_{12}/(M_{11}-M_{22})\big)`$, and promises no mass ordering, so this is
+  not a feynlag gap. For $M_{11} \lt M_{22}$ the model's $H$ was the lighter state, against
+  `CONVENTIONS.md` and Gunion–Haber. `model.alpha_branch` now shifts the branch by $\pm\pi/2$, so
+  $`\alpha = \tfrac12\,\mathrm{atan2}(2M_{12}, M_{11}-M_{22})`$ and $h$ is the lighter state at every
+  benchmark. At the committed benchmark ($M_{11} \gt M_{22}$) the shift is zero and every output is
+  byte-identical. New tests: `test_labels_follow_mass_at_an_inverted_point` (the anomalies point
+  $\tan\beta = 2$, $`\sin(\beta-\alpha) = 0.3`$, $m_h = 95$, $m_H = 125.2$ GeV; it failed with the
+  labels swapped before the fix) and `test_alpha_branch_is_atan2`.
+- **`sm_singlet_z2` (documented).** The labels follow mixing ($h_1$ is $h$-like), which
+  feynlag-anomalies relies on. The $\mp$ key result and the benchmark wording now say that they
+  hold for $M_{11} \lt M_{22}$. New test: `test_labels_follow_mixing_with_a_light_singlet`.
+
 ## What to do next
 
 - Attempt L4 for `sm_singlet_z2` ($e^+e^- \to Z h_1$ against the stock `sm` result times $\cos^2\theta$) with the MG5 at `~/.local/mg5dl`.

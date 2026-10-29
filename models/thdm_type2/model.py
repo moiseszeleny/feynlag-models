@@ -35,6 +35,21 @@ def benchmark_point():
     return md.benchmark_inputs(MODELS_DIR / ID)
 
 
+def alpha_branch(M_even, values):
+    """``k`` such that ``½ atan(2M12/(M11−M22)) + k π/2 = ½ atan2(2M12, M11−M22)`` at ``values``.
+
+    ``0`` when M11 > M22 (the principal branch is already Gunion–Haber's), ``±1`` with the sign of
+    M12 otherwise. The closed form then holds in the benchmark's region of sign(M11 − M22) and
+    sign(M12); a point across M11 = M22 needs its own build.
+    """
+    M11, M22, M12 = (float(sp.N(M_even[a, b].subs(values))) for a, b in ((0, 0), (1, 1), (0, 1)))
+    if abs(M11 - M22) <= 1e-12 * max(abs(M11), abs(M22)):
+        raise ValueError("M11 = M22: the CP-even labels are not defined at this point")
+    if M11 > M22:
+        return 0
+    return 1 if M12 > 0 else -1
+
+
 def build(benchmark=None):
     bench = benchmark_point() if benchmark is None else dict(benchmark)
     p = sm.pieces(bench, higgs=False)
@@ -112,6 +127,9 @@ def build(benchmark=None):
     Hh, h = (tex_symbol(n, TEX[n], real=True) for n in ("H", "h"))
     alpha = internal("alpha")
     rot_even = diagonalize_orthogonal_2x2(M_even, [rho1, rho2], [Hh, h], angle=alpha.s)
+    # Gunion–Haber's branch, α = ½ atan2(2M12, M11 − M22), so m_H ≥ m_h (CONVENTIONS.md);
+    # feynlag gives the principal ½ atan(…), equal to it only for M11 > M22 (UG-4)
+    rot_even.angle_solution += alpha_branch(M_even, ParameterSet(*p.params).numeric()) * sp.pi / 2
     alpha.define(rot_even.angle_solution)
     G0, A0 = (tex_symbol(n, TEX[n], real=True) for n in ("G0", "A0"))
     rot_odd = Rotation([eta1, eta2], [G0, A0], rotation_2x2(beta.s))
