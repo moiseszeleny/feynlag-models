@@ -11,7 +11,7 @@ import sympy as sp
 
 from feynlag import (
     Bilinear, Model, ParameterSet, SU3, WeylFermion, conjugate_pair, diracPL, diracPR,
-    electroweak_gauge, electroweak_scaffold, fermion_gauge_current, to_physical_basis,
+    electroweak_gauge, electroweak_scaffold, kinetic, tilde, yukawa,
 )
 from feynlag.export.ufo import UFOParticle
 
@@ -118,8 +118,9 @@ def pieces(benchmark=None, higgs=True, generations=1):
                  generations=generations)
     p.masses = masses
 
-    current = sum(fermion_gauge_current(F, k)
-                  for k in flavours(p) for F in (Ll, eR, QL, uR, dR))
+    # feynlag files the currents under sector "yukawa"; here they stay one "gauge" term
+    current = sum(expr for k in flavours(p)
+                  for expr, _sector in kinetic(Ll, eR, QL, uR, dR, index=k))
     p.add_term(current, "gauge", "fermion_gauge_currents")
 
     if higgs:
@@ -159,52 +160,60 @@ def yukawa_terms(p, Hd, Hu, ye, yd, yu):
     the SM; ``H1``/``H2`` in a type-II 2HDM).
 
     One generation: ``ye, yd, yu`` are real SymPy symbols and the terms carry
-    the symbolic flavour index. Three generations: they are 3×3 matrices
+    the symbolic flavour index; they are built with ``feynlag.terms.yukawa``
+    (``tilde(Hu)`` for the up quarks), which returns the same expression. Three generations: they are 3×3 matrices
     (possibly complex, e.g. ``Y_d = V diag(y)``) and the flavour sums are
     written out with integer indices; the h.c. carries ``conjugate(Y^{ab})``.
     The returned names are ``yukawa_tau/b/t`` (one generation) or
     ``yukawa_lepton/down/up`` (three).
     """
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
-    Gp_d, H0_d = Hd.components
-    Gp_u, H0_u = Hu.components
-    nuL, eL = Ll.components
-    nuLbar, eLbar = Ll.bar_components
-    eRc, eRbar = eR.components[0], eR.bar_components[0]
-    qL_u, qL_d = QL.components[:3], QL.components[3:]
-    qLbar_u, qLbar_d = QL.bar_components[:3], QL.bar_components[3:]
-
     if p.generations == 1:
         i = p.idx[0]
-        pairs = lambda Y: [(i, i, Y)]                       # noqa: E731
-    else:
-        pairs = lambda Y: [(a, b, Y[a, b]) for a in range(3)   # noqa: E731
-                           for b in range(3) if Y[a, b] != 0]
+        return {"yukawa_tau": yukawa(ye, Ll, Hd, eR, indices=i),
+                "yukawa_b": yukawa(yd, QL, Hd, dR, indices=i),
+                "yukawa_t": yukawa(yu, QL, tilde(Hu), uR, indices=i)}
+    return _yukawa_terms_3(p, Hd, Hu, ye, yd, yu)
+
+
+def _yukawa_terms_3(p, Hd, Hu, ye, yd, yu):
+    """Three generations at component level, kept by hand: the couplings are explicit
+    3×3 ``Matrix`` entries at integer flavour indices, which ``feynlag.terms.yukawa`` does not
+    take (a scalar coupling shares one index between the legs; an ``IndexedBase`` needs two
+    distinct ones, so a diagonal ``Y[a, a]`` raises). Revisited in the sm_ckm migration."""
+    Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
+    Gp_d, H0_d = Hd.components
+    Gp_u, H0_u = Hu.components
+    nuL, eL = Ll.nuL, Ll.eL
+    nuLbar, eLbar = Ll.nuLbar, Ll.eLbar
+    eRc, eRbar = eR.eR, eR.eRbar
+    qL_u, qL_d = QL.components[:3], QL.components[3:]
+    qLbar_u, qLbar_d = QL.bar_components[:3], QL.bar_components[3:]
+    pairs = lambda Y: [(a, b, Y[a, b]) for a in range(3)   # noqa: E731
+                       for b in range(3) if Y[a, b] != 0]
 
     def colour_sum(bars, gamma, fields, a, b):
         return sum(Bilinear(bars[c][a], gamma, fields[c][b]) for c in range(3))
 
     L_e = L_d = L_u = sp.S.Zero
     for a, b, y in pairs(ye):
-        yc = y if p.generations == 1 else sp.conjugate(y)
+        yc = sp.conjugate(y)
         L_e += -(y * Gp_d * Bilinear(nuLbar[a], diracPR, eRc[b])
                  + y * H0_d * Bilinear(eLbar[a], diracPR, eRc[b]))
         L_e += -(yc * sp.conjugate(Gp_d) * Bilinear(eRbar[b], diracPL, nuL[a])
                  + yc * sp.conjugate(H0_d) * Bilinear(eRbar[b], diracPL, eL[a]))
     for a, b, y in pairs(yd):
-        yc = y if p.generations == 1 else sp.conjugate(y)
+        yc = sp.conjugate(y)
         L_d += -(y * Gp_d * colour_sum(qLbar_u, diracPR, dR.components, a, b)
                  + y * H0_d * colour_sum(qLbar_d, diracPR, dR.components, a, b))
         L_d += -(yc * sp.conjugate(Gp_d) * colour_sum(dR.bar_components, diracPL, qL_u, b, a)
                  + yc * sp.conjugate(H0_d) * colour_sum(dR.bar_components, diracPL, qL_d, b, a))
     for a, b, y in pairs(yu):
-        yc = y if p.generations == 1 else sp.conjugate(y)
+        yc = sp.conjugate(y)
         L_u += -(y * sp.conjugate(H0_u) * colour_sum(qLbar_u, diracPR, uR.components, a, b)
                  + y * (-sp.conjugate(Gp_u)) * colour_sum(qLbar_d, diracPR, uR.components, a, b))
         L_u += -(yc * H0_u * colour_sum(uR.bar_components, diracPL, qL_u, b, a)
                  + yc * (-Gp_u) * colour_sum(uR.bar_components, diracPL, qL_d, b, a))
-    if p.generations == 1:
-        return {"yukawa_tau": L_e, "yukawa_b": L_d, "yukawa_t": L_u}
     return {"yukawa_lepton": L_e, "yukawa_down": L_d, "yukawa_up": L_u}
 
 
@@ -234,15 +243,15 @@ def dirac_specs(p, masses=("MT", "MB", "MTA"), down_left=None):
     t, tb, b, bb = sp.symbols("t tbar b bbar")
     ta, tap, vt, vtb = sp.symbols("ta tap vt vtbar")
     return [
-        DiracSpec("t", QL.components[0], uR.components[0], t, tb, 6, sp.Rational(2, 3),
+        DiracSpec("t", QL.uL_1, uR.uR_1, t, tb, 6, sp.Rational(2, 3),
                   masses[0], "t~", color=3, width="WT",
                   copies=(*QL.components[1:3], *uR.components[1:])),
-        DiracSpec("b", dL[0], dR.components[0], b, bb, 5, -sp.Rational(1, 3),
+        DiracSpec("b", dL[0], dR.dR_1, b, bb, 5, -sp.Rational(1, 3),
                   masses[1], "b~", color=3,
                   copies=(*dL[1:], *dR.components[1:])),
-        DiracSpec("ta-", Ll.components[1], eR.components[0], ta, tap, 15, -1,
+        DiracSpec("ta-", Ll.eL, eR.eR, ta, tap, 15, -1,
                   masses[2], "ta+"),
-        DiracSpec("vt", Ll.components[0], None, vt, vtb, 16, 0, "ZERO", "vt~"),
+        DiracSpec("vt", Ll.nuL, None, vt, vtb, 16, 0, "ZERO", "vt~"),
     ]
 
 
@@ -259,19 +268,19 @@ def _dirac_specs_3(Ll, eR, QL, uR, dR, dL):
 
     for k in range(3):
         name, pdg = _GEN3["up"][k]
-        specs.append(DiracSpec(name, QL.components[0], uR.components[0], *syms(name), pdg,
+        specs.append(DiracSpec(name, QL.uL_1, uR.uR_1, *syms(name), pdg,
                                sp.Rational(2, 3), up_m[k], anti(name), color=3,
                                width="WT" if name == "t" else "ZERO",
                                copies=(*QL.components[1:3], *uR.components[1:]), flavor=k))
         name, pdg = _GEN3["down"][k]
-        specs.append(DiracSpec(name, dL[0], dR.components[0], *syms(name), pdg,
+        specs.append(DiracSpec(name, dL[0], dR.dR_1, *syms(name), pdg,
                                -sp.Rational(1, 3), down_m[k], anti(name), color=3,
                                copies=(*dL[1:], *dR.components[1:]), flavor=k))
         name, pdg = _GEN3["lepton"][k]
-        specs.append(DiracSpec(name, Ll.components[1], eR.components[0], *syms(name), pdg,
+        specs.append(DiracSpec(name, Ll.eL, eR.eR, *syms(name), pdg,
                                -1, lep_m[k], anti(name), flavor=k))
         name, pdg = _GEN3["neutrino"][k]
-        specs.append(DiracSpec(name, Ll.components[0], None, *syms(name), pdg,
+        specs.append(DiracSpec(name, Ll.nuL, None, *syms(name), pdg,
                                0, "ZERO", anti(name), flavor=k))
     return specs
 
@@ -297,31 +306,53 @@ def width_params(bench):
 
 # ------------------------------------------------------------------- build
 
+def sm_scalar_states(model):
+    """``(h, G0, Gp)`` read off ``model.mass_blocks(kind="scalar")``: the SM has three 1×1
+    blocks, the CP-even ``h`` and the Goldstone-tagged ``G0`` (CP-odd) and ``G+`` (charged).
+    Nothing rotates, so the states keep the doublet's fluctuation symbols ``H0_r``, ``H0_i``,
+    ``Gp`` (tex ``h``, ``G^0``, ``G^+``)."""
+    blocks = model.mass_blocks(kind="scalar")
+    if sorted(b.size for b in blocks) != [1, 1, 1]:
+        raise ValueError(f"expected three 1x1 SM scalar blocks, got {blocks}")
+    (h,) = [b.fields[0] for b in blocks if not b.goldstones]
+    (G0,) = [b.fields[0] for b in blocks if b.goldstones and not b.complex]
+    (Gp,) = [b.fields[0] for b in blocks if b.goldstones and b.complex]
+    return h, G0, Gp
+
+
 def build(benchmark=None):
     p = pieces(benchmark, higgs=True)
     ew = p.ew
-    model = Model("SM", gauge_groups=p.gauge_groups, fields=p.fields,
-                  parameters=p.params, lagrangian=p.lagrangian())
-    model.solve_tadpoles([ew.mu2])
-    phys = to_physical_basis(model, ew, tex=TEX)
-    bosons = dict(h=phys.h, G0=phys.G0, Gp=phys.Gp, Gm=phys.Gm,
-                  Z=phys.Z, A=phys.A, Wp=phys.Wp, Wm=phys.Wm)
-    charges = {phys.h: 0, phys.G0: 0, phys.Gp: 1, phys.Gm: -1,
-               phys.Z: 0, phys.A: 0, phys.Wp: 1, phys.Wm: -1}
-    conjugates = {phys.Gp: phys.Gm, phys.Gm: phys.Gp, phys.Wp: phys.Wm, phys.Wm: phys.Wp}
-
     g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
-    MW = internal("MW", g * v / 2, positive=True, unit_dim=1)
-    MZ = internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
-    MH = internal("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
-    params = ParameterSet(*p.params, *width_params(p.benchmark), MW, MZ, MH)
+    P = ParameterSet(*p.params, *width_params(p.benchmark))
+    MW = P.internal("MW", g * v / 2, tex=TEX["MW"], positive=True, unit_dim=1)
+    MZ = P.internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, tex=TEX["MZ"], positive=True,
+                    unit_dim=1)
+    MH = P.internal("MH", sp.sqrt(2 * ew.lam.s) * v, tex=TEX["MH"], positive=True, unit_dim=1)
 
+    model = Model("SM", gauge_groups=p.gauge_groups, fields=p.fields,
+                  parameters=P, lagrangian=p.lagrangian())
+    model.solve_tadpoles([ew.mu2])
+
+    # guided physical basis: W^1,W^2 -> W^+- from the unbroken charge, (W^3, B) -> (Z, A)
+    # with the photon fixed as the massless direction of Q = T3 + Y
+    charged, neutral = model.mass_blocks(kind="gauge")
+    Z, A = model.diagonalize(neutral, names=["Z", "A"], tex=TEX).new_fields
+    Wp, Wm = model.diagonalize(charged, names=["Wp"], conjugate_names=["Wm"],
+                               tex=TEX).rotation.new_fields
+    h, G0, Gp = sm_scalar_states(model)
+    Gm, cmap = conjugate_pair(Gp, "Gm", tex=TEX["Gm"])
+    model.physical.add_bosons([h, G0, Gp, Gm], goldstones=[G0, Gp, Gm])
+    model.physical.add_conjugate_pair(Gp, Gm, cmap)
+
+    phys = model.physical
+    bosons = dict(h=h, G0=G0, Gp=Gp, Gm=Gm, Z=Z, A=A, Wp=Wp, Wm=Wm)
     return ModelBundle(
-        id=ID, model=model, pieces=p, bosons=bosons, cmap=phys.cmap,
-        charges=charges, conjugates=conjugates, params=params,
+        id=ID, model=model, pieces=p, bosons=bosons, cmap=dict(phys.cmap),
+        charges=phys.charges, conjugates=dict(phys.conjugates), params=P,
         benchmark=p.benchmark, dirac=dirac_specs(p),
         boson_particles=ew_boson_particles(bosons),
-        goldstones=(phys.G0, phys.Gp, phys.Gm),
+        goldstones=tuple(phys.goldstones),
         extra=dict(ew=ew, MW=MW, MZ=MZ, MH=MH),
     )
 

@@ -52,8 +52,9 @@ Data flows from `SMPieces` to a feynlag `Model`, then to a `ModelBundle`, which 
     and `width_params` give the UFO boson particles and width inputs.
 - **Each child `models/<id>/model.py` is "parent + delta".** It calls `sm.pieces(...)`,
   appends fields, parameters and `p.add_term(expr, sector, name)`, then assembles the `Model`.
-  - `build()` then solves tadpoles, registers rotations (the Weinberg and $W^\pm$ rotations via
-    feynlag's `to_physical_basis` or the primitives), and returns a `ModelBundle`.
+  - `build()` then solves tadpoles, registers rotations (the SM: `model.mass_blocks()` and
+    `model.diagonalize()`, which give the Weinberg and $W^\pm$ rotations; children not yet moved to
+    the 0.4.0 API still use `to_physical_basis` or the primitives), and returns a `ModelBundle`.
   - The bundle holds the model, the physical `bosons` dict, the conjugate map, the charges,
     a `ParameterSet` including the mass and angle internals, the Dirac specs, the UFO
     particles, the Goldstones, and model-specific handles in `extra`.

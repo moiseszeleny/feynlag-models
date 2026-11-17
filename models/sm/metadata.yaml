@@ -42,9 +42,12 @@ key_results:
   - {statement: "Z f f = i g_Z γ^μ (T³ P_L − Q s_W²), W ℓ ν = i g/√2 γ^μ P_L", test: "tests/test_l2_literature.py::test_gauge_currents"}
 maturity_level: 3
 maturity_evidence:
-  L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
+  L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies",
+       "tests/test_l0_l1.py::test_constructors_reproduce_component_yukawas",
+       "tests/test_l0_l1.py::test_term_coverage", "tests/test_l0_l1.py::test_summary_and_parameters"]
   L1: ["tests/test_l0_l1.py::test_tadpole_and_higgs_mass", "tests/test_l0_l1.py::test_gauge_masses",
-       "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_masses"]
+       "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_masses",
+       "tests/test_l0_l1.py::test_gauge_rotations_conventions", "tests/test_l0_l1.py::test_physical_registry"]
   L2: ["tests/test_l2_literature.py::test_hVV_and_hff", "tests/test_l2_literature.py::test_gauge_currents",
        "tests/test_l2_literature.py::test_higgs_self_couplings", "tests/test_l2_literature.py::test_charge_and_hermiticity_pairing"]
   L3: ["tests/test_l3_ufo.py::test_ufo_roundtrip"]
@@ -131,5 +134,5 @@ outputs:
   vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
-last_reviewed: 2026-09-17
+last_reviewed: 2026-11-17
 reviewed_by: "Moises Zeleny (with Claude)"
