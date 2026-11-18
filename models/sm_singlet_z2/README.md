@@ -33,6 +33,11 @@ takes no position on the cosmology. [physics judgment]
 Map to Robens–Stefaniak (arXiv:1501.02234, Eq. 3): $\lambda_1 \to \lambda$, $\lambda_2 \to \lambda_S$,
 $\lambda_3 \to \lambda_{HS}$, $x \to v_S$, and their $S = (h^0 + x)/\sqrt2$.
 
+The kinetic term $\tfrac12(\partial_\mu S)^2$ is written by hand: feynlag 0.4.0's `kinetic(S)` gives a real
+scalar $(\partial_\mu S)^2$ (FG-8, strict xfail `tests/test_l0_l1.py::test_feynlag_kinetic_real_scalar_gap`).
+Every invariant the symmetries allow is present and nothing else is
+**[feynlag-verified: `tests/test_l0_l1.py::test_term_coverage`]**.
+
 ## Key mechanism
 - Tadpoles $`\mu^2 = \lambda v^2 + \tfrac12\lambda_{HS} v_S^2`$ and
   $`\mu_S^2 = -\lambda_S v_S^2 - \tfrac12\lambda_{HS} v^2`$ **[feynlag-verified: `test_tadpoles`]**

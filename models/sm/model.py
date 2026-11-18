@@ -306,6 +306,18 @@ def width_params(bench):
 
 # ------------------------------------------------------------------- build
 
+def ew_gauge_basis(model):
+    """``(Z, A, Wp, Wm)`` from the guided physical basis: ``W¹, W² → W±`` read off the
+    unbroken charge, ``(W³, B) → (Z, A)`` with the photon fixed as the massless direction of
+    ``Q = T3 + Y``. Equal to ``R(−θ_W)`` and ``(W¹ ∓ iW²)/√2`` (CONVENTIONS.md). Shared by
+    every model whose electroweak gauge sector is the SM one."""
+    charged, neutral = model.mass_blocks(kind="gauge")
+    Z, A = model.diagonalize(neutral, names=["Z", "A"], tex=TEX).new_fields
+    Wp, Wm = model.diagonalize(charged, names=["Wp"], conjugate_names=["Wm"],
+                               tex=TEX).rotation.new_fields
+    return Z, A, Wp, Wm
+
+
 def sm_scalar_states(model):
     """``(h, G0, Gp)`` read off ``model.mass_blocks(kind="scalar")``: the SM has three 1×1
     blocks, the CP-even ``h`` and the Goldstone-tagged ``G0`` (CP-odd) and ``G+`` (charged).
@@ -334,12 +346,7 @@ def build(benchmark=None):
                   parameters=P, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
 
-    # guided physical basis: W^1,W^2 -> W^+- from the unbroken charge, (W^3, B) -> (Z, A)
-    # with the photon fixed as the massless direction of Q = T3 + Y
-    charged, neutral = model.mass_blocks(kind="gauge")
-    Z, A = model.diagonalize(neutral, names=["Z", "A"], tex=TEX).new_fields
-    Wp, Wm = model.diagonalize(charged, names=["Wp"], conjugate_names=["Wm"],
-                               tex=TEX).rotation.new_fields
+    Z, A, Wp, Wm = ew_gauge_basis(model)
     h, G0, Gp = sm_scalar_states(model)
     Gm, cmap = conjugate_pair(Gp, "Gm", tex=TEX["Gm"])
     model.physical.add_bosons([h, G0, Gp, Gm], goldstones=[G0, Gp, Gm])
