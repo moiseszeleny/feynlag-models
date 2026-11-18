@@ -54,7 +54,8 @@ key_results:
 maturity_level: 3
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_gauge_hermiticity_dimension_anomalies", "tests/test_l0_l1.py::test_z2_invariance_of_every_term",
-       "tests/test_l0_l1.py::test_term_coverage", "tests/test_l0_l1.py::test_summary_and_parameters"]
+       "tests/test_l0_l1.py::test_term_coverage", "tests/test_l0_l1.py::test_summary_and_parameters",
+       "tests/test_l0_l1.py::test_kinetic_real_scalar_canonical"]
   L1: ["tests/test_l0_l1.py::test_tadpoles", "tests/test_l0_l1.py::test_cp_even_mass_matrix", "tests/test_l0_l1.py::test_spectrum_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_unchanged", "tests/test_l0_l1.py::test_labels_follow_mixing_with_a_light_singlet",
        "tests/test_l0_l1.py::test_mass_blocks_cp_even_no_double_shift", "tests/test_l0_l1.py::test_diagonalize_keeps_mixing_labels",
        "tests/test_l0_l1.py::test_physical_registry"]
@@ -116,8 +117,7 @@ references:
     inspire: "754282"
     doi: "10.1103/PhysRevD.77.035005"
     verified_against: inspire_record
-feynlag_gaps:
-  - {id: FG-8, test: "tests/test_l0_l1.py::test_feynlag_kinetic_real_scalar_gap"}
+feynlag_gaps: []
 outputs:
   ufo: "outputs/SM_SINGLET_Z2_UFO"
   ufo_scope:

@@ -1,6 +1,5 @@
 """L0/L1 for the Z2 real singlet."""
 
-import pytest
 import sympy as sp
 
 from feynlag import check_discrete_invariance
@@ -158,13 +157,16 @@ def test_summary_and_parameters(xsm):
     assert xsm.model.check_parameters().undeclared == []
 
 
-@pytest.mark.xfail(strict=True, reason="FG-8: feynlag.terms.kinetic gives (∂S)² for a real "
-                   "scalar, twice the canonical ½(∂S)²")
-def test_feynlag_kinetic_real_scalar_gap(xsm):
-    """``kinetic(S)`` for the real singlet should be the canonical ``½(∂_μS)²``
-    (CONVENTIONS.md, Gauge and kinetic terms). feynlag writes ``(D_μφ)†(D^μφ)`` for every
-    scalar, which for a real field is ``(∂S)²``. The model keeps its hand-written term."""
+def test_kinetic_real_scalar_canonical(xsm):
+    """The singlet kinetic term is built by ``kinetic(S)``, which for a real scalar is the
+    canonical ``½(∂_μS)²`` (CONVENTIONS.md, gauge and kinetic terms). This was FG-8 until
+    feynlag 0.5.1, which wrote ``(∂S)²``."""
     from feynlag import PartialMu, kinetic
     s0 = xsm.extra["s0"]
-    expr = sum(t for t, _sector in kinetic(xsm.extra["S"]))
-    assert sp.expand(expr - sp.Rational(1, 2) * PartialMu(s0) ** 2) == 0
+    canonical = sp.Rational(1, 2) * PartialMu(s0) ** 2
+    terms = kinetic(xsm.extra["S"])
+    assert [sector for _expr, sector in terms] == ["kinetic"]
+    assert sp.expand(terms[0][0] - canonical) == 0
+    (term,) = [t for t in xsm.model.lagrangian.terms if t.name == "singlet_kinetic"]
+    assert term.sector == "kinetic"
+    assert sp.expand(term.expr - canonical) == 0
