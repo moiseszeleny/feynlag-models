@@ -33,8 +33,9 @@ takes no position on the cosmology. [physics judgment]
 Map to Robens–Stefaniak (arXiv:1501.02234, Eq. 3): $\lambda_1 \to \lambda$, $\lambda_2 \to \lambda_S$,
 $\lambda_3 \to \lambda_{HS}$, $x \to v_S$, and their $S = (h^0 + x)/\sqrt2$.
 
-The kinetic term $\tfrac12(\partial_\mu S)^2$ is written by hand: feynlag 0.4.0's `kinetic(S)` gives a real
-scalar $(\partial_\mu S)^2$ (FG-8, strict xfail `tests/test_l0_l1.py::test_feynlag_kinetic_real_scalar_gap`).
+The kinetic term $\tfrac12(\partial_\mu S)^2$ is built with feynlag's `kinetic(S)`, which gives a real scalar
+its canonical normalisation since 0.5.1 (FG-8, resolved)
+**[feynlag-verified: `tests/test_l0_l1.py::test_kinetic_real_scalar_canonical`]**.
 Every invariant the symmetries allow is present and nothing else is
 **[feynlag-verified: `tests/test_l0_l1.py::test_term_coverage`]**.
 

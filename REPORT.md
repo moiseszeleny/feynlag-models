@@ -8,7 +8,7 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 | model | claimed | evidence | notes |
 |---|---|---|---|
 | `sm` | **L3** | 19 passed | UFO round-trip with $t$, $b$, $\tau$, $\nu$ and the EW bosons; L4 not re-claimed (feynlag's own MadGraph benchmark covers EW+leptons) |
-| `sm_singlet_z2` | **L3** | 18 passed + 1 strict xfail (FG-8) | Robens–Stefaniak Eqs. (7)–(13) reproduced ($\alpha = -\theta$, regime $\lambda_S v_S^2 \gt \lambda v^2$); gaps FG-1, FG-2 resolved |
+| `sm_singlet_z2` | **L3** | 19 passed (FG-8 resolved in feynlag 0.5.1) | Robens–Stefaniak Eqs. (7)–(13) reproduced ($\alpha = -\theta$, regime $\lambda_S v_S^2 \gt \lambda v^2$); gaps FG-1, FG-2 resolved |
 | `seesaw_type1` | **L2** | 10 tests | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
 | `sm_ckm` (added 2026-09-17) | **L3** | 12 passed (the FG-4 strict xfail was removed when FG-4 was resolved) | three generations, CKM through a unitary $d_L$ rotation; PDG 2024 CKM review Eqs. (12.2), (12.3), (12.27), (12.28) and $J$; GIM derived |
 | `seesaw_type1_2n` (added 2026-09-24) | **L2** | 13 passed (FG-5 resolved) | three generations, two $\nu_R$: rank-2 light sector ($m_{\nu_1} = 0$), Atre et al. Eq. (2.5) per flavour, Ibarra–Ross Eq. (6) reproduced, one-generation limit equals `seesaw_type1`; **L3 stopped** (FG-3) |
@@ -345,10 +345,22 @@ Second per-model migration. All outputs are byte-identical (`build_outputs.py --
 - **Terms and parameters.** $H^\dagger H$ via `inner(H, H)`. Parameters are declared once through `ParameterSet.external`
   and `.internal`, in the previous order, so the UFO parameter order is unchanged.
 - **New gap FG-8.** `feynlag.terms.kinetic` gives a real scalar $(\partial S)^2$ instead of $\tfrac12(\partial S)^2$. The
-  hand-written kinetic term stays, pinned by the strict xfail `test_feynlag_kinetic_real_scalar_gap`.
+  hand-written kinetic term stays, pinned by the strict xfail `test_feynlag_kinetic_real_scalar_gap`. (Resolved in
+  feynlag 0.5.1; see below.)
 - **Equality proof** against `main`: every term, rule, fermion vertex, physical-basis sector, the $h$–$S$ rotation
   (matrix, $\theta$, $\tan 2\theta$ relation), $M_{\rm even}$, $m_{h_{1,2}}$, the parameters and their order, and the bookkeeping maps
   are all identical or equal. The one formal difference is the Weinberg matrix's simpler form, as in the `sm` PR.
+
+## feynlag pin moved to `0.5.1`; FG-8 resolved (2026-11-18)
+
+- **Pin.** From `feynlag==0.4.0` to `feynlag==0.5.1` (tag `v0.5.1` = `919aace`). 0.5.0 is additive: two-to-two scattering
+  and the pheno layer. Its one deprecation, importing engine names from `feynlag.pheno` itself, does not apply here:
+  no file in this repository imports `feynlag.pheno`. On the bump alone, every committed output is byte-identical.
+- **FG-8 resolved.** `kinetic(S)` now gives the real singlet $\tfrac12(\partial_\mu S)^2$, so `sm_singlet_z2` builds its
+  `singlet_kinetic` term with it. Name and sector are unchanged.
+  - The strict xfail became the passing `test_kinetic_real_scalar_canonical` **[feynlag-verified:
+    test_kinetic_real_scalar_canonical]**.
+  - `feynlag_gaps` is empty again, and the model is physics-equal to the previous `main` (every term identical).
 
 ## What to do next
 
