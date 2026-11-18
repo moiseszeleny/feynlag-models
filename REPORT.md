@@ -7,7 +7,7 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 
 | model | claimed | evidence | notes |
 |---|---|---|---|
-| `sm` | **L3** | 10 tests | UFO round-trip with $t$, $b$, $\tau$, $\nu$ and the EW bosons; L4 not re-claimed (feynlag's own MadGraph benchmark covers EW+leptons) |
+| `sm` | **L3** | 19 passed | UFO round-trip with $t$, $b$, $\tau$, $\nu$ and the EW bosons; L4 not re-claimed (feynlag's own MadGraph benchmark covers EW+leptons) |
 | `sm_singlet_z2` | **L3** | 13 passed | Robens–Stefaniak Eqs. (7)–(13) reproduced ($\alpha = -\theta$, regime $\lambda_S v_S^2 \gt \lambda v^2$); gaps FG-1, FG-2 resolved |
 | `seesaw_type1` | **L2** | 10 tests | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
 | `sm_ckm` (added 2026-09-17) | **L3** | 12 passed (the FG-4 strict xfail was removed when FG-4 was resolved) | three generations, CKM through a unitary $d_L$ rotation; PDG 2024 CKM review Eqs. (12.2), (12.3), (12.27), (12.28) and $J$; GIM derived |
@@ -305,6 +305,30 @@ depend on the ordering of the diagonal entries of the mass matrix.
 - **`sm_singlet_z2` (documented).** The labels follow mixing ($h_1$ is $h$-like), which
   feynlag-anomalies relies on. The $\mp$ key result and the benchmark wording now say that they
   hold for $M_{11} \lt M_{22}$. New test: `test_labels_follow_mixing_with_a_light_singlet`.
+
+## `sm` on the feynlag 0.4.0 API (2026-11-17)
+
+First of seven per-model migrations to feynlag 0.4.0's model-building API. All outputs are byte-identical
+(`build_outputs.py --check` clean for all seven models, nothing regenerated).
+
+- **Terms.** The one-generation Yukawas in `sm.yukawa_terms` are `feynlag.terms.yukawa(...)` (`tilde(H)` for
+  the up quarks), also for the 2HDM's `Hd ≠ Hu`. The fermion currents are `feynlag.terms.kinetic(...)`, kept as one
+  `gauge` term. The three-generation branch (explicit `Matrix` couplings at integer flavour indices) stays at
+  component level until the `sm_ckm` migration: `yukawa()` takes a scalar coupling (one shared index) or an
+  `IndexedBase` (two distinct indices). The Higgs sector keeps `higgs_lagrangian` for its term names.
+- **Physical basis.** `model.mass_blocks(kind="gauge")` plus `model.diagonalize(...)` replace `to_physical_basis`.
+  The scalar `mass_blocks` supply `h`, `G0`, `G+` (no rotation). Charges, conjugates and Goldstones come from
+  `model.physical` (charges derived from the vacuum, no longer declared). The Weinberg matrix is now written
+  $`g/\sqrt{g^2+g'^2}`$ instead of $`1/\sqrt{g'^2/g^2+1}`$, equal to $R(-\theta_W)$ **[feynlag-verified:
+  test_gauge_rotations_conventions]**.
+- **Parameters.** MW, MZ, MH are declared with `ParameterSet.internal` and `Model(parameters=P)` gets the full set.
+- **Equality proof.** A comparison against the pre-migration build found every Lagrangian term (expanded),
+  all 38 boson Feynman rules, every fermion vertex coefficient, every physical-basis sector, the masses,
+  tadpole, rotations, bosons (symbol, assumptions, tex), cmap, charges, conjugates, Goldstones and the
+  Dirac/UFO specs equal.
+- **New tests.** `test_constructors_reproduce_component_yukawas`, `test_gauge_rotations_conventions`,
+  `test_physical_registry`, `test_term_coverage` (no missing invariant, no remainder) and
+  `test_summary_and_parameters` (no undeclared symbol).
 
 ## What to do next
 
