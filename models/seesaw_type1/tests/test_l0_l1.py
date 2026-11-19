@@ -179,3 +179,23 @@ def test_feynlag_majorana_mass_coverage_gap(ss):
     tc = ss.model.term_coverage()
     assert tc.unmatched == {}
     assert any(c.has(ss.extra["MR"].s) for _t, c in tc.present)
+
+
+@pytest.mark.xfail(strict=True, reason="FG-10: no bare Majorana mass for a fermion in a real "
+                   "non-singlet representation (SU(2) triplet): majorana_mass refuses it and "
+                   "suggest_yukawa does not enumerate it")
+def test_feynlag_triplet_majorana_gap():
+    """A type-III-like triplet Σ (SU(2) 3, Y = 0) has the gauge-invariant bare Majorana mass
+    ``−½ M Σ^a C P_L Σ^a + h.c.`` (feynlag's ``check_invariance`` agrees). It should be built by
+    ``majorana_mass`` and offered by ``suggest_yukawa``; feynlag 0.5.1 raises on the first and
+    returns nothing from the second."""
+    from feynlag import WeylFermion, electroweak_scaffold, majorana_mass
+    from feynlag.suggest import suggest_yukawa
+    ew = electroweak_scaffold()
+    Sig = WeylFermion("Sig", reps={ew.SU2L: 3, ew.U1Y: 0}, chirality="R", nflavors=1,
+                      component_names=["S1", "S2", "S3"])
+    M, i = sp.Symbol("M", positive=True), sp.Symbol("i", integer=True)
+    term = majorana_mass(M, Sig, indices=i)
+    assert term != 0
+    basis = suggest_yukawa([Sig], [ew.H], [ew.SU2L, ew.U1Y], max_dim=4, verify=False)
+    assert basis, "no bare Majorana mass offered for the triplet"
