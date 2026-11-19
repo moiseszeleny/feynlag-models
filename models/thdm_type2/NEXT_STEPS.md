@@ -30,8 +30,8 @@
 - Unitary-gauge UFO only; gluon vertices not exported (see `models/sm/NEXT_STEPS.md`).
   Quartic gauge couplings are exported since the `efffdb0` pin.
 - The widths `WHH`, `WA0` and `WHp` are placeholders in the UFO card.
-- `diagonalize_orthogonal_2x2` returns the principal branch with no mass ordering, so the model picks
-  Gunion–Haber's branch itself (`alpha_branch`). The exported $\alpha$ is that branch's closed form
+- `Model.diagonalize(..., values=)` picks Gunion–Haber's branch (heavier state first, the rule of
+  `alpha_branch`, which stays as the test reference). The exported $\alpha$ is that branch's closed form
   for the benchmark's signs of $M_{11} - M_{22}$ and $M_{12}$; a card moved across $M_{11} = M_{22}$
   needs a rebuild (an `atan2` would not survive the UFO's `cmath`).
 

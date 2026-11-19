@@ -13,5 +13,5 @@ gauge = [0]
 
 __arxiv__ = ""
 __author__ = "feynlag"
-__date__ = "2026-09-26"
+__date__ = "2026-11-19"
 __version__ = "0.1"
