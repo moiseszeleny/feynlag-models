@@ -180,3 +180,106 @@ def test_alpha_branch_is_atan2():
         assert abs(alpha - math.atan2(2 * M12, M11 - M22) / 2) < 1e-12, (M11, M22, M12)
         mH2, mh2 = (float(x.subs(a, alpha)) for x in rot.masses_squared(M, simplifier=sp.expand))
         assert mH2 > mh2, (M11, M22, M12)
+
+
+# ------------------------------------------------- feynlag 0.4.0+ API (guided basis, coverage)
+
+def _inverted_bench():
+    from models.thdm_type2.model import benchmark_point
+    bench = benchmark_point()
+    lams, _alpha, _M = _gh_lambdas(bench["v"], 95.0, 125.2, 2.0, 0.3, 300.0, 600.0, 6000.0)
+    return dict(bench, tanb=2.0, m12sq=6000.0, **lams)
+
+
+def _branch_case(bundle):
+    import math
+    from models.thdm_type2.model import alpha_branch
+    e, vals = bundle.extra, bundle.values()
+    M, rot = e["M_even"], e["rot_even"]
+    k = alpha_branch(M, vals)
+    principal = sp.atan(2 * M[0, 1] / (M[0, 0] - M[1, 1])) / 2
+    # diagonalize(values=) chose exactly alpha_branch's shift of the principal branch
+    assert sp.simplify(rot.angle_solution - principal - k * sp.pi / 2) == 0
+    assert sp.simplify(e["alpha"].expr - rot.angle_solution) == 0
+    M11, M22, M12 = (float(sp.N(M[a, b].subs(vals))) for a, b in ((0, 0), (1, 1), (0, 1)))
+    assert bundle.extra["branch_valid_for"] == (1 if M11 > M22 else -1, 1 if M12 > 0 else -1)
+    alpha = float(vals[e["alpha"].s])
+    assert alpha == _approx(0.5 * math.atan2(2 * M12, M11 - M22))
+    assert vals[e["MHH"].s] >= vals[e["MH0"].s]                  # m_H ≥ m_h
+    return k
+
+
+def _approx(x):
+    import pytest
+    return pytest.approx(x, rel=1e-12, abs=1e-14)
+
+
+def test_diagonalize_branch_matches_alpha_branch(thdm):
+    """``diagonalize(even, names=["H", "h"], angle=alpha, values=…)`` puts the heavier state first:
+    its angle is the principal ½ atan(2M12/(M11 − M22)) shifted by ``alpha_branch``·π/2, i.e.
+    Gunion–Haber's ½ atan2(2M12, M11 − M22) (CONVENTIONS.md, UG-4), with ``branch_valid_for`` the
+    signs of (M11 − M22, M12). At the benchmark (M11 > M22, no shift) and at the inverted point of
+    ``test_labels_follow_mass_at_an_inverted_point`` (M11 < M22, shift +π/2)."""
+    from models.thdm_type2.model import build
+    assert _branch_case(thdm) == 0
+    assert _branch_case(build(_inverted_bench())) == 1
+
+
+def test_goldstone_fixed_rotations(thdm):
+    """The CP-odd and charged blocks rotate by ``rotation_2x2(β)`` fixed by the Goldstone
+    direction (v1, v2)/v: (η1, η2) → (G0, A0), (H1⁺, H2⁺) → (G⁺, H⁺), with tan β = v2/v1 attached;
+    G⁻ and H⁻ are the conjugate partners."""
+    from feynlag import rotation_2x2
+    e, b = thdm.extra, thdm.bosons
+    beta = e["beta"].s
+    H1, H2 = e["H1"], e["H2"]
+    for rot, old, new in ((e["rot_odd"], [H1.H10_i, H2.H20_i], [b["G0"], b["A0"]]),
+                          (e["rot_ch"], [H1.H1p, H2.H2p], [b["Gp"], b["Hp"]])):
+        assert list(rot.old_fields) == old and list(rot.new_fields) == new
+        assert sp.Matrix(rot.matrix) == rotation_2x2(beta)
+        assert rot.angle_relation == sp.Eq(sp.tan(beta), e["v2"].s / e["v1"].s)
+    assert thdm.cmap == {sp.conjugate(b["Gp"]): b["Gm"], sp.conjugate(b["Hp"]): b["Hm"]}
+    assert sp.simplify(e["beta"].expr - sp.atan(e["tanb"].s)) == 0
+
+
+def test_physical_registry(thdm):
+    """Charges (derived from the vacuum), conjugate pairs and Goldstones from ``model.physical``."""
+    b = thdm.bosons
+    assert thdm.charges == {b["h"]: 0, b["H"]: 0, b["A0"]: 0, b["G0"]: 0, b["Gp"]: 1, b["Gm"]: -1,
+                            b["Hp"]: 1, b["Hm"]: -1, b["Z"]: 0, b["A"]: 0, b["Wp"]: 1, b["Wm"]: -1}
+    assert thdm.conjugates == {b["Gp"]: b["Gm"], b["Gm"]: b["Gp"], b["Hp"]: b["Hm"],
+                               b["Hm"]: b["Hp"], b["Wp"]: b["Wm"], b["Wm"]: b["Wp"]}
+    assert thdm.goldstones == (b["G0"], b["Gp"], b["Gm"])
+    assert list(b) == ["h", "H", "A0", "G0", "Gp", "Gm", "Hp", "Hm", "Z", "A", "Wp", "Wm"]
+
+
+def test_term_coverage(thdm):
+    """On the Model as built (Z2 not declared: m12² breaks it softly) the potential and Yukawas
+    contain the CONVENTIONS.md terms, ``V = m11²H1†H1 + m22²H2†H2 − m12²(H1†H2 + h.c.) + ½λ1(H1†H1)²
+    + ½λ2(H2†H2)² + λ3(H1†H1)(H2†H2) + λ4|H1†H2|² + ½λ5[(H1†H2)² + h.c.]`` and the type-II
+    Yukawas, with no remainder. What is missing is exactly what a hard Z2 forbids: λ6, λ7 and the
+    wrong-doublet Yukawas."""
+    e, ys = thdm.extra, thdm.pieces.yukawa_params
+    l1, l2, l3, l4, l5 = (q.s for q in e["lams"])
+    tc = thdm.model.term_coverage()
+    assert tc.unmatched == {}
+    assert {t.label: c for t, c in tc.present} == {
+        "(H1†H1)": e["m11sq"].s, "(H2†H2)": e["m22sq"].s, "(H1†H2)": -e["m12sq"].s,
+        "(H1†H1) (H1†H1)": l1 / 2, "(H2†H2) (H2†H2)": l2 / 2, "(H1†H1) (H2†H2)": l3,
+        "(H1†H2) (H2†H1)": l4, "(H1†H2) (H1†H2)": l5 / 2,
+        "Ll̄·H1 eR": ys["ytau"].s, "QL̄·H1 dR": ys["yb"].s, "QL̄·H2̃ uR": ys["yt"].s,
+    }
+    assert {t.label for t in tc.missing} == {"(H1†H1) (H1†H2)", "(H1†H2) (H2†H2)",
+                                             "Ll̄·H2 eR", "QL̄·H2 dR", "QL̄·H1̃ uR"}
+
+
+def test_summary_and_parameters(thdm):
+    """``summary()``: two hypercharge-½ doublets replace the SM Higgs; every parameter is listed
+    and ``check_parameters()`` finds no undeclared symbol."""
+    s = thdm.model.summary()
+    assert s.field_header[:5] == ["field", "type", "SU2L", "U1Y", "SU3c"]
+    rows = {r[0]: tuple(str(x) for x in r[1:5]) for r in s.field_rows}
+    assert rows["H1"] == rows["H2"] == ("scalar", "2", "1/2", "1")
+    assert set(rows) == {"H1", "H2", "W", "B", "G", "Ll", "eR", "QL", "uR", "dR"}
+    assert [r[0] for r in s.param_rows] == [q.name for q in thdm.params]
+    assert thdm.model.check_parameters().undeclared == []

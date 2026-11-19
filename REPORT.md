@@ -13,7 +13,7 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 | `sm_ckm` (added 2026-09-17) | **L3** | 12 passed (the FG-4 strict xfail was removed when FG-4 was resolved) | three generations, CKM through a unitary $d_L$ rotation; PDG 2024 CKM review Eqs. (12.2), (12.3), (12.27), (12.28) and $J$; GIM derived |
 | `seesaw_type1_2n` (added 2026-09-24) | **L2** | 13 passed (FG-5 resolved) | three generations, two $\nu_R$: rank-2 light sector ($m_{\nu_1} = 0$), Atre et al. Eq. (2.5) per flavour, Ibarra–Ross Eq. (6) reproduced, one-generation limit equals `seesaw_type1`; **L3 stopped** (FG-3) |
 | `froggatt_nielsen` (added 2026-10-05) | **L2** | 14 passed (the FG-6, FG-7 strict xfails were removed when both were resolved in feynlag 0.3.0) | three generations, global $`U(1)_{\rm FN}`$ flavon, exact $`c_{ij}(\phi/\Lambda)^{n_{ij}}`$ operators; LNS-2 Eqs. (2.3)–(2.7), (2.19) and LNS-1 Eqs. (5.7), (5.8) reproduced as textures, determinants and $\epsilon \to 0$ scaling; no UFO (not requested) |
-| `thdm_type2` | **L3** | 14 passed + 1 strict xfail | GH Eqs. (6)–(17), Branco Eq. (16)/Table 2; benchmark inverted from (125, 300, 300, 320) GeV re-derived exactly by feynlag |
+| `thdm_type2` | **L3** | 25 passed + 1 strict xfail (D-2) | GH Eqs. (6)–(17), Branco Eq. (16)/Table 2; benchmark inverted from (125, 300, 300, 320) GeV re-derived exactly by feynlag |
 
 Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the schema v2 section for the current count. `scripts/build_outputs.py --check` and
 `scripts/build_genealogy.py --check` pass (outputs reproducible modulo `STAMP.json`).
@@ -361,6 +361,29 @@ Second per-model migration. All outputs are byte-identical (`build_outputs.py --
   - The strict xfail became the passing `test_kinetic_real_scalar_canonical` **[feynlag-verified:
     test_kinetic_real_scalar_canonical]**.
   - `feynlag_gaps` is empty again, and the model is physics-equal to the previous `main` (every term identical).
+
+## `thdm_type2` on the feynlag 0.4.0+ API (2026-11-18)
+
+Third per-model migration, at the `feynlag==0.5.1` pin. Every other model's outputs are byte-identical.
+
+- **CP-even block.** `model.mass_blocks(kind="scalar")` gives the $(\rho_1, \rho_2)$, $(\eta_1, \eta_2)$ and $(H_1^+, H_2^+)$ blocks.
+  `model.diagonalize(even, names=["H","h"], angle=alpha, values=<benchmark>)` puts the heavier state first: the
+  principal $`\tfrac12\arctan\big(2M_{12}/(M_{11}-M_{22})\big)`$, shifted by $\pm\pi/2$ when $M_{11} \lt M_{22}$. That is
+  Gunion–Haber's $`\tfrac12\,\mathrm{atan2}(2M_{12}, M_{11}-M_{22})`$, the rule `alpha_branch` applied by hand since UG-4.
+  `rot_even`'s angle solution, $\tan 2\alpha$ relation, matrix and $m^2$ are identical to before, both at the benchmark
+  (no shift) and at the inverted point (shift $+\pi/2$). `branch_valid_for` is now in `extra`
+  **[feynlag-verified: test_diagonalize_branch_matches_alpha_branch]**. `alpha_branch` stays as the independent reference.
+- **CP-odd and charged blocks.** The Goldstone-fixed route with `angle=beta` registers exactly `rotation_2x2(beta)`
+  with $\tan\beta = v_2/v_1$ attached. $G^-$ and $H^-$ come from `conjugate_names` **[feynlag-verified:
+  test_goldstone_fixed_rotations]**. Gauge rotations use `sm.ew_gauge_basis`, the doublet kinetic terms `kinetic(H)`,
+  the potential `inner()`, and parameters `ParameterSet.external/internal` in the previous order.
+- **Equality proof** against `main`, at the benchmark and at the inverted point: all 154 boson rules and 171 fermion
+  coefficients, every term (the kinetic terms expanded-equal), $\alpha$, $\beta$, every rotation, the bookkeeping and
+  the parameter order are equal. $m_A$ and $m_{H^\pm}$ are written $`\sqrt{v_1^2+v_2^2}\,(\dots)`$ instead of
+  $`\lvert v_1\cos\beta + v_2\sin\beta\rvert\,(\dots)`$. The two are equal since $v_1 = v\cos\beta$, with the same value at
+  the benchmark. That is the only output change: two lines each in `THDM_TYPE2_UFO/parameters.py` and `spectrum.md`.
+- **Coverage.** `term_coverage()` finds every CONVENTIONS.md term with no remainder. It reports as missing exactly
+  what a hard $Z_2$ forbids: $\lambda_6$, $\lambda_7$ and the wrong-doublet Yukawas **[feynlag-verified: test_term_coverage]**.
 
 ## What to do next
 

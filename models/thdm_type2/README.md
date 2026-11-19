@@ -73,8 +73,11 @@ accessible).
   The angle is Gunion–Haber's branch, $`\alpha = \tfrac12\,\mathrm{atan2}(2M_{12}, M_{11} - M_{22})`$, so
   $H$ is the heavier state at every benchmark (GH Eq. (17), $m_H \ge m_h$). feynlag's principal
   $`\tfrac12\arctan\big(2M_{12}/(M_{11} - M_{22})\big)`$ agrees only when $M_{11} \gt M_{22}$ (as at the
-  benchmark); otherwise `alpha_branch` adds $\pm\pi/2$ (UG-4 in feynlag-anomalies)
-  **[feynlag-verified: `test_labels_follow_mass_at_an_inverted_point`, `test_alpha_branch_is_atan2`]**.
+  benchmark); otherwise the branch shifts by $\pm\pi/2$ (UG-4 in feynlag-anomalies). The model gets this
+  from `Model.diagonalize(..., values=<benchmark>)`, which puts the heavier state first with the same rule as
+  the reference `alpha_branch`
+  **[feynlag-verified: `test_labels_follow_mass_at_an_inverted_point`, `test_alpha_branch_is_atan2`,
+  `test_diagonalize_branch_matches_alpha_branch`]**.
   The closed form of $\alpha$ is valid within the benchmark's signs of $M_{11} - M_{22}$ and $M_{12}$, so
   a UFO card moved across $M_{11} = M_{22}$ must be rebuilt at the new point. [physics judgment]
 - $hVV = \text{SM} \times \sin(\beta - \alpha)$, $HVV = \text{SM} \times \cos(\beta - \alpha)$, and there is
