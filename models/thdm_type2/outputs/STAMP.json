@@ -1,9 +1,9 @@
 {
   "model": "thdm_type2",
-  "generated": "2026-11-19T05:15:21+00:00",
+  "generated": "2026-11-19T06:27:03+00:00",
   "feynlag_models_version": "0.1.0",
-  "repo_commit": "d6a5e8c4d0b95adfb4e25cf6e1f349a997384e32",
-  "repo_dirty": true,
+  "repo_commit": "980cac33e96000595c4ea701216a5e6238b7333d",
+  "repo_dirty": false,
   "feynlag_version": "0.5.1",
   "feynlag_commit": null,
   "sympy_version": "1.14.0",
