@@ -100,9 +100,10 @@ def test_goldstone_count_unchanged(ss):
 def test_majorana_table_precision(ss):
     """The light-neutrino Higgs couplings are 10⁻²³–10⁻²⁹, left after cancellations of ~20 orders
     between products of the 50-digit Takagi matrix: in double precision their printed digits
-    were wrong (``3.211e-28`` for 3.172e-28, ``1.493e-29`` for 1.286e-29, ``7.892e-23`` for
-    4.841e-23). The table now evaluates at 40 digits with exact inputs. Checked against an
-    independent Takagi factorisation at 100 digits, evaluated at 120."""
+    were wrong (``3.211e-28`` for 3.172e-28, ``8.460e-28`` for 8.445e-28, ``1.493e-29`` for
+    1.286e-29, ``3.930e-29`` for 4.049e-29, ``7.892e-23`` for 4.841e-23). The table now evaluates
+    at 40 digits with exact inputs. Each of the five is checked against an independent Takagi
+    factorisation at 100 digits, evaluated at 120."""
     from feynlag import MajoranaRotation, diagonalize_takagi, extract_fermion_vertices
     from models.seesaw_type1_2n.model import N_L, _state_tex, majorana_vertex_markdown
     e, p = ss.extra, ss.pieces
@@ -115,7 +116,8 @@ def test_majorana_table_precision(ss):
     exact = {k: sp.nsimplify(v, rational=True) for k, v in ss.values().items() if isinstance(v, float)}
     printed = majorana_vertex_markdown(ss).splitlines()
     h = ss.bosons["h"]
-    for a, b in ((2, 1), (0, 1), (0, 4)):
+    # all five magnitudes the 40-digit evaluation corrected (each printed for h and G0, both orderings)
+    for a, b in ((2, 1), (1, 2), (0, 1), (0, 2), (0, 4)):
         (key,) = [k for k in table if k[0] == chiLbar[a] and k[2] == chiR[b]]
         want = abs(complex(sp.N(sp.sympify(table[key][1][(h,)]).subs(exact), 120)))
         label = rf"| $`\bar{{{_state_tex(a)}}} {_state_tex(b)} h`$ | $`P_R`$ | "

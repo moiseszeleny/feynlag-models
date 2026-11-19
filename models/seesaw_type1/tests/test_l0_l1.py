@@ -181,21 +181,40 @@ def test_feynlag_majorana_mass_coverage_gap(ss):
     assert any(c.has(ss.extra["MR"].s) for _t, c in tc.present)
 
 
-@pytest.mark.xfail(strict=True, reason="FG-10: no bare Majorana mass for a fermion in a real "
+@pytest.mark.xfail(strict=True, raises=(ValueError, AssertionError),
+                   reason="FG-10: no bare Majorana mass for a fermion in a real "
                    "non-singlet representation (SU(2) triplet): majorana_mass refuses it and "
                    "suggest_yukawa does not enumerate it")
 def test_feynlag_triplet_majorana_gap():
     """A type-III-like triplet Σ (SU(2) 3, Y = 0) has the gauge-invariant bare Majorana mass
-    ``−½ M Σ^a C P_L Σ^a + h.c.`` (feynlag's ``check_invariance`` agrees). It should be built by
-    ``majorana_mass`` and offered by ``suggest_yukawa``; feynlag 0.5.1 raises on the first and
-    returns nothing from the second."""
-    from feynlag import WeylFermion, electroweak_scaffold, majorana_mass
+    ``−½ M Σ^a C P_L Σ^a + h.c.``. It should be built by ``majorana_mass`` and offered by
+    ``suggest_yukawa``; feynlag 0.5.1 raises ``ValueError`` on the first and returns nothing
+    from the second.
+
+    The toy model is checked first, and a broken setup calls ``pytest.fail`` (not one of the
+    ``raises`` exceptions), so it fails the test instead of being absorbed by the xfail."""
+    from feynlag import (Lagrangian, MajoranaBilinear, Model, WeylFermion, diracC, diracPL,
+                         electroweak_scaffold, majorana_mass)
     from feynlag.suggest import suggest_yukawa
     ew = electroweak_scaffold()
     Sig = WeylFermion("Sig", reps={ew.SU2L: 3, ew.U1Y: 0}, chirality="R", nflavors=1,
                       component_names=["S1", "S2", "S3"])
     M, i = sp.Symbol("M", positive=True), sp.Symbol("i", integer=True)
+    op = -sp.Rational(1, 2) * M * sum(MajoranaBilinear(c[i], diracC * diracPL, c[i])
+                                      for c in Sig.components)
+    L = Lagrangian()
+    L.add(op + sp.conjugate(op), sector="other", name="sigma_majorana")
+    toy = Model("triplet_toy", gauge_groups=[ew.SU2L, ew.U1Y], fields=[Sig, ew.H, ew.W, ew.B],
+                parameters=list(ew.parameters), lagrangian=L)
+    report = toy.check_invariance(hermiticity=False, dimension=False)
+    if not report.ok:
+        pytest.fail(f"toy setup: the hand-written triplet mass is not invariant: {report.failures}")
+    if len(Sig.components) != 3 or op == 0:
+        pytest.fail("toy setup: the triplet does not have three non-trivial components")
+
+    # the gap: the constructor refuses the invariant term (ValueError) ...
     term = majorana_mass(M, Sig, indices=i)
-    assert term != 0
+    assert sp.expand(term - (op + sp.conjugate(op))) == 0
+    # ... and the operator basis does not offer it (AssertionError)
     basis = suggest_yukawa([Sig], [ew.H], [ew.SU2L, ew.U1Y], max_dim=4, verify=False)
     assert basis, "no bare Majorana mass offered for the triplet"
