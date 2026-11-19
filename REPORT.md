@@ -380,8 +380,10 @@ Third per-model migration, at the `feynlag==0.5.1` pin. Every other model's outp
 - **Equality proof** against `main`, at the benchmark and at the inverted point: all 154 boson rules and 171 fermion
   coefficients, every term (the kinetic terms expanded-equal), $\alpha$, $\beta$, every rotation, the bookkeeping and
   the parameter order are equal. $m_A$ and $m_{H^\pm}$ are written $`\sqrt{v_1^2+v_2^2}\,(\dots)`$ instead of
-  $`\lvert v_1\cos\beta + v_2\sin\beta\rvert\,(\dots)`$. The two are equal since $v_1 = v\cos\beta$, with the same value at
-  the benchmark. That is the only output change: two lines each in `THDM_TYPE2_UFO/parameters.py` and `spectrum.md`.
+  $`\lvert v_1\cos\beta + v_2\sin\beta\rvert\,(\dots)`$. The two are symbolically equal: with $v_1 = v\cos\beta$,
+  $v_2 = v\sin\beta$ ($v, \beta \gt 0$) the difference of the squared masses simplifies to zero
+  **[feynlag-verified: test_mA_mHp_forms_symbolically_equal_to_previous]**. That is the only output change: two lines
+  each in `THDM_TYPE2_UFO/parameters.py` and `spectrum.md`.
 - **Coverage.** `term_coverage()` finds every CONVENTIONS.md term with no remainder. It reports as missing exactly
   what a hard $Z_2$ forbids: $\lambda_6$, $\lambda_7$ and the wrong-doublet Yukawas **[feynlag-verified: test_term_coverage]**.
 

@@ -283,3 +283,23 @@ def test_summary_and_parameters(thdm):
     assert set(rows) == {"H1", "H2", "W", "B", "G", "Ll", "eR", "QL", "uR", "dR"}
     assert [r[0] for r in s.param_rows] == [q.name for q in thdm.params]
     assert thdm.model.check_parameters().undeclared == []
+
+
+def test_mA_mHp_forms_symbolically_equal_to_previous(thdm):
+    """``diagonalize`` writes ``m_A² = (v1²+v2²)(m12² − λ5 v1v2)/(v1v2)`` and
+    ``m_H±² = (v1²+v2²)(2m12² − (λ4+λ5)v1v2)/(2v1v2)``; the forms exported before the 0.4.0
+    migration had ``(v1 cos β + v2 sin β)²`` in place of ``v1² + v2²``. With ``v1 = v cos β``,
+    ``v2 = v sin β`` (v, β > 0) the two are symbolically identical."""
+    e = thdm.extra
+    v1, v2, beta, m12 = e["v1"].s, e["v2"].s, e["beta"].s, e["m12sq"].s
+    l4, l5 = e["lams"][3].s, e["lams"][4].s
+    mA2, mHp2 = sp.expand(e["MA0"].expr ** 2), sp.expand(e["MHp"].expr ** 2)
+    assert sp.expand(mA2 - (v1**2 + v2**2) * (m12 - l5 * v1 * v2) / (v1 * v2)) == 0
+    assert sp.expand(mHp2 - (v1**2 + v2**2) * (2 * m12 - (l4 + l5) * v1 * v2) / (2 * v1 * v2)) == 0
+    c2 = (v1 * sp.cos(beta) + v2 * sp.sin(beta)) ** 2
+    old_mA2 = c2 * (m12 - l5 * v1 * v2) / (v1 * v2)
+    old_mHp2 = c2 * (m12 - (l4 + l5) * v1 * v2 / 2) / (v1 * v2)
+    v, b = sp.symbols("v b", positive=True)
+    on_vev = {v1: v * sp.cos(b), v2: v * sp.sin(b), beta: b}
+    for new, old in ((mA2, old_mA2), (mHp2, old_mHp2)):
+        assert sp.simplify((old - new).subs(on_vev)) == 0
