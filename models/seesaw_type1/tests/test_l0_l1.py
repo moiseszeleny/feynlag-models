@@ -61,9 +61,10 @@ def test_goldstone_count_unchanged(ss):
 # ------------------------------------------------- feynlag 0.4.0+ API (constructors, coverage)
 
 def _component_level_terms(ss):
-    """The pre-0.4.0 component-level ν_R terms, kept as the reference the constructors must
-    reproduce: ``−y_ν L̄ H̃ ν_R + h.c.`` with ``H̃ = (H⁰*, −G⁺*)`` and
-    ``−½ M_R ν_Rᵀ C P_L ν_R + h.c.``, the doublet leg on ``i`` and the ν_R leg on ``j``."""
+    """The pre-0.4.0 component-level ν_R terms, kept as a reference: ``−y_ν L̄ H̃ ν_R + h.c.`` with
+    ``H̃ = (H⁰*, −G⁺*)`` and ``−½ M_R ν_Rᵀ C P_L ν_R + h.c.``. They were written with the doublet
+    leg on ``i`` and the ν_R leg on ``j``, which for a scalar (flavour-universal, δ_ij) coupling
+    is the same as one shared index only at one generation."""
     from feynlag import Bilinear, MajoranaBilinear, diracPL, diracPR
     e, p = ss.extra, ss.pieces
     i, j = p.idx
@@ -78,16 +79,19 @@ def _component_level_terms(ss):
     return LY, op + sp.conjugate(op)
 
 
-def test_constructors_reproduce_component_terms(ss):
-    """``yukawa(Y, Ll, tilde(H), nuR)`` and ``majorana_mass(M, nuR, gamma=C·P_L)``, with the 1×1
-    flavour matrices replaced by ``y_ν`` and ``M_R`` (FG-9), give exactly the component-level
-    terms: the H⁰* and −G⁺* legs, the ½ and the ``C P_L`` structure included."""
+def test_constructor_terms_are_the_diagonal_component_terms(ss):
+    """``yukawa(y_ν, Ll, tilde(H), nuR)`` and ``majorana_mass(M_R, nuR, gamma=C·P_L)`` give the
+    flavour-diagonal form of the component-level terms, with the H⁰* and −G⁺* legs, the ½ and the
+    ``C P_L`` structure. The reference's ν_R leg on ``j`` becomes ``i`` (one generation: δ_ij), and
+    the physics consequences (mass matrix, Takagi spectrum, vertices) are pinned by the other L1/L2
+    tests."""
     from feynlag import diracC, diracPL
     LY, LM = _component_level_terms(ss)
-    e = ss.extra
+    e, (i, j) = ss.extra, ss.pieces.idx
     assert e["CPL"] == diracC * diracPL
-    assert sp.expand(e["LYukD"] - LY) == 0
-    assert sp.expand(e["LMaj"] - LM) == 0
+    assert sp.expand(e["LYukD"] - LY.xreplace({j: i})) == 0
+    assert sp.expand(e["LMaj"] - LM.xreplace({j: i})) == 0
+    assert not e["LYukD"].has(j) and not e["LMaj"].has(j)
     terms = {t.name: t for t in ss.model.lagrangian.terms}
     assert terms["yukawa_nu"].sector == "yukawa" and terms["yukawa_nu"].expr == e["LYukD"]
     assert terms["majorana_mass"].sector == "other" and terms["majorana_mass"].expr == e["LMaj"]
@@ -124,7 +128,7 @@ def test_term_coverage(ss):
     included (feynlag's ``L = −Σ c O``). The bare Majorana mass is the only remainder, because
     feynlag's operator basis does not enumerate it (FG-10). At dim 5 the Weinberg operator is
     absent, as it should be at tree level in the type-I seesaw. [physics judgment]"""
-    from feynlag import FL_I, FL_J, MajoranaBilinear
+    from feynlag import FL_I, MajoranaBilinear
     e, ys = ss.extra, ss.pieces.yukawa_params
     tc = ss.model.term_coverage()
     assert {t.label: c for t, c in tc.present} == {
@@ -133,7 +137,7 @@ def test_term_coverage(ss):
         "Ll̄·H̃ nuR": e["yv"].s}
     assert tc.missing == []
     nR = e["nuR"].nuR
-    majorana_half = -e["MR"].s * MajoranaBilinear(nR[FL_I], e["CPL"], nR[FL_J]) / 2
+    majorana_half = -e["MR"].s * MajoranaBilinear(nR[FL_I], e["CPL"], nR[FL_I]) / 2   # diagonal
     assert set(tc.unmatched) == {"yukawa"}
     assert sp.expand(tc.unmatched["yukawa"] - majorana_half) == 0
     assert [t.label for t in ss.model.term_coverage(max_dim=5).missing] == ["(Ll·εH)² [Weinberg]"]
@@ -151,20 +155,20 @@ def test_summary_and_parameters(ss):
     assert ss.model.check_parameters().undeclared == []
 
 
-@pytest.mark.xfail(strict=True, reason="FG-9: feynlag.terms collapses indices=(i, j) to (i, i) "
-                   "for a scalar coupling, silently")
+@pytest.mark.xfail(strict=True, reason="FG-9: feynlag.terms silently ignores indices=(i, j) for a "
+                   "scalar coupling instead of raising ValueError")
 def test_feynlag_scalar_coupling_indices_gap(ss):
-    """``yukawa(y_ν, Ll, tilde(H), nuR, indices=(i, j))`` should honour the two leg indices (ν_R
-    on ``j``) or refuse the pair; feynlag 0.5.1 returns the term on ``(i, i)`` with no error, and
-    ``majorana_mass`` does the same."""
-    from feynlag import tilde, yukawa
+    """A scalar coupling is flavour-universal (δ_ij), so an explicit pair of distinct leg indices
+    contradicts it; ``yukawa`` and ``majorana_mass`` should raise ``ValueError``. feynlag 0.5.1 drops
+    the second index without a word and returns the term on ``(i, i)``."""
+    import pytest
+    from feynlag import majorana_mass, tilde, yukawa
     e, p = ss.extra, ss.pieces
     i, j = p.idx
-    try:
-        term = yukawa(e["yv"], p.fermions["Ll"], tilde(e["ew"].H), e["nuR"], indices=(i, j))
-    except ValueError:
-        return
-    assert term.has(e["nuR"].nuR[j])
+    with pytest.raises(ValueError):
+        yukawa(e["yv"], p.fermions["Ll"], tilde(e["ew"].H), e["nuR"], indices=(i, j))
+    with pytest.raises(ValueError):
+        majorana_mass(e["MR"], e["nuR"], indices=(i, j))
 
 
 @pytest.mark.xfail(strict=True, reason="FG-10: term_coverage/suggest_yukawa do not enumerate the "

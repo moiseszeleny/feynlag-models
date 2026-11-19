@@ -392,12 +392,13 @@ Third per-model migration, at the `feynlag==0.5.1` pin. Every other model's outp
 Fourth per-model migration, at the `feynlag==0.5.1` pin. All outputs are byte-identical (`build_outputs.py --check` clean for
 all seven models, nothing regenerated). FG-3 is unchanged: no UFO, `maturity_level: 2`.
 
-- **Terms.** `LYukD` is `yukawa(Y, Ll, tilde(H), nuR)` and `LMaj` is `majorana_mass(M, nuR, gamma=C P_L)`, with the
-  couplings entered as 1×1 flavour matrices `Y[i, j]`, `M[i, j]` and then replaced by $y_\nu$ and $M_R$. `LYukD` is
-  expanded-equal to the component-level term and `LMaj` is identical **[feynlag-verified:
-  test_constructors_reproduce_component_terms]**.
-- **New gap FG-9.** For a scalar coupling `feynlag.terms` collapses `indices=(i, j)` to `(i, i)` with no error, which would
-  move the $\nu_R$ leg onto the doublet's index. That is the reason for the flavour-matrix route.
+- **Terms.** `LYukD` is `yukawa(yv, Ll, tilde(H), nuR)` and `LMaj` is `majorana_mass(MR, nuR, gamma=C P_L)`, in their
+  flavour-diagonal form: a scalar coupling is flavour-universal, so both legs carry the one index `i`. The component-level
+  terms they replace had the $\nu_R$ leg on `j`. With a scalar $y_\nu$ that coincides with $\delta_{ij}$ only at one
+  generation, which is this model **[feynlag-verified: test_constructor_terms_are_the_diagonal_component_terms]**.
+- **New gap FG-9.** An explicit `indices=(i, j)` with a scalar coupling is silently ignored. It should raise `ValueError`,
+  since a flavour-universal coupling cannot take two distinct leg indices. The strict xfail asserts that both
+  constructors raise.
 - **`mass_blocks()`.** The scalar and gauge blocks are those of `sm`. The $(\nu_L, \nu_R)$ fermion block is reported,
   not raised, as not diagonalizable, with the note to use `seesaw_mass_matrix` + `diagonalize_takagi` +
   `MajoranaRotation`, which the model keeps **[feynlag-verified: test_mass_blocks_report_majorana_block]**. The gauge and
@@ -406,11 +407,13 @@ all seven models, nothing regenerated). FG-3 is unchanged: no UFO, `maturity_lev
 - **New gap FG-10.** `term_coverage()` finds the potential and every dim-4 Yukawa ($y_\nu$ on $\bar L\tilde H\nu_R$
   included). It leaves the gauge-invariant bare Majorana mass as an unmatched remainder, because `suggest_yukawa` does
   not enumerate it (pinned by `test_term_coverage` and the strict xfail `test_feynlag_majorana_mass_coverage_gap`).
-- **Equality proof** against `main` (145 checks):
-  - all 38 boson rules, 137 fermion coefficients and **164 neutrino mass-basis vertex coefficients** are equal;
-  - $M_\nu$, $U$, $D$, the Takagi masses, `MN1`, `MN2`, `mD` and the rotation are identical, and so is the
-    `majorana_vertex_markdown` text;
-  - the only formal differences are `LYukD`'s expanded form and the Weinberg matrix's simpler form.
+- **Equality proof** against `main`, at the level of the physics (one generation, the legacy $\nu_R[j]$ relabelled to
+  $\nu_R[i]$):
+  - all 38 boson rules, 137 fermion-table coefficients and **164 neutrino mass-basis vertex coefficients** are equal;
+  - $m_D$, $M_R$, $M_\nu$, $U$, $D$, the Takagi masses and the `majorana_vertex_markdown` text are identical.
+  - Without the relabel, the only differences are the flavour-index label of the $\nu_R$ leg, in the two terms and in
+    the keys of the generic fermion table. The neutrino mass-basis vertices, $M_\nu$, $U$, $D$ and the masses agree
+    even then.
 
 ## What to do next
 

@@ -38,14 +38,6 @@ def _num(x):
     return complex(sp.N(x))
 
 
-def _with_scalar_coupling(term, Y, i, j, value):
-    """``term`` written with a 1×1 flavour matrix ``Y[i, j]`` (so that the doublet and ν_R legs
-    keep their own indices ``i`` and ``j``), with ``Y[i, j]`` and its conjugate replaced by the
-    real parameter ``value``. ``feynlag.terms`` collapses ``indices=(i, j)`` to ``(i, i)`` for a
-    scalar coupling (FG-9), which would rewrite the ν_R leg as ``ν_R[i]``."""
-    return term.xreplace({Y[i, j]: value, sp.conjugate(Y[i, j]): value})
-
-
 def build(benchmark=None):
     bench = benchmark_point() if benchmark is None else dict(benchmark)
     p = sm.pieces(bench, higgs=True)
@@ -63,10 +55,11 @@ def build(benchmark=None):
     nR, nRbar = nuR.nuR, nuR.nuRbar
     CPL = diracC * diracPL
 
-    # −y_ν L̄ H̃ ν_R + h.c. and −½ M_R ν_Rᵀ C P_L ν_R + h.c. (CONVENTIONS.md), legs on (i, j)
-    Yv, MRm = sp.IndexedBase("Yv"), sp.IndexedBase("MRm")
-    LYukD = _with_scalar_coupling(yukawa(Yv, Ll, tilde(ew.H), nuR, indices=(i, j)), Yv, i, j, yv.s)
-    LMaj = _with_scalar_coupling(majorana_mass(MRm, nuR, indices=(i, j), gamma=CPL), MRm, i, j, MR.s)
+    # −y_ν L̄ H̃ ν_R + h.c. and −½ M_R ν_Rᵀ C P_L ν_R + h.c. (CONVENTIONS.md). The couplings are
+    # scalars, i.e. flavour-universal (δ_ij): both legs carry the one flavour index i. (Before the
+    # 0.4.0 migration the ν_R leg was written on j, which equals δ_ij only for one generation.)
+    LYukD = yukawa(yv, Ll, tilde(ew.H), nuR, indices=i)
+    LMaj = majorana_mass(MR, nuR, indices=i, gamma=CPL)
     p.add_term(LYukD, "yukawa", "yukawa_nu")
     p.add_term(LMaj, "other", "majorana_mass")
     p.fields.append(nuR)
