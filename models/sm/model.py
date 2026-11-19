@@ -332,6 +332,17 @@ def sm_scalar_states(model):
     return h, G0, Gp
 
 
+def sm_higgs_states(model):
+    """``(h, G0, Gp, Gm)`` for a model whose scalar sector is the SM doublet alone: the states of
+    :func:`sm_scalar_states`, ``Gm`` the conjugate of ``Gp``, all recorded in
+    ``model.physical`` (Goldstones ``G0, Gp, Gm``; the pair ``Gp``/``Gm`` with its cmap)."""
+    h, G0, Gp = sm_scalar_states(model)
+    Gm, cmap = conjugate_pair(Gp, "Gm", tex=TEX["Gm"])
+    model.physical.add_bosons([h, G0, Gp, Gm], goldstones=[G0, Gp, Gm])
+    model.physical.add_conjugate_pair(Gp, Gm, cmap)
+    return h, G0, Gp, Gm
+
+
 def build(benchmark=None):
     p = pieces(benchmark, higgs=True)
     ew = p.ew
@@ -347,10 +358,7 @@ def build(benchmark=None):
     model.solve_tadpoles([ew.mu2])
 
     Z, A, Wp, Wm = ew_gauge_basis(model)
-    h, G0, Gp = sm_scalar_states(model)
-    Gm, cmap = conjugate_pair(Gp, "Gm", tex=TEX["Gm"])
-    model.physical.add_bosons([h, G0, Gp, Gm], goldstones=[G0, Gp, Gm])
-    model.physical.add_conjugate_pair(Gp, Gm, cmap)
+    h, G0, Gp, Gm = sm_higgs_states(model)
 
     phys = model.physical
     bosons = dict(h=h, G0=G0, Gp=Gp, Gm=Gm, Z=Z, A=A, Wp=Wp, Wm=Wm)

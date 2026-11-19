@@ -14,16 +14,16 @@ Majorana, mixing ν_L with ν_R^c), following ``examples/sm_seesaw.py``.
 import sympy as sp
 
 from feynlag import (
-    Bilinear, MajoranaBilinear, MajoranaRotation, Model, ParameterSet, WeylFermion,
-    diagonalize_takagi, diracC, diracPL, diracPR, fermion_mass_matrix,
-    majorana_mass_matrix, seesaw_light_mass, seesaw_mass_matrix, to_physical_basis,
+    MajoranaRotation, Model, ParameterSet, WeylFermion, diagonalize_takagi, diracC, diracPL,
+    diracPR, fermion_mass_matrix, majorana_mass, majorana_mass_matrix, seesaw_light_mass,
+    seesaw_mass_matrix, tilde, yukawa,
 )
 
 from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import ModelBundle
 from feynlag_models.outputs import standard_outputs
-from feynlag_models.tex import TEX, external, internal
+from feynlag_models.tex import TEX
 from models.sm import model as sm
 
 ID = "seesaw_type1"
@@ -38,6 +38,14 @@ def _num(x):
     return complex(sp.N(x))
 
 
+def _with_scalar_coupling(term, Y, i, j, value):
+    """``term`` written with a 1×1 flavour matrix ``Y[i, j]`` (so that the doublet and ν_R legs
+    keep their own indices ``i`` and ``j``), with ``Y[i, j]`` and its conjugate replaced by the
+    real parameter ``value``. ``feynlag.terms`` collapses ``indices=(i, j)`` to ``(i, i)`` for a
+    scalar coupling (FG-9), which would rewrite the ν_R leg as ``ν_R[i]``."""
+    return term.xreplace({Y[i, j]: value, sp.conjugate(Y[i, j]): value})
+
+
 def build(benchmark=None):
     bench = benchmark_point() if benchmark is None else dict(benchmark)
     p = sm.pieces(bench, higgs=True)
@@ -45,33 +53,48 @@ def build(benchmark=None):
     i, j = p.idx
 
     # --- delta: ν_R, Dirac Yukawa via H̃, Majorana mass ------------------
-    yv = external("yv", bench["yv"], positive=True)
-    MR = external("MR", bench["MR"], positive=True, unit_dim=1)
+    P = ParameterSet(*p.params)
+    yv = P.external("yv", bench["yv"], tex=TEX["yv"], positive=True)
+    MR = P.external("MR", bench["MR"], tex=TEX["MR"], positive=True, unit_dim=1)
     nuR = WeylFermion("nuR", reps={}, chirality="R", nflavors=1, component_names=["nuR"],
                       tex=r"\nu_R")
     Ll = p.fermions["Ll"]
-    Gp, H0 = ew.H.components
-    nuL, eL = Ll.components
-    nuLbar, eLbar = Ll.bar_components
-    nR, nRbar = nuR.components[0], nuR.bar_components[0]
+    nuL, nuLbar = Ll.nuL, Ll.nuLbar
+    nR, nRbar = nuR.nuR, nuR.nuRbar
     CPL = diracC * diracPL
 
-    LYukD = -(yv.s * sp.conjugate(H0) * Bilinear(nuLbar[i], diracPR, nR[j])
-              + yv.s * (-sp.conjugate(Gp)) * Bilinear(eLbar[i], diracPR, nR[j]))
-    LYukD += -(yv.s * H0 * Bilinear(nRbar[j], diracPL, nuL[i])
-               + yv.s * (-Gp) * Bilinear(nRbar[j], diracPL, eL[i]))
-    op = -sp.Rational(1, 2) * MR.s * MajoranaBilinear(nR[i], CPL, nR[j])
-    LMaj = op + sp.conjugate(op)
+    # −y_ν L̄ H̃ ν_R + h.c. and −½ M_R ν_Rᵀ C P_L ν_R + h.c. (CONVENTIONS.md), legs on (i, j)
+    Yv, MRm = sp.IndexedBase("Yv"), sp.IndexedBase("MRm")
+    LYukD = _with_scalar_coupling(yukawa(Yv, Ll, tilde(ew.H), nuR, indices=(i, j)), Yv, i, j, yv.s)
+    LMaj = _with_scalar_coupling(majorana_mass(MRm, nuR, indices=(i, j), gamma=CPL), MRm, i, j, MR.s)
     p.add_term(LYukD, "yukawa", "yukawa_nu")
     p.add_term(LMaj, "other", "majorana_mass")
     p.fields.append(nuR)
     p.fermions["nuR"] = nuR
     p.params += [yv, MR]
 
+    g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
+    P.add(*sm.width_params(bench))
+    MW = P.internal("MW", g * v / 2, tex=TEX["MW"], positive=True, unit_dim=1)
+    MZ = P.internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, tex=TEX["MZ"], positive=True, unit_dim=1)
+    MH = P.internal("MH", sp.sqrt(2 * ew.lam.s) * v, tex=TEX["MH"], positive=True, unit_dim=1)
+    mDsym = P.internal("mD", yv.s * v / sp.sqrt(2), tex=TEX["mD"], positive=True, unit_dim=1)
+    # exact 2×2 Takagi singular values of [[0, m_D], [m_D, M_R]]; the light one is
+    # written in the rationalised form 2m_D²/(√(M_R²+4m_D²) + M_R) (identical to
+    # (√(M_R²+4m_D²) − M_R)/2) so the UFO param card does not lose ~10 digits to cancellation
+    MN1 = P.internal("MN1", 2 * mDsym.s**2 / (sp.sqrt(MR.s**2 + 4 * mDsym.s**2) + MR.s),
+                     tex=TEX["MN1"], positive=True, unit_dim=1)
+    MN2 = P.internal("MN2", (sp.sqrt(MR.s**2 + 4 * mDsym.s**2) + MR.s) / 2, tex=TEX["MN2"],
+                     positive=True, unit_dim=1)
+
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
-                  parameters=p.params, lagrangian=p.lagrangian())
+                  parameters=P, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
-    phys = to_physical_basis(model, ew, tex=TEX)
+    # gauge and Higgs states as in the SM; mass_blocks reports the (ν_L, ν_R) block as not
+    # diagonalizable (Majorana mass), so the neutrinos go through the Takagi route below
+    Z, A, Wp, Wm = sm.ew_gauge_basis(model)
+    h, G0, Gp, Gm = sm.sm_higgs_states(model)
+    phys = model.physical
 
     # --- seesaw mass matrix (symbolic) and Takagi at the benchmark ----------
     mD = fermion_mass_matrix(LYukD, nuLbar, nR, model.vacuum, 1, (i, j), gamma=diracPR)
@@ -90,31 +113,15 @@ def build(benchmark=None):
     chiLbar, chiRbar = sp.IndexedBase("chiLbar"), sp.IndexedBase("chiRbar")
     rot = MajoranaRotation(U, nuL, nR, nuLbar, nRbar, chiL, chiR, chiLbar, chiRbar, n_L=1)
 
-    bosons = dict(h=phys.h, G0=phys.G0, Gp=phys.Gp, Gm=phys.Gm,
-                  Z=phys.Z, A=phys.A, Wp=phys.Wp, Wm=phys.Wm)
-    charges = {phys.h: 0, phys.G0: 0, phys.Gp: 1, phys.Gm: -1,
-               phys.Z: 0, phys.A: 0, phys.Wp: 1, phys.Wm: -1}
-    conjugates = {phys.Gp: phys.Gm, phys.Gm: phys.Gp, phys.Wp: phys.Wm, phys.Wm: phys.Wp}
-
-    g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
-    MW = internal("MW", g * v / 2, positive=True, unit_dim=1)
-    MZ = internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
-    MH = internal("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
-    mDsym = internal("mD", yv.s * v / sp.sqrt(2), positive=True, unit_dim=1)
-    # exact 2×2 Takagi singular values of [[0, m_D], [m_D, M_R]]; the light one is
-    # written in the rationalised form 2m_D²/(√(M_R²+4m_D²) + M_R) (identical to
-    # (√(M_R²+4m_D²) − M_R)/2) so the UFO param card does not lose ~10 digits to cancellation
-    MN1 = internal("MN1", 2 * mDsym.s**2 / (sp.sqrt(MR.s**2 + 4 * mDsym.s**2) + MR.s), positive=True, unit_dim=1)
-    MN2 = internal("MN2", (sp.sqrt(MR.s**2 + 4 * mDsym.s**2) + MR.s) / 2, positive=True, unit_dim=1)
-    params = ParameterSet(*p.params, *sm.width_params(bench), MW, MZ, MH, mDsym, MN1, MN2)
+    bosons = dict(h=h, G0=G0, Gp=Gp, Gm=Gm, Z=Z, A=A, Wp=Wp, Wm=Wm)
 
     dirac = [d for d in sm.dirac_specs(p) if d.name != "vt"]   # neutrinos are Majorana → not exported (FG-3)
 
     return ModelBundle(
-        id=ID, model=model, pieces=p, bosons=bosons, cmap=phys.cmap,
-        charges=charges, conjugates=conjugates, params=params, benchmark=bench,
+        id=ID, model=model, pieces=p, bosons=bosons, cmap=dict(phys.cmap),
+        charges=phys.charges, conjugates=dict(phys.conjugates), params=P, benchmark=bench,
         dirac=dirac, boson_particles=sm.ew_boson_particles(bosons),
-        goldstones=(phys.G0, phys.Gp, phys.Gm),
+        goldstones=tuple(phys.goldstones),
         extra=dict(ew=ew, yv=yv, MR=MR, nuR=nuR, LYukD=LYukD, LMaj=LMaj, CPL=CPL,
                    mD=mD, MRmat=MRmat, Mnu=Mnu, m_light_approx=m_light_approx,
                    U=U, D=Dm, masses=masses, light=light, heavy=heavy,

@@ -29,6 +29,12 @@ are Majorana. [physics judgment]
 \qquad \tilde H = (H^{0*}, -H^{+*}),\qquad C = i\gamma^2\gamma^0 .
 ```
 
+Both terms are built with feynlag's `yukawa(…, tilde(H), nuR)` and `majorana_mass(nuR)`, and reproduce the
+component-level terms exactly **[feynlag-verified: `test_constructors_reproduce_component_terms`]**. The
+couplings go in as 1×1 flavour matrices replaced by $y_\nu$ and $M_R$, because a scalar coupling would put
+both legs on one flavour index (FG-9). `term_coverage()` finds every dim-4 invariant except the bare Majorana
+mass, which feynlag's operator basis does not list (FG-10).
+
 ## Key mechanism
 - The Dirac mass is $m_D = y_\nu v/\sqrt2$ and the Majorana block is $M_R$. In the basis
   $n = (\nu_L, \nu_R^c)$ the mass matrix is symmetric

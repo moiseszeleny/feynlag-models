@@ -48,8 +48,8 @@ key_results:
   - {statement: "W ℓ N = (g/√2)·V, Z ν N = (g_Z/2)·V, h ν N = y_ν/√2, with V ≈ m_D/M_R → 0 as M_R → ∞", test: "tests/test_l2_literature.py::test_W_coupling_eq_2_5"}
 maturity_level: 2
 maturity_evidence:
-  L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
-  L1: ["tests/test_l0_l1.py::test_mass_matrix_entries", "tests/test_l0_l1.py::test_takagi_spectrum_at_benchmark", "tests/test_l0_l1.py::test_light_heavy_mixing_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_unchanged"]
+  L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies", "tests/test_l0_l1.py::test_constructors_reproduce_component_terms", "tests/test_l0_l1.py::test_term_coverage", "tests/test_l0_l1.py::test_summary_and_parameters"]
+  L1: ["tests/test_l0_l1.py::test_mass_matrix_entries", "tests/test_l0_l1.py::test_takagi_spectrum_at_benchmark", "tests/test_l0_l1.py::test_light_heavy_mixing_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_unchanged", "tests/test_l0_l1.py::test_mass_blocks_report_majorana_block", "tests/test_l0_l1.py::test_physical_registry"]
   L2: ["tests/test_l2_literature.py::test_seesaw_formula_vs_exact_eigenvalue", "tests/test_l2_literature.py::test_W_coupling_eq_2_5", "tests/test_l2_literature.py::test_Z_coupling_eq_2_5", "tests/test_l2_literature.py::test_h_nu_N_coupling", "tests/test_l2_literature.py::test_decoupling_M_R_to_infinity"]
   L3: []
   L4: []
@@ -126,11 +126,13 @@ references:
     verified_against: inspire_record
 feynlag_gaps:
   - {id: FG-3}
+  - {id: FG-9, test: "tests/test_l0_l1.py::test_feynlag_scalar_coupling_indices_gap"}
+  - {id: FG-10, test: "tests/test_l0_l1.py::test_feynlag_majorana_mass_coverage_gap"}
 outputs:
   ufo: null
   latex: "outputs/vertices.tex"
   vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
-last_reviewed: 2026-09-17
+last_reviewed: 2026-11-19
 reviewed_by: "Moises Zeleny (with Claude)"
