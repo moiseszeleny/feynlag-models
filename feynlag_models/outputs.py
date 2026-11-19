@@ -169,7 +169,7 @@ def fermion_rows(bundle):
     return rows, skipped
 
 
-def numeric_fermion_markdown(bundle, table, leg_names, title, note):
+def numeric_fermion_markdown(bundle, table, leg_names, title, note, dps=40):
     """A numeric table of one-boson fermion couplings, for legs with no usable closed form.
 
     ``table`` is an ``extract_fermion_vertices`` output and ``leg_names`` maps the
@@ -177,10 +177,18 @@ def numeric_fermion_markdown(bundle, table, leg_names, title, note):
     in it falls back to the model's Dirac and boson names. Coefficients are printed as
     ``|c|`` at the benchmark, because these are the ones whose symbolic form is a numeric
     radical (a numerically diagonalised mixing), not a formula.
+
+    The coefficients are differences of nearly equal radicals, so each one is evaluated at
+    ``dps`` digits with the benchmark inputs made exact rationals: double precision lost the
+    third printed digit of the seesaw heavy-heavy Z coupling and up to the first one of the
+    10⁻²³–10⁻²⁹ light-neutrino Higgs couplings. A caller that drops couplings below its
+    mixing's working precision does so before calling (``seesaw_type1_2n``).
     """
     fields = field_names(bundle)
     fermions = fermion_base_names(bundle)
     vals = bundle.values()
+    exact = {k: sp.nsimplify(v, rational=True) if isinstance(v, float) else v
+             for k, v in vals.items()}
     mu = sp.Symbol("mu", integer=True)
     structures = {sp.Symbol("PL", commutative=False): "P_L", sp.Symbol("PR", commutative=False): "P_R"}
 
@@ -198,12 +206,13 @@ def numeric_fermion_markdown(bundle, table, leg_names, title, note):
     rows = []
     for (bar, gamma, fld), by_n in table.items():
         for (boson,), coeff in by_n.get(1, {}).items():
-            value = complex(sp.N(sp.simplify(coeff).subs(vals)))
-            if abs(value) == 0:
+            value = abs(complex(sp.N(sp.simplify(coeff).subs(exact), dps)))
+            if value == 0:
                 continue
             rows.append((f"{leg(bar)} {leg(fld)} {fields.get(boson, str(boson))}",
-                         structure(gamma), abs(value)))
+                         structure(gamma), value))
     rows.sort(key=lambda r: (-r[2], r[0]))
+    note = f"{note} The magnitudes are evaluated at {dps} digits."
     lines = [f"## {title}", "", note, "",
              "| vertex | structure | $`\\lvert\\text{coupling}\\rvert`$ at the benchmark |", "|---|---|---|"]
     lines += [f"| $`{v}`$ | $`{st}`$ | {c:.3e} |" for v, st, c in rows]

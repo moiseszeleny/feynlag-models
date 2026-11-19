@@ -137,7 +137,7 @@ Absent from the unitary-gauge UFO, which drops every Goldstone leg.
 
 ## Majorana neutrino vertices (numeric)
 
-$`\nu`$ and $N$ are the light and heavy Majorana mass eigenstates ($`\chi_k`$ in the code). The mixing is a Takagi rotation solved numerically at the benchmark, so these couplings have no closed form here; magnitudes are given instead, and the tests pin them against Atre et al. Eq. (2.5) (`tests/test_l2_literature.py`). The heavy state is suppressed by $`V \approx m_D/M_R = 1.74 \times 10^{-7}`$ relative to the light one.
+$`\nu`$ and $N$ are the light and heavy Majorana mass eigenstates ($`\chi_k`$ in the code). The mixing is a Takagi rotation solved numerically at the benchmark, so these couplings have no closed form here; magnitudes are given instead, and the tests pin them against Atre et al. Eq. (2.5) (`tests/test_l2_literature.py`). The heavy state is suppressed by $`V \approx m_D/M_R = 1.74 \times 10^{-7}`$ relative to the light one. The magnitudes are evaluated at 40 digits.
 
 | vertex | structure | $`\lvert\text{coupling}\rvert`$ at the benchmark |
 |---|---|---|
@@ -168,7 +168,7 @@ $`\nu`$ and $N$ are the light and heavy Majorana mass eigenstates ($`\chi_k`$ in
 | $`\bar{\nu} \nu G^0`$ | $`P_L`$ | 1.231e-13 |
 | $`\bar{\nu} \nu h`$ | $`P_R`$ | 1.231e-13 |
 | $`\bar{\nu} \nu h`$ | $`P_L`$ | 1.231e-13 |
-| $`\bar{N} N Z`$ | $`\gamma^\mu P_L`$ | 1.121e-14 |
+| $`\bar{N} N Z`$ | $`\gamma^\mu P_L`$ | 1.123e-14 |
 | $`\bar{N} \nu G^0`$ | $`P_R`$ | 2.143e-20 |
 | $`\bar{N} \nu h`$ | $`P_R`$ | 2.143e-20 |
 | $`\bar{\nu} N G^0`$ | $`P_L`$ | 2.143e-20 |

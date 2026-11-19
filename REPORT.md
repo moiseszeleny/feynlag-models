@@ -9,7 +9,7 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 |---|---|---|---|
 | `sm` | **L3** | 19 passed | UFO round-trip with $t$, $b$, $\tau$, $\nu$ and the EW bosons; L4 not re-claimed (feynlag's own MadGraph benchmark covers EW+leptons) |
 | `sm_singlet_z2` | **L3** | 19 passed (FG-8 resolved in feynlag 0.5.1) | Robens–Stefaniak Eqs. (7)–(13) reproduced ($\alpha = -\theta$, regime $\lambda_S v_S^2 \gt \lambda v^2$); gaps FG-1, FG-2 resolved |
-| `seesaw_type1` | **L2** | 15 passed + 2 strict xfails (FG-9, FG-10) | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
+| `seesaw_type1` | **L2** | 16 passed + 3 strict xfails (FG-9, FG-10 twice) | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
 | `sm_ckm` (added 2026-09-17) | **L3** | 12 passed (the FG-4 strict xfail was removed when FG-4 was resolved) | three generations, CKM through a unitary $d_L$ rotation; PDG 2024 CKM review Eqs. (12.2), (12.3), (12.27), (12.28) and $J$; GIM derived |
 | `seesaw_type1_2n` (added 2026-09-24) | **L2** | 13 passed (FG-5 resolved) | three generations, two $\nu_R$: rank-2 light sector ($m_{\nu_1} = 0$), Atre et al. Eq. (2.5) per flavour, Ibarra–Ross Eq. (6) reproduced, one-generation limit equals `seesaw_type1`; **L3 stopped** (FG-3) |
 | `froggatt_nielsen` (added 2026-10-05) | **L2** | 14 passed (the FG-6, FG-7 strict xfails were removed when both were resolved in feynlag 0.3.0) | three generations, global $`U(1)_{\rm FN}`$ flavon, exact $`c_{ij}(\phi/\Lambda)^{n_{ij}}`$ operators; LNS-2 Eqs. (2.3)–(2.7), (2.19) and LNS-1 Eqs. (5.7), (5.8) reproduced as textures, determinants and $\epsilon \to 0$ scaling; no UFO (not requested) |
@@ -414,6 +414,23 @@ all seven models, nothing regenerated). FG-3 is unchanged: no UFO, `maturity_lev
   - Without the relabel, the only differences are the flavour-index label of the $\nu_R$ leg, in the two terms and in
     the keys of the generic fermion table. The neutrino mass-basis vertices, $M_\nu$, $U$, $D$ and the masses agree
     even then.
+
+## Review follow-up to `seesaw_type1` #23 (2026-11-19)
+
+- **Majorana vertex tables at high precision.** `numeric_fermion_markdown` evaluated each coupling at double precision
+  with float inputs. These couplings are differences of nearly equal radicals, so the printed digits were wrong:
+  - in `seesaw_type1`, the heavy-heavy $`\bar N N Z`$ was printed `1.121e-14` instead of `1.123e-14`; the correct value
+    is $`(g_Z/2)\lvert U_{\nu_L N}\rvert^2`$ **[feynlag-verified: test_heavy_heavy_Z_high_precision]**;
+  - in `seesaw_type1_2n`, five light-neutrino Yukawa magnitudes of $10^{-23}$ to $10^{-29}$ were wrong, by up to 63%: 20 table
+    rows, each magnitude appearing for $h$ and $G^0$ and in both chirality orderings.
+  The function now evaluates at 40 digits with exact rational benchmark inputs. A 100-digit Takagi factorisation
+  confirms the printed `seesaw_type1_2n` values **[feynlag-verified: test_majorana_table_precision]**. That model's own
+  $10^{-40}$ cut already kept the working-precision noise (couplings of the massless $\nu_1$ at about $10^{-52}$ and below)
+  out of the table.
+- **FG-10 widened.** The row now quotes the `TermCoverage.unmatched` docstring correctly. It covers every fermion in a
+  real representation: for a type-III-like triplet $\Sigma$ (SU(2) 3, $Y = 0$), `suggest_yukawa` offers nothing, and
+  `majorana_mass` refuses the gauge-invariant $\Sigma^a \Sigma^a$ mass with a false claim. Second strict xfail:
+  `test_feynlag_triplet_majorana_gap`.
 
 ## What to do next
 

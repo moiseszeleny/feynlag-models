@@ -95,3 +95,25 @@ def test_decoupling_M_R_to_infinity(ss):
     eps = sp.Symbol("epsilon", positive=True)
     lead = sp.series(V.subs(mD, eps * MR), eps, 0, 3).removeO()
     assert sp.simplify(lead - eps) == 0
+
+
+def test_heavy_heavy_Z_high_precision(ss, chi_table):
+    """The N̄ N Z coupling is (g_Z/2)|U_{ν_L N}|² ≈ (g_Z/2)(m_D/M_R)², a difference of nearly equal
+    radicals: double precision gave 1.121e-14 (third digit wrong). At 40 digits with exact
+    benchmark inputs it equals (g_Z/2)|U[0, heavy]|² (``M_ν = U D Uᵀ``, columns = mass states),
+    and the printed table carries the correct 1.123e-14."""
+    from models.seesaw_type1.model import majorana_vertex_markdown
+    e = ss.extra
+    chiL, _chiR, chiLbar, _chiRbar = e["chi"]
+    heavy = e["heavy"]
+    (key,) = [k for k in chi_table if k[0] == chiLbar[heavy] and k[2] == chiL[heavy]]
+    c = chi_table[key][1][(ss.bosons["Z"],)]
+    exact = {k: sp.nsimplify(v, rational=True) for k, v in ss.values().items() if isinstance(v, float)}
+    g, gp = ss.pieces.gw.s, ss.pieces.g1.s
+    expected = sp.sqrt(g**2 + gp**2) / 2 * sp.Abs(e["U"][0, heavy]) ** 2
+    got = abs(complex(sp.N(sp.simplify(c).subs(exact), 40)))
+    want = float(sp.N(expected.subs(exact), 40))
+    assert abs(got / want - 1) < 1e-12, (got, want)
+    rows = [l for l in majorana_vertex_markdown(ss).splitlines() if l.startswith(r"| $`\bar{N} N Z`$")]
+    assert rows == [r"| $`\bar{N} N Z`$ | $`\gamma^\mu P_L`$ | " + f"{want:.3e} |"]
+    assert f"{want:.3e}" == "1.123e-14"

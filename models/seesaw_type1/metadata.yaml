@@ -128,6 +128,7 @@ feynlag_gaps:
   - {id: FG-3}
   - {id: FG-9, test: "tests/test_l0_l1.py::test_feynlag_scalar_coupling_indices_gap"}
   - {id: FG-10, test: "tests/test_l0_l1.py::test_feynlag_majorana_mass_coverage_gap"}
+  - {id: FG-10, test: "tests/test_l0_l1.py::test_feynlag_triplet_majorana_gap"}
 outputs:
   ufo: null
   latex: "outputs/vertices.tex"
