@@ -169,7 +169,7 @@ Absent from the unitary-gauge UFO, which drops every Goldstone leg.
 
 ## Majorana neutrino vertices (numeric)
 
-$`\nu_{1,2,3}`$ and $`N_{1,2}`$ are the light and heavy Majorana mass eigenstates ($`\chi_k`$ in the code), ordered by mass; $`\nu_1`$ is massless. The Takagi rotation is solved numerically at the benchmark, so these couplings have no closed form here; magnitudes are given instead, and the tests pin them against Atre et al. Eq. (2.5) (`tests/test_l2_literature.py`). Couplings below $`10^{-40}`$ vanish at the 50-digit working precision (for example $`Z\bar\nu_i\nu_j`$ with $`i \ne j`$) and are omitted.
+$`\nu_{1,2,3}`$ and $`N_{1,2}`$ are the light and heavy Majorana mass eigenstates ($`\chi_k`$ in the code), ordered by mass; $`\nu_1`$ is massless. The Takagi rotation is solved numerically at the benchmark, so these couplings have no closed form here; magnitudes are given instead, and the tests pin them against Atre et al. Eq. (2.5) (`tests/test_l2_literature.py`). Couplings below $`10^{-40}`$ vanish at the 50-digit working precision (for example $`Z\bar\nu_i\nu_j`$ with $`i \ne j`$) and are omitted. The magnitudes are evaluated at 40 digits.
 
 | vertex | structure | $`\lvert\text{coupling}\rvert`$ at the benchmark |
 |---|---|---|
@@ -334,23 +334,23 @@ $`\nu_{1,2,3}`$ and $`N_{1,2}`$ are the light and heavy Majorana mass eigenstate
 | $`\bar{N_1} \nu_1 h`$ | $`P_L`$ | 2.259e-22 |
 | $`\bar{\nu_1} N_1 G^0`$ | $`P_R`$ | 2.259e-22 |
 | $`\bar{\nu_1} N_1 h`$ | $`P_R`$ | 2.259e-22 |
-| $`\bar{N_2} \nu_1 G^0`$ | $`P_L`$ | 7.892e-23 |
-| $`\bar{N_2} \nu_1 h`$ | $`P_L`$ | 7.892e-23 |
-| $`\bar{\nu_1} N_2 G^0`$ | $`P_R`$ | 7.892e-23 |
-| $`\bar{\nu_1} N_2 h`$ | $`P_R`$ | 7.892e-23 |
-| $`\bar{\nu_2} \nu_3 G^0`$ | $`P_R`$ | 8.460e-28 |
-| $`\bar{\nu_2} \nu_3 h`$ | $`P_R`$ | 8.460e-28 |
-| $`\bar{\nu_3} \nu_2 G^0`$ | $`P_L`$ | 8.460e-28 |
-| $`\bar{\nu_3} \nu_2 h`$ | $`P_L`$ | 8.460e-28 |
-| $`\bar{\nu_2} \nu_3 G^0`$ | $`P_L`$ | 3.211e-28 |
-| $`\bar{\nu_2} \nu_3 h`$ | $`P_L`$ | 3.211e-28 |
-| $`\bar{\nu_3} \nu_2 G^0`$ | $`P_R`$ | 3.211e-28 |
-| $`\bar{\nu_3} \nu_2 h`$ | $`P_R`$ | 3.211e-28 |
-| $`\bar{\nu_1} \nu_3 G^0`$ | $`P_R`$ | 3.930e-29 |
-| $`\bar{\nu_1} \nu_3 h`$ | $`P_R`$ | 3.930e-29 |
-| $`\bar{\nu_3} \nu_1 G^0`$ | $`P_L`$ | 3.930e-29 |
-| $`\bar{\nu_3} \nu_1 h`$ | $`P_L`$ | 3.930e-29 |
-| $`\bar{\nu_1} \nu_2 G^0`$ | $`P_R`$ | 1.493e-29 |
-| $`\bar{\nu_1} \nu_2 h`$ | $`P_R`$ | 1.493e-29 |
-| $`\bar{\nu_2} \nu_1 G^0`$ | $`P_L`$ | 1.493e-29 |
-| $`\bar{\nu_2} \nu_1 h`$ | $`P_L`$ | 1.493e-29 |
+| $`\bar{N_2} \nu_1 G^0`$ | $`P_L`$ | 4.841e-23 |
+| $`\bar{N_2} \nu_1 h`$ | $`P_L`$ | 4.841e-23 |
+| $`\bar{\nu_1} N_2 G^0`$ | $`P_R`$ | 4.841e-23 |
+| $`\bar{\nu_1} N_2 h`$ | $`P_R`$ | 4.841e-23 |
+| $`\bar{\nu_2} \nu_3 G^0`$ | $`P_R`$ | 8.445e-28 |
+| $`\bar{\nu_2} \nu_3 h`$ | $`P_R`$ | 8.445e-28 |
+| $`\bar{\nu_3} \nu_2 G^0`$ | $`P_L`$ | 8.445e-28 |
+| $`\bar{\nu_3} \nu_2 h`$ | $`P_L`$ | 8.445e-28 |
+| $`\bar{\nu_2} \nu_3 G^0`$ | $`P_L`$ | 3.172e-28 |
+| $`\bar{\nu_2} \nu_3 h`$ | $`P_L`$ | 3.172e-28 |
+| $`\bar{\nu_3} \nu_2 G^0`$ | $`P_R`$ | 3.172e-28 |
+| $`\bar{\nu_3} \nu_2 h`$ | $`P_R`$ | 3.172e-28 |
+| $`\bar{\nu_1} \nu_3 G^0`$ | $`P_R`$ | 4.049e-29 |
+| $`\bar{\nu_1} \nu_3 h`$ | $`P_R`$ | 4.049e-29 |
+| $`\bar{\nu_3} \nu_1 G^0`$ | $`P_L`$ | 4.049e-29 |
+| $`\bar{\nu_3} \nu_1 h`$ | $`P_L`$ | 4.049e-29 |
+| $`\bar{\nu_1} \nu_2 G^0`$ | $`P_R`$ | 1.286e-29 |
+| $`\bar{\nu_1} \nu_2 h`$ | $`P_R`$ | 1.286e-29 |
+| $`\bar{\nu_2} \nu_1 G^0`$ | $`P_L`$ | 1.286e-29 |
+| $`\bar{\nu_2} \nu_1 h`$ | $`P_L`$ | 1.286e-29 |
