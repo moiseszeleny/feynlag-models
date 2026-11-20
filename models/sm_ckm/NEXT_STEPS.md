@@ -30,8 +30,13 @@ Write formulas in LaTeX and code in backticks (`CONVENTIONS.md`, section "Markdo
   This repository's benchmark uses the 2024 values instead.
 
 ## 4. What feynlag cannot yet do for this model
-- `fermion_mass_matrix` (and `majorana_mass_matrix`) mishandle integer flavour indices, FG-4. The
-  L1 masses use the workaround `feynlag_models.checks.fermion_mass_block`.
+- FG-4 (integer flavour indices in `fermion_mass_matrix`) is resolved; the L1 masses call
+  `fermion_mass_matrix` directly.
+- FG-11: `feynlag.terms.yukawa` refuses a flavour-matrix diagonal entry at an integer index, so the
+  three-generation Yukawas build diagonal entries with the scalar form on one index (`sm._flavour_matrix_term`).
+- FG-9: a scalar coupling with integer `indices=(a, b)` is silently put on `(a, a)`; it is never used that way here.
+- `term_coverage()` cannot decompose Yukawas at explicit integer flavour indices (documented in feynlag's
+  `TermCoverage`): the three Yukawa operators show as missing and the Yukawa sector as unmatched.
 - No symbolic $3\times3$ complex SVD. The CKM enters as an input rotation (feynlag's documented
   route), so $V$ is not derived from a generic $Y_d$.
 - The UFO writes each coupling as an expression in the angles. The `Vud` … `Vtb` internals are

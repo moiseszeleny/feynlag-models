@@ -24,15 +24,13 @@ import math
 
 import sympy as sp
 
-from feynlag import (
-    Model, ParameterSet, Rotation, WeylFermion, standard_ckm, to_physical_basis,
-)
+from feynlag import Model, ParameterSet, Rotation, WeylFermion, standard_ckm
 
 from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import ModelBundle
 from feynlag_models.outputs import standard_outputs
-from feynlag_models.tex import TEX, external, internal
+from feynlag_models.tex import TEX
 from models.sm import model as sm
 
 ID = "sm_ckm"
@@ -83,10 +81,22 @@ def build(benchmark=None):
     p.yukawa["yukawa_down"] = L_down
     p.params += ckm_params
 
+    # parameters declared once, in the order the UFO card has always had
+    P = ParameterSet(*p.params)
+    P.add(*sm.width_params(bench))
+    g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
+    MW = P.internal("MW", g * v / 2, tex=TEX["MW"], positive=True, unit_dim=1)
+    MZ = P.internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, tex=TEX["MZ"], positive=True, unit_dim=1)
+    MH = P.internal("MH", sp.sqrt(2 * ew.lam.s) * v, tex=TEX["MH"], positive=True, unit_dim=1)
+
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
-                  parameters=p.params, lagrangian=p.lagrangian())
+                  parameters=P, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
-    phys = to_physical_basis(model, ew, tex=TEX)
+    # gauge and Higgs states as in the SM; mass_blocks reports every quark and charged-lepton
+    # block as flavoured (numeric SVD route), so the CKM enters as the input rotation below
+    Z, A, Wp, Wm = sm.ew_gauge_basis(model)
+    h, G0, Gp, Gm = sm.sm_higgs_states(model)
+    phys = model.physical
 
     # --- mass basis of d_L: d'_L = V d_L, i.e. new = V† old -------------------
     QL = p.fermions["QL"]
@@ -102,24 +112,14 @@ def build(benchmark=None):
     for rot in rotations:
         model.rotate(rot)
 
-    bosons = dict(h=phys.h, G0=phys.G0, Gp=phys.Gp, Gm=phys.Gm,
-                  Z=phys.Z, A=phys.A, Wp=phys.Wp, Wm=phys.Wm)
-    charges = {phys.h: 0, phys.G0: 0, phys.Gp: 1, phys.Gm: -1,
-               phys.Z: 0, phys.A: 0, phys.Wp: 1, phys.Wm: -1}
-    conjugates = {phys.Gp: phys.Gm, phys.Gm: phys.Gp, phys.Wp: phys.Wm, phys.Wm: phys.Wp}
-
-    g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
-    MW = internal("MW", g * v / 2, positive=True, unit_dim=1)
-    MZ = internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
-    MH = internal("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
-    params = ParameterSet(*p.params, *sm.width_params(bench), MW, MZ, MH)
+    bosons = dict(h=h, G0=G0, Gp=Gp, Gm=Gm, Z=Z, A=A, Wp=Wp, Wm=Wm)
 
     return ModelBundle(
-        id=ID, model=model, pieces=p, bosons=bosons, cmap=phys.cmap,
-        charges=charges, conjugates=conjugates, params=params, benchmark=bench,
+        id=ID, model=model, pieces=p, bosons=bosons, cmap=dict(phys.cmap),
+        charges=phys.charges, conjugates=dict(phys.conjugates), params=P, benchmark=bench,
         dirac=sm.dirac_specs(p, down_left=dLm),
         boson_particles=sm.ew_boson_particles(bosons),
-        goldstones=(phys.G0, phys.Gp, phys.Gm),
+        goldstones=tuple(phys.goldstones),
         extra=dict(ew=ew, MW=MW, MZ=MZ, MH=MH, V=V, V_expr=V_expr, Yd=Yd,
                    ckm_params=ckm_params, rotations=rotations,
                    dLm=dLm, dLm_bar=dLm_bar),
