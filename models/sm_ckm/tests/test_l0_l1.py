@@ -174,7 +174,12 @@ def test_term_coverage(ckm):
     integer flavour indices, which ``term_coverage`` documents as unmatched (``TermCoverage``
     docstring: "explicit integer flavour indices"): the three Yukawa operators are reported
     missing and the whole Yukawa sector, nothing else, is the remainder. Their content is pinned
-    instead by ``test_constructors_reproduce_component_yukawas_3gen`` and the L2 tests."""
+    instead by ``test_constructors_reproduce_component_yukawas_3gen`` and the L2 tests.
+
+    ``term_coverage`` decomposes only the ``P_R`` half of each fermion term (feynlag
+    ``general.py``, ``_canonical_fermion_half``), so this test does not check the conjugated
+    ``P_L`` half or its phase; that half is covered by
+    ``test_constructors_reproduce_component_yukawas_3gen``."""
     tc = ckm.model.term_coverage()
     ew = ckm.extra["ew"]
     assert {t.label: c for t, c in tc.present} == {"(H†H)": -ew.mu2.s, "(H†H) (H†H)": ew.lam.s}
@@ -213,7 +218,10 @@ def test_feynlag_integer_diagonal_flavour_matrix_gap(ckm):
     p, H = ckm.pieces, ckm.extra["ew"].H
     Y = sp.IndexedBase("Y")
     Ll, eR = p.fermions["Ll"], p.fermions["eR"]
-    off = yukawa(Y, Ll, H, eR, indices=(0, 1))                  # setup: off-diagonal works
+    try:                                                        # setup: off-diagonal works
+        off = yukawa(Y, Ll, H, eR, indices=(0, 1))
+    except Exception as exc:                                    # never counted as the xfail
+        pytest.fail(f"setup: the off-diagonal entry raised {exc!r}")
     if not off.has(Y[0, 1]):
         pytest.fail("setup: the off-diagonal entry was not built")
     term = yukawa(Y, Ll, H, eR, indices=(0, 0))
@@ -231,7 +239,11 @@ def test_feynlag_scalar_coupling_integer_indices_gap(ckm):
     p, H = ckm.pieces, ckm.extra["ew"].H
     QL, dR = p.fermions["QL"], p.fermions["dR"]
     y = sp.Symbol("y")
-    if not yukawa(y, QL, H, dR, indices=0).has(dR.dR_1[0]):      # setup: the diagonal form works
+    try:                                                        # setup: the diagonal form works
+        diag = yukawa(y, QL, H, dR, indices=0)
+    except Exception as exc:                                    # never counted as the xfail
+        pytest.fail(f"setup: the diagonal scalar form raised {exc!r}")
+    if not diag.has(dR.dR_1[0]):
         pytest.fail("setup: the diagonal scalar form was not built")
     try:
         term = yukawa(y, QL, H, dR, indices=(0, 1))

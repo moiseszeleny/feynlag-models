@@ -162,6 +162,7 @@ references:
     verified_against: inspire_record
 feynlag_gaps:
   - {id: FG-3}
+  - {id: FG-11}   # inherits the sm._flavour_matrix_term workaround; xfail in sm_ckm
 outputs:
   ufo: null
   latex: "outputs/vertices.tex"
