@@ -135,10 +135,15 @@ key_results:
 maturity_level: 2
 maturity_evidence:
   L0: ["tests/test_l0_l1.py::test_validate_exact_operators", "tests/test_l0_l1.py::test_global_u1_fn_every_term",
-       "tests/test_l0_l1.py::test_flavon_powers_follow_the_charges"]
+       "tests/test_l0_l1.py::test_flavon_powers_follow_the_charges",
+       "tests/test_l0_l1.py::test_constructors_reproduce_component_yukawas_exact_and_linear",
+       "tests/test_l0_l1.py::test_flavon_kinetic_and_potential_constructors",
+       "tests/test_l0_l1.py::test_term_coverage_model_exact", "tests/test_l0_l1.py::test_summary_and_parameters"]
   L1: ["tests/test_l0_l1.py::test_tadpoles", "tests/test_l0_l1.py::test_cp_even_mass_matrix_and_spectrum",
        "tests/test_l0_l1.py::test_mass_basis_diagonalises_yukawas",
-       "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_mass_matrices"]
+       "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_mass_matrices",
+       "tests/test_l0_l1.py::test_mass_blocks_report_scalar_gauge_and_flavoured_blocks",
+       "tests/test_l0_l1.py::test_physical_registry", "tests/test_l0_l1.py::test_consumer_interface"]
   L2: ["tests/test_l2_literature.py::test_benchmark_charges_are_lns_master_model",
        "tests/test_l2_literature.py::test_yukawa_texture_lns_eq_2_6",
        "tests/test_l2_literature.py::test_determinant_is_charge_sum_lns_eq_2_19",
@@ -236,12 +241,14 @@ references:
     verified_against: inspire_record
     conventions_map: []
 feynlag_gaps:
+  - {id: FG-9}    # avoided: no scalar coupling on indices=(a, b); xfails in seesaw_type1, sm_ckm
   - {id: FG-11}   # inherits the sm._flavour_matrix_term workaround; xfail in sm_ckm
+  - {id: FG-13, test: "tests/test_l0_l1.py::test_feynlag_term_coverage_global_symmetry_gap"}
 outputs:
   ufo: null
   latex: "outputs/vertices.tex"
   vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
-last_reviewed: 2026-10-07
+last_reviewed: 2026-11-21
 reviewed_by: "Moises Zeleny (with Claude)"

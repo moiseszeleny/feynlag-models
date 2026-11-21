@@ -1,5 +1,6 @@
 """L0 (declared, invariant, anomaly-free) and L1 (tadpoles, spectrum, Goldstones, fermion masses)."""
 
+import pytest
 import sympy as sp
 
 from feynlag import (ZN, Model, check_discrete_invariance, check_global_invariance, diracPR,
@@ -162,3 +163,180 @@ def test_benchmark_flavour_values_match_spectrum_md(fn):
                "m_b": (masses["down"][2], 12.4581)}
     for name, (value, expected) in printed.items():
         assert float(f"{float(value):.6g}") == expected, (name, value)
+
+
+# ------------------------------------------------- feynlag 0.4.0 API (constructors, guided basis)
+
+#: the seven potential operators term_coverage lists as missing on model_exact although each
+#: carries net U(1)_FN charge (FG-13: the declared GlobalU1 is not imposed on the suggestions)
+FN_VIOLATING = {"phi phi", "phi (H†H)", "phi phi phi", "phi phi phi†", "phi phi (H†H)",
+                "phi phi phi phi", "phi phi phi phi†"}
+INTEGER_INDEX_YUKAWAS = {"Ll̄·H eR", "QL̄·H̃ uR", "QL̄·H dR"}
+
+
+def test_constructors_reproduce_component_yukawas_exact_and_linear(fn):
+    """``L_exact`` (``c (φ/Λ)^n``, ``φ*`` for ``n < 0``) and ``L_linear`` (the linear expansion), both
+    built entry by entry through ``sm.yukawa_terms`` (``feynlag.terms.yukawa``, the placeholder
+    route for field-dependent entries), equal the component-level pre-0.4.0 terms, both halves
+    included; the h.c. carries ``conj(Y^{ab})``, i.e. ``φ*`` where the entry has ``φ`` and back."""
+    import importlib.util
+    from feynlag import expand_bilinear
+    from feynlag_models import MODELS_DIR
+    spec = importlib.util.spec_from_file_location(
+        "_sm_ckm_l0_l1", MODELS_DIR / "sm_ckm" / "tests" / "test_l0_l1.py")
+    ref_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ref_mod)
+    from models.froggatt_nielsen.model import benchmark_point, build
+    X = lambda z: sp.expand(expand_bilinear(sp.expand(z)))   # noqa: E731
+    # the benchmark (every n_ij >= 0) and a charge set with n < 0 entries: qd1 = +4 gives
+    # n^d_i1 = (-1, -2, -4), built from (φ*)^{|n|} (as in test_flavon_couplings_negative_powers)
+    fn_neg = build(dict(benchmark_point(), qd1=4))
+    for bundle, negative in ((fn, False), (fn_neg, True)):
+        e, p = bundle.extra, bundle.pieces
+        H, phi = e["ew"].H, e["phi"]
+        assert any(Y.has(sp.conjugate(phi)) for Y in e["Y_exact"].values()) is negative
+        for tag in ("exact", "linear"):
+            Y, L = e[f"Y_{tag}"], e[f"L_{tag}"]
+            ref = ref_mod._component_level_yukawas_3(p, H, H, Y["lepton"], Y["down"], Y["up"])
+            assert set(ref) == set(L)
+            for name in ref:
+                assert X(L[name] - ref[name]) == 0, (negative, tag, name)
+
+
+def test_flavon_kinetic_and_potential_constructors(fn):
+    """``kinetic(phiF)`` is ``(∂φ)*(∂φ)`` (φ is complex, FG-8 does not apply) and the potential's
+    ``inner`` products are ``φ*φ`` and ``H†H``, the hand-written forms."""
+    from feynlag import PartialMu, dag
+    e = fn.extra
+    phi, H = e["phi"], e["ew"].H
+    terms = {t.name: t.expr for t in fn.extra["model_exact"].lagrangian.terms}
+    assert sp.expand(terms["flavon_kinetic"]
+                     - PartialMu(sp.conjugate(phi)) * PartialMu(phi)) == 0
+    a2, HdH = phi * sp.conjugate(phi), (dag(H) * H.mat)[0]
+    V = -e["muPhi2"].s * a2 + e["lamPhi"].s * a2**2 + e["lamHPhi"].s * HdH * a2
+    assert sp.expand(terms["flavon_potential"] + V) == 0
+
+
+def test_mass_blocks_report_scalar_gauge_and_flavoured_blocks(fn):
+    """``mass_blocks`` on the linearised model: the CP-even ``(H0_r, phi_r)`` block, the eaten
+    ``G0``/``G+`` and the CP-odd flavon ``a`` (massless U(1)_FN Goldstone, not eaten, so not
+    Goldstone-tagged); the SM gauge blocks; every charged fermion block flavoured, i.e. not
+    diagonalizable symbolically (numeric SVD via ``mass_basis``), and ``ν_L`` massless."""
+    m, b, p, e = fn.model, fn.bosons, fn.pieces, fn.extra
+    scalar = m.mass_blocks(kind="scalar")
+    assert [blk.fields for blk in scalar] == [[e["h_weak"], e["s0"]], [b["G0"]], [b["a"]], [b["Gp"]]]
+    assert [bool(blk.goldstones) for blk in scalar] == [False, True, False, True]
+    assert scalar[0].cp == "even" and scalar[2].cp == "odd"
+    assert sp.simplify(m.mass_matrix([b["a"]])[0, 0].subs(fn.params.resolve())) == 0
+    assert [blk.fields for blk in m.mass_blocks(kind="gauge")] == [
+        list(p.W.components[:2]), [p.W.components[2], p.B.components[0]]]
+    fermion = m.mass_blocks(kind="fermion")
+    Ll = p.fermions["Ll"]
+    (nu,) = [blk for blk in fermion if blk.fields == [Ll.nuL]]
+    assert "massless" in nu.note
+    flavoured = [blk for blk in fermion if blk is not nu]
+    assert len(flavoured) == 7                      # e, and u, d per colour
+    assert all(blk.diagonalizable is False and "flavoured" in blk.note for blk in flavoured)
+
+
+def test_physical_registry(fn):
+    """Charges (derived from the vacuum), conjugate pairs and Goldstones from ``model.physical``:
+    the flavon phase ``a`` is a neutral physical state, not among the eaten Goldstones."""
+    b = fn.bosons
+    assert fn.charges == {b["h1"]: 0, b["h2"]: 0, b["a"]: 0, b["G0"]: 0, b["Gp"]: 1, b["Gm"]: -1,
+                          b["Z"]: 0, b["A"]: 0, b["Wp"]: 1, b["Wm"]: -1}
+    assert fn.conjugates == {b["Gp"]: b["Gm"], b["Gm"]: b["Gp"], b["Wp"]: b["Wm"], b["Wm"]: b["Wp"]}
+    assert fn.goldstones == (b["G0"], b["Gp"], b["Gm"])
+
+
+def test_term_coverage_model_exact(fn):
+    """``term_coverage`` on ``model_exact``. Present: the whole potential, in feynlag's
+    ``V = Σ c O`` (``−μ²``, ``−μ_φ²``, ``λ``, ``λ_Hφ``, ``λ_φ``). Missing, for two reasons:
+
+    - the three Yukawa operators: the FN Yukawas sit at explicit integer flavour indices and are
+      operators above dimension 4, both outside the operator basis (``TermCoverage`` documents the
+      integer-index case);
+    - seven flavon operators that each carry net U(1)_FN charge, so the declared ``GlobalU1``
+      forbids them: ``term_coverage`` does not impose ``model.global_groups`` (FG-13, strict xfail
+      ``test_feynlag_term_coverage_global_symmetry_gap``). This test checks they really are
+      U(1)_FN-violating, so the list cannot grow silently.
+
+    The remainder is exactly the ``P_R`` half of the FN Yukawas. ``term_coverage`` decomposes only
+    that half (feynlag ``general.py``, ``_canonical_fermion_half``), so the conjugated half and its
+    phase are covered by ``test_constructors_reproduce_component_yukawas_exact_and_linear``."""
+    from feynlag import Bilinear, expand_bilinear
+    e = fn.extra
+    ex, U = e["model_exact"], e["U1_FN"]
+    tc = ex.term_coverage()
+    assert {t.label: c for t, c in tc.present} == {
+        "(H†H)": -e["ew"].mu2.s, "phi phi†": -e["muPhi2"].s, "(H†H) (H†H)": e["ew"].lam.s,
+        "phi phi† (H†H)": e["lamHPhi"].s, "phi phi phi† phi†": e["lamPhi"].s}
+    missing = {t.label: t for t in tc.missing}
+    assert set(missing) == INTEGER_INDEX_YUKAWAS | FN_VIOLATING
+    for label in FN_VIOLATING:
+        assert check_global_invariance(missing[label].expr, U)[0] is False, label
+    assert set(tc.unmatched) == {"yukawa"}
+    L_fer = sp.expand(expand_bilinear(sp.expand(sum(
+        t.expr for t in ex.lagrangian.terms if t.sector in ("yukawa", "other")))))
+    pr_half = sum(term for term in sp.Add.make_args(L_fer)
+                  if all(x.gamma == diracPR for x in term.atoms(Bilinear)))
+    assert pr_half.has(e["phi"])                    # the FN operators (every n_ij >= 0 here)
+    assert sp.expand(expand_bilinear(sp.expand(tc.unmatched["yukawa"])) - pr_half) == 0
+
+
+def test_summary_and_parameters(fn):
+    """``summary()`` of both models: the flavon is a complex gauge singlet with U(1)_FN charge 1 on
+    ``model_exact``; every parameter is listed in order and none is undeclared."""
+    ex = fn.extra["model_exact"]
+    s = ex.summary()
+    assert s.field_header[:6] == ["field", "type", "SU2L", "U1Y", "SU3c", "U1_FN"]
+    rows = {r[0]: tuple(str(x) for x in r[1:6]) for r in s.field_rows}
+    assert rows["phi"] == ("scalar", "1", "0", "1", "1")
+    assert set(rows) == {"H", "W", "B", "G", "Ll", "eR", "QL", "uR", "dR", "phi"}
+    for model, params in ((ex, list(ex.parameters)), (fn.model, list(fn.params))):
+        assert [r[0] for r in model.summary().param_rows] == [q.name for q in params]
+        assert model.check_parameters().undeclared == []
+    # the exact model has no linearised-model internals
+    assert {q.name for q in ex.parameters}.isdisjoint({"MW", "MZ", "theta", "MH1", "MH2"})
+
+
+def test_consumer_interface(fn):
+    """feynlag-anomalies ``flavor_puzzle`` reads ``Yu``, ``Yd``, ``c_params``, ``eps``, ``ew``, ``powers``
+    and ``mass_basis``: ``Y = C·ε^|n|`` in exactly the ``c_params`` and ``eps`` symbols."""
+    e = fn.extra
+    syms = {q.s for q in e["c_params"]} | {e["eps"].s}
+    for sector, key in (("up", "Yu"), ("down", "Yd")):
+        Y, n, C = e[key], e["powers"][sector], e["C"][sector]
+        assert Y.free_symbols <= syms
+        assert all(sp.expand(Y[i, j] - C[i, j] * e["eps"].s ** abs(n[i, j])) == 0
+                   for i in range(3) for j in range(3))
+    y = mass_basis(e["Yu"], fn.values())[2]
+    assert list(y) == sorted(y)
+
+
+@pytest.mark.xfail(strict=True, raises=(AssertionError,),
+                   reason="FG-13: term_coverage ignores Model.global_groups and lists "
+                   "U(1)_FN-violating operators as missing")
+def test_feynlag_term_coverage_global_symmetry_gap(fn):
+    """``term_coverage`` decomposes on the operator basis "for the model's own fields and declared
+    symmetries", but passes only the gauge and discrete groups to ``suggest_potential`` /
+    ``suggest_yukawa``: with the ``GlobalU1`` U(1)_FN declared, operators with net FN charge
+    (``φ²``, ``φ H†H``, ``φ³``, …) are reported as missing. No missing operator should carry net
+    U(1)_FN charge."""
+    e = fn.extra
+    try:                                                        # setup: U(1)_FN declared and holds
+        ex, U = e["model_exact"], e["U1_FN"]
+        if ex.global_groups != [U] or not ex.validate().ok:
+            raise RuntimeError("U(1)_FN is not declared on model_exact, or validate() fails")
+        missing = ex.term_coverage().missing
+    except Exception as exc:                                    # never counted as the xfail
+        pytest.fail(f"setup: {exc!r}")
+    violating = []
+    for t in missing:
+        try:
+            ok = check_global_invariance(t.expr, U)[0]
+        except ValueError:     # a Yukawa suggestion on symbolic flavour indices: no per-generation
+            continue           # charge to check (the integer-index limitation, not FG-13)
+        if not ok:
+            violating.append(t.label)
+    assert violating == [], violating

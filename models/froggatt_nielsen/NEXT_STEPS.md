@@ -59,6 +59,13 @@ Write formulas in LaTeX and code in backticks (`CONVENTIONS.md`, section "Markdo
 ## 4. What feynlag cannot yet do for this model
 - FG-6 and FG-7 are resolved in feynlag 0.3.0 (numeric complex `diagonalize_svd`; `GlobalU1`
   with per-flavour charges); see `FEYNLAG_GAPS.md`.
+- **FG-13**: `term_coverage()` on `model_exact` ignores the declared `GlobalU1`, so it lists seven
+  U(1)_FN-violating flavon operators as missing. The three Yukawa operators also show as missing, because the FN
+  Yukawas are integer-index operators above dimension 4; their $`P_R`$ half is the remainder (documented).
+  `validate()` imposes U(1)_FN on every term.
+- The $`(h, s)`$ mixing, the gauge states and the Goldstones come from `mass_blocks()` / `diagonalize()`; the
+  charged-fermion blocks are reported as flavoured, so masses and $`V_{\rm CKM}`$ stay with the numeric SVD
+  (`mass_basis`, `ckm`).
 - **Mass-basis vertices.** The vertices are still in the weak basis. feynlag 0.3.0's numeric
   `diagonalize_svd` returns unitary rotations, and `Rotation.bar` rotates the bar legs with
   $`R^*`$, so rotating the linearised model to the mass basis is now possible; it is not done
