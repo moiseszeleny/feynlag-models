@@ -81,8 +81,8 @@ key_results:
   - {statement: "With one Yukawa entry and one ν_R on, the spectrum and mixing are those of seesaw_type1", test: "tests/test_l2_literature.py::test_single_generation_limit_matches_seesaw_type1"}
 maturity_level: 2
 maturity_evidence:
-  L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
-  L1: ["tests/test_l0_l1.py::test_mass_matrix_entries", "tests/test_l0_l1.py::test_takagi_spectrum_at_benchmark", "tests/test_l0_l1.py::test_light_sector_rank_two", "tests/test_l0_l1.py::test_seesaw_formula_matrix", "tests/test_l0_l1.py::test_light_heavy_mixing_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_unchanged"]
+  L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies", "tests/test_l0_l1.py::test_constructors_reproduce_component_neutrino_terms", "tests/test_l0_l1.py::test_term_coverage", "tests/test_l0_l1.py::test_summary_and_parameters"]
+  L1: ["tests/test_l0_l1.py::test_mass_matrix_entries", "tests/test_l0_l1.py::test_takagi_spectrum_at_benchmark", "tests/test_l0_l1.py::test_light_sector_rank_two", "tests/test_l0_l1.py::test_seesaw_formula_matrix", "tests/test_l0_l1.py::test_light_heavy_mixing_at_benchmark", "tests/test_l0_l1.py::test_goldstone_count_unchanged", "tests/test_l0_l1.py::test_mass_blocks_report_sm_blocks", "tests/test_l0_l1.py::test_physical_registry", "tests/test_l0_l1.py::test_consumer_interface"]
   L2: ["tests/test_l2_literature.py::test_W_coupling_eq_2_5", "tests/test_l2_literature.py::test_Z_coupling_eq_2_5", "tests/test_l2_literature.py::test_h_nu_N_coupling", "tests/test_l2_literature.py::test_decoupling_M_R_to_infinity", "tests/test_l2_literature.py::test_single_generation_limit_matches_seesaw_type1", "tests/test_l2_literature.py::test_casas_ibarra_two_rhn_eq_6"]
   L3: []
   L4: []
@@ -162,12 +162,15 @@ references:
     verified_against: inspire_record
 feynlag_gaps:
   - {id: FG-3}
+  - {id: FG-9}    # avoided: no scalar coupling on indices=(a, b); xfails in seesaw_type1, sm_ckm
+  - {id: FG-10}   # the bare nu_R Majorana mass is not in term_coverage's basis; xfails in seesaw_type1
   - {id: FG-11}   # inherits the sm._flavour_matrix_term workaround; xfail in sm_ckm
+  - {id: FG-12, test: "tests/test_l0_l1.py::test_feynlag_unequal_flavour_mass_block_gap"}
 outputs:
   ufo: null
   latex: "outputs/vertices.tex"
   vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
-last_reviewed: 2026-09-25
+last_reviewed: 2026-11-20
 reviewed_by: "Moises Zeleny (with Claude)"

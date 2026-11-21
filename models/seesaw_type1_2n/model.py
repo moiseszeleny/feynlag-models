@@ -19,16 +19,16 @@ finish on a generic 5×5 (FG-5, resolved in feynlag ``e34b356``).
 import sympy as sp
 
 from feynlag import (
-    Bilinear, MajoranaBilinear, MajoranaRotation, Model, ParameterSet, WeylFermion,
-    diagonalize_takagi, diracC, diracPL, diracPR, fermion_mass_matrix,
-    majorana_mass_matrix, seesaw_light_mass, seesaw_mass_matrix, to_physical_basis,
+    MajoranaRotation, Model, ParameterSet, WeylFermion, diagonalize_takagi, diracC, diracPL,
+    diracPR, fermion_mass_matrix, majorana_mass, majorana_mass_matrix, seesaw_light_mass,
+    seesaw_mass_matrix, tilde,
 )
 
 from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import ModelBundle
 from feynlag_models.outputs import standard_outputs
-from feynlag_models.tex import TEX, external, internal
+from feynlag_models.tex import TEX
 from models.sm import model as sm
 
 ID = "seesaw_type1_2n"
@@ -54,47 +54,51 @@ def build(benchmark=None):
     i, j = p.idx
 
     # --- delta: ν_R (2 flavours), 3×2 Dirac Yukawa via H̃, diagonal Majorana mass ---
+    P = ParameterSet(*p.params)
     yv = sp.Matrix(N_L, N_R, lambda a, b: 0)
     yv_params = []
     for a in range(N_L):
         for b in range(N_R):
-            par = external(yukawa_name(a, b), bench[yukawa_name(a, b)])
+            par = P.external(yukawa_name(a, b), bench[yukawa_name(a, b)],
+                             tex=TEX.get(yukawa_name(a, b)))
             yv_params.append(par)
             yv[a, b] = par.s
-    MR = [external(f"MR{k + 1}", bench[f"MR{k + 1}"], positive=True, unit_dim=1)
+    MR = [P.external(f"MR{k + 1}", bench[f"MR{k + 1}"], tex=TEX.get(f"MR{k + 1}"),
+                     positive=True, unit_dim=1)
           for k in range(N_R)]
     nuR = WeylFermion("nuR", reps={}, chirality="R", nflavors=N_R, component_names=["nuR"],
                       tex=r"\nu_R")
     Ll = p.fermions["Ll"]
-    Gp, H0 = ew.H.components
-    nuL, eL = Ll.components
-    nuLbar, eLbar = Ll.bar_components
-    nR, nRbar = nuR.components[0], nuR.bar_components[0]
+    nuL, nuLbar = Ll.nuL, Ll.nuLbar
+    nR, nRbar = nuR.nuR, nuR.nuRbar
     CPL = diracC * diracPL
 
-    # integer flavour indices throughout (CONVENTIONS.md, three generations)
-    LYukD = sp.S.Zero
-    for a in range(N_L):
-        for b in range(N_R):
-            y, yc = yv[a, b], sp.conjugate(yv[a, b])
-            LYukD += -(y * sp.conjugate(H0) * Bilinear(nuLbar[a], diracPR, nR[b])
-                       + y * (-sp.conjugate(Gp)) * Bilinear(eLbar[a], diracPR, nR[b]))
-            LYukD += -(yc * H0 * Bilinear(nRbar[b], diracPL, nuL[a])
-                       + yc * (-Gp) * Bilinear(nRbar[b], diracPL, eL[a]))
-    LMaj = sp.S.Zero
-    for k in range(N_R):
-        op = -sp.Rational(1, 2) * MR[k].s * MajoranaBilinear(nR[k], CPL, nR[k])
-        LMaj += op + sp.conjugate(op)
+    # integer flavour indices throughout (CONVENTIONS.md, three generations):
+    # −Σ_ab y_ν^{ab} L̄_a H̃ ν_R^b + h.c., entry by entry through the shared sm helper (off-diagonal
+    # entries on indices=(a, b); the a == b entries yv_e1, yv_mu2 in the single-index form, FG-11),
+    # and −½ Σ_k M_k ν_R^{kT} C P_L ν_R^k + h.c., one diagonal entry per k
+    LYukD = sm._flavour_matrix_term(yv, Ll, tilde(ew.H), nuR)
+    LMaj = sum((majorana_mass(MR[k], nuR, indices=k, gamma=CPL) for k in range(N_R)), sp.S.Zero)
     p.add_term(LYukD, "yukawa", "yukawa_nu")
     p.add_term(LMaj, "other", "majorana_mass")
     p.fields.append(nuR)
     p.fermions["nuR"] = nuR
     p.params += [*yv_params, *MR]
 
+    g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
+    P.add(*sm.width_params(bench))
+    MW = P.internal("MW", g * v / 2, tex=TEX["MW"], positive=True, unit_dim=1)
+    MZ = P.internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, tex=TEX["MZ"], positive=True, unit_dim=1)
+    MH = P.internal("MH", sp.sqrt(2 * ew.lam.s) * v, tex=TEX["MH"], positive=True, unit_dim=1)
+
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
-                  parameters=p.params, lagrangian=p.lagrangian())
+                  parameters=P, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
-    phys = to_physical_basis(model, ew, tex=TEX)
+    # gauge and Higgs states as in the SM. mass_blocks(kind="fermion") refuses the 3×2 (ν_L, ν_R)
+    # block (FG-12), so the neutrinos go through the seesaw matrix and the Takagi route below
+    Z, A, Wp, Wm = sm.ew_gauge_basis(model)
+    h, G0, Gp, Gm = sm.sm_higgs_states(model)
+    phys = model.physical
 
     # --- seesaw mass matrix (symbolic) ---------------------------------------
     # fermion_mass_matrix is square; no term carries nR[2], so its third column is zero
@@ -115,26 +119,16 @@ def build(benchmark=None):
     chiLbar, chiRbar = sp.IndexedBase("chiLbar"), sp.IndexedBase("chiRbar")
     rot = MajoranaRotation(U, nuL, nR, nuLbar, nRbar, chiL, chiR, chiLbar, chiRbar, n_L=N_L)
 
-    bosons = dict(h=phys.h, G0=phys.G0, Gp=phys.Gp, Gm=phys.Gm,
-                  Z=phys.Z, A=phys.A, Wp=phys.Wp, Wm=phys.Wm)
-    charges = {phys.h: 0, phys.G0: 0, phys.Gp: 1, phys.Gm: -1,
-               phys.Z: 0, phys.A: 0, phys.Wp: 1, phys.Wm: -1}
-    conjugates = {phys.Gp: phys.Gm, phys.Gm: phys.Gp, phys.Wp: phys.Wm, phys.Wm: phys.Wp}
-
-    g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
-    MW = internal("MW", g * v / 2, positive=True, unit_dim=1)
-    MZ = internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
-    MH = internal("MH", sp.sqrt(2 * ew.lam.s) * v, positive=True, unit_dim=1)
-    params = ParameterSet(*p.params, *sm.width_params(bench), MW, MZ, MH)
+    bosons = dict(h=h, G0=G0, Gp=Gp, Gm=Gm, Z=Z, A=A, Wp=Wp, Wm=Wm)
 
     # neutrinos are Majorana → not exported (FG-3)
     dirac = [d for d in sm.dirac_specs(p) if d.name not in ("ve", "vm", "vt")]
 
     return ModelBundle(
-        id=ID, model=model, pieces=p, bosons=bosons, cmap=phys.cmap,
-        charges=charges, conjugates=conjugates, params=params, benchmark=bench,
+        id=ID, model=model, pieces=p, bosons=bosons, cmap=dict(phys.cmap),
+        charges=phys.charges, conjugates=dict(phys.conjugates), params=P, benchmark=bench,
         dirac=dirac, boson_particles=sm.ew_boson_particles(bosons),
-        goldstones=(phys.G0, phys.Gp, phys.Gm),
+        goldstones=tuple(phys.goldstones),
         extra=dict(ew=ew, yv=yv, yv_params=yv_params, MR=MR, nuR=nuR,
                    LYukD=LYukD, LMaj=LMaj, CPL=CPL, mD_full=mD_full, mD=mD, MRmat=MRmat,
                    Mnu=Mnu, Mn=Mn, m_light_approx=m_light_approx, U=U, D=Dm, masses=masses,
