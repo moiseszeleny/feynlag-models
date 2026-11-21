@@ -10,7 +10,7 @@ itself and returns a :class:`~feynlag_models.bundle.ModelBundle`.
 import sympy as sp
 
 from feynlag import (
-    Bilinear, Model, ParameterSet, SU3, WeylFermion, conjugate_pair, diracPL, diracPR,
+    Model, ParameterSet, SU3, WeylFermion, conjugate_pair,
     electroweak_gauge, electroweak_scaffold, kinetic, tilde, yukawa,
 )
 from feynlag.export.ufo import UFOParticle
@@ -176,45 +176,40 @@ def yukawa_terms(p, Hd, Hu, ye, yd, yu):
     return _yukawa_terms_3(p, Hd, Hu, ye, yd, yu)
 
 
+def _flavour_matrix_term(Y, FL, S, FR):
+    """``−Σ_ab Y^{ab} F̄_L^a S F_R^b + h.c.`` for an explicit 3×3 ``Matrix`` ``Y`` at integer flavour
+    indices, built entry by entry with ``feynlag.terms.yukawa`` (zero entries dropped).
+
+    An off-diagonal entry goes through a placeholder ``IndexedBase`` on ``indices=(a, b)``, then the
+    placeholder and its conjugate are replaced by ``Y[a, b]`` and ``conj(Y[a, b])``. A diagonal entry
+    is the scalar form on the one index ``a``: ``yukawa`` refuses an ``IndexedBase`` on ``(a, a)``
+    even for integers (FG-11), and a scalar coupling with ``(a, b)`` is silently put on ``(a, a)``
+    (FG-9), so neither is used where it would be wrong.
+    """
+    ph = sp.IndexedBase("Yph")
+    out = sp.S.Zero
+    for a in range(3):
+        for b in range(3):
+            y = Y[a, b]
+            if y == 0:
+                continue
+            if a == b:
+                out += yukawa(y, FL, S, FR, indices=a)
+            else:
+                out += yukawa(ph, FL, S, FR, indices=(a, b)).xreplace(
+                    {ph[a, b]: y, sp.conjugate(ph[a, b]): sp.conjugate(y)})
+    return out
+
+
 def _yukawa_terms_3(p, Hd, Hu, ye, yd, yu):
-    """Three generations at component level, kept by hand: the couplings are explicit
-    3×3 ``Matrix`` entries at integer flavour indices, which ``feynlag.terms.yukawa`` does not
-    take (a scalar coupling shares one index between the legs; an ``IndexedBase`` needs two
-    distinct ones, so a diagonal ``Y[a, a]`` raises). Revisited in the sm_ckm migration."""
+    """Three generations: explicit 3×3 ``Matrix`` couplings (possibly complex, e.g.
+    ``Y_d = V diag(y)``) at integer flavour indices, entry by entry (:func:`_flavour_matrix_term`);
+    the h.c. carries ``conjugate(Y^{ab})``. The one-generation branch of :func:`yukawa_terms`
+    returns the same structure with the symbolic index."""
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
-    Gp_d, H0_d = Hd.components
-    Gp_u, H0_u = Hu.components
-    nuL, eL = Ll.nuL, Ll.eL
-    nuLbar, eLbar = Ll.nuLbar, Ll.eLbar
-    eRc, eRbar = eR.eR, eR.eRbar
-    qL_u, qL_d = QL.components[:3], QL.components[3:]
-    qLbar_u, qLbar_d = QL.bar_components[:3], QL.bar_components[3:]
-    pairs = lambda Y: [(a, b, Y[a, b]) for a in range(3)   # noqa: E731
-                       for b in range(3) if Y[a, b] != 0]
-
-    def colour_sum(bars, gamma, fields, a, b):
-        return sum(Bilinear(bars[c][a], gamma, fields[c][b]) for c in range(3))
-
-    L_e = L_d = L_u = sp.S.Zero
-    for a, b, y in pairs(ye):
-        yc = sp.conjugate(y)
-        L_e += -(y * Gp_d * Bilinear(nuLbar[a], diracPR, eRc[b])
-                 + y * H0_d * Bilinear(eLbar[a], diracPR, eRc[b]))
-        L_e += -(yc * sp.conjugate(Gp_d) * Bilinear(eRbar[b], diracPL, nuL[a])
-                 + yc * sp.conjugate(H0_d) * Bilinear(eRbar[b], diracPL, eL[a]))
-    for a, b, y in pairs(yd):
-        yc = sp.conjugate(y)
-        L_d += -(y * Gp_d * colour_sum(qLbar_u, diracPR, dR.components, a, b)
-                 + y * H0_d * colour_sum(qLbar_d, diracPR, dR.components, a, b))
-        L_d += -(yc * sp.conjugate(Gp_d) * colour_sum(dR.bar_components, diracPL, qL_u, b, a)
-                 + yc * sp.conjugate(H0_d) * colour_sum(dR.bar_components, diracPL, qL_d, b, a))
-    for a, b, y in pairs(yu):
-        yc = sp.conjugate(y)
-        L_u += -(y * sp.conjugate(H0_u) * colour_sum(qLbar_u, diracPR, uR.components, a, b)
-                 + y * (-sp.conjugate(Gp_u)) * colour_sum(qLbar_d, diracPR, uR.components, a, b))
-        L_u += -(yc * H0_u * colour_sum(uR.bar_components, diracPL, qL_u, b, a)
-                 + yc * (-Gp_u) * colour_sum(uR.bar_components, diracPL, qL_d, b, a))
-    return {"yukawa_lepton": L_e, "yukawa_down": L_d, "yukawa_up": L_u}
+    return {"yukawa_lepton": _flavour_matrix_term(ye, Ll, Hd, eR),
+            "yukawa_down": _flavour_matrix_term(yd, QL, Hd, dR),
+            "yukawa_up": _flavour_matrix_term(yu, QL, tilde(Hu), uR)}
 
 
 #: three-generation UFO names, PDG codes and widths (FeynRules SM names)

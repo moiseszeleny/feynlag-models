@@ -68,9 +68,12 @@ key_results:
   - {statement: "J = Im(V_us V_cb V*_ub V*_cs) = c12 c23 c13² s12 s23 s13 sin δ", test: "tests/test_l2_literature.py::test_jarlskog_invariant"}
 maturity_level: 3
 maturity_evidence:
-  L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies"]
+  L0: ["tests/test_l0_l1.py::test_validate_invariance_and_anomalies",
+       "tests/test_l0_l1.py::test_constructors_reproduce_component_yukawas_3gen",
+       "tests/test_l0_l1.py::test_term_coverage", "tests/test_l0_l1.py::test_summary_and_parameters"]
   L1: ["tests/test_l0_l1.py::test_tadpole_and_higgs_mass", "tests/test_l0_l1.py::test_gauge_masses",
-       "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_masses"]
+       "tests/test_l0_l1.py::test_goldstone_count", "tests/test_l0_l1.py::test_fermion_masses",
+       "tests/test_l0_l1.py::test_mass_blocks_report_flavoured_blocks", "tests/test_l0_l1.py::test_physical_registry"]
   L2: ["tests/test_l2_literature.py::test_ckm_standard_parametrization_and_unitarity",
        "tests/test_l2_literature.py::test_charged_current_ckm",
        "tests/test_l2_literature.py::test_gim_no_tree_level_fcnc",
@@ -150,7 +153,9 @@ references:
     url: "https://github.com/moiseszeleny/feynlag"
     commit: "fe2208c87e80119b85ea479fbd074c1f925b81e5"
     verified_against: source_code
-feynlag_gaps: []
+feynlag_gaps:
+  - {id: FG-9, test: "tests/test_l0_l1.py::test_feynlag_scalar_coupling_integer_indices_gap"}
+  - {id: FG-11, test: "tests/test_l0_l1.py::test_feynlag_integer_diagonal_flavour_matrix_gap"}
 outputs:
   ufo: "outputs/SM_CKM_UFO"
   ufo_scope:
@@ -163,5 +168,5 @@ outputs:
   vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
-last_reviewed: 2026-09-17
+last_reviewed: 2026-11-20
 reviewed_by: "Moises Zeleny (with Claude)"

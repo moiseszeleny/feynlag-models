@@ -1,5 +1,6 @@
 """L0 (declared, invariant, anomaly-free) and L1 (tadpoles, spectrum, Goldstones)."""
 
+import pytest
 import sympy as sp
 
 from feynlag import diracPR, fermion_mass_matrix
@@ -80,3 +81,173 @@ def test_fermion_masses(ckm):
     for yn, mn in (("yu", "MU"), ("ys", "MS"), ("ymu", "MMU")):
         assert_dual_equal(ckm.params[yn].expr,
                           sp.sqrt(2) * ckm.pieces.masses[mn].s / ckm.pieces.ew.v.s, msg=yn)
+
+
+# ------------------------------------------------- feynlag 0.4.0+ API (constructors, coverage)
+
+def _component_level_yukawas_3(p, Hd, Hu, ye, yd, yu):
+    """The pre-0.4.0 three-generation Yukawas, typed component by component (the old body of
+    ``sm._yukawa_terms_3``), kept as the reference: ``−Y^{ab} F̄_L^a S F_R^b + h.c.`` at integer
+    flavour indices, the colour sum written out, ``H̃ = (H⁰*, −G⁺*)``, the h.c. with ``conj(Y^{ab})``."""
+    from feynlag import Bilinear, diracPL
+    Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
+    Gp_d, H0_d = Hd.components
+    Gp_u, H0_u = Hu.components
+    qL_u, qL_d = QL.components[:3], QL.components[3:]
+    qLbar_u, qLbar_d = QL.bar_components[:3], QL.bar_components[3:]
+
+    def pairs(Y):
+        return [(a, b, Y[a, b]) for a in range(3) for b in range(3) if Y[a, b] != 0]
+
+    def colour(bars, gamma, fields, a, b):
+        return sum(Bilinear(bars[c][a], gamma, fields[c][b]) for c in range(3))
+
+    L_e = L_d = L_u = sp.S.Zero
+    for a, b, y in pairs(ye):
+        yc = sp.conjugate(y)
+        L_e += -(y * Gp_d * Bilinear(Ll.nuLbar[a], diracPR, eR.eR[b])
+                 + y * H0_d * Bilinear(Ll.eLbar[a], diracPR, eR.eR[b]))
+        L_e += -(yc * sp.conjugate(Gp_d) * Bilinear(eR.eRbar[b], diracPL, Ll.nuL[a])
+                 + yc * sp.conjugate(H0_d) * Bilinear(eR.eRbar[b], diracPL, Ll.eL[a]))
+    for a, b, y in pairs(yd):
+        yc = sp.conjugate(y)
+        L_d += -(y * Gp_d * colour(qLbar_u, diracPR, dR.components, a, b)
+                 + y * H0_d * colour(qLbar_d, diracPR, dR.components, a, b))
+        L_d += -(yc * sp.conjugate(Gp_d) * colour(dR.bar_components, diracPL, qL_u, b, a)
+                 + yc * sp.conjugate(H0_d) * colour(dR.bar_components, diracPL, qL_d, b, a))
+    for a, b, y in pairs(yu):
+        yc = sp.conjugate(y)
+        L_u += -(y * sp.conjugate(H0_u) * colour(qLbar_u, diracPR, uR.components, a, b)
+                 + y * (-sp.conjugate(Gp_u)) * colour(qLbar_d, diracPR, uR.components, a, b))
+        L_u += -(yc * H0_u * colour(uR.bar_components, diracPL, qL_u, b, a)
+                 + yc * (-Gp_u) * colour(uR.bar_components, diracPL, qL_d, b, a))
+    return {"yukawa_lepton": L_e, "yukawa_down": L_d, "yukawa_up": L_u}
+
+
+def test_constructors_reproduce_component_yukawas_3gen(ckm):
+    """``sm.yukawa_terms`` for three generations builds each nonzero entry with
+    ``feynlag.terms.yukawa`` (off-diagonal: a placeholder flavour matrix on ``(a, b)``; diagonal:
+    the scalar form on ``a``, FG-11) and equals the component-level reference for the diagonal
+    Y_e, Y_u (with ``tilde(H)``) and the complex Y_d = V·diag(y): colour sums, h.c. and
+    conjugated couplings included. These are the model's own terms."""
+    from models.sm import model as sm
+    p, H = ckm.pieces, ckm.extra["ew"].H
+    ys = p.yukawa_params
+    ye = sm.diagonal_yukawa(ys, sm.YUKAWA_NAMES[3][2])
+    yu = sm.diagonal_yukawa(ys, sm.YUKAWA_NAMES[3][0])
+    Yd = ckm.extra["Yd"]
+    ref = _component_level_yukawas_3(p, H, H, ye, Yd, yu)
+    terms = {t.name: t.expr for t in ckm.model.lagrangian.terms}
+    for name in ("yukawa_lepton", "yukawa_down", "yukawa_up"):
+        assert sp.expand(terms[name] - ref[name]) == 0, name
+    assert any(not Yd[a, b].is_real for a in range(3) for b in range(3))   # really complex
+
+
+def test_mass_blocks_report_flavoured_blocks(ckm):
+    """``mass_blocks()``: the SM Higgs and gauge blocks; every charged-lepton and quark block (per
+    colour) flavoured and not diagonalizable, pointing to the numeric SVD route; ν_L massless. The
+    model keeps the CKM as the input rotation ``d'_L = V d_L`` instead."""
+    m, b = ckm.model, ckm.bosons
+    assert [blk.fields for blk in m.mass_blocks(kind="scalar")] == [[b["h"]], [b["G0"]], [b["Gp"]]]
+    fermion = m.mass_blocks(kind="fermion")
+    Ll, QL = ckm.pieces.fermions["Ll"], ckm.pieces.fermions["QL"]
+    flavoured = [blk for blk in fermion if blk.fields != [Ll.nuL]]
+    assert {str(blk.fields[0]) for blk in flavoured} == {"eL", *(str(c) for c in QL.components)}
+    for blk in flavoured:
+        assert blk.nflavors == 3 and blk.diagonalizable is False
+        assert "diagonalize_svd(method='numeric')" in blk.note
+    (nu,) = [blk for blk in fermion if blk.fields == [Ll.nuL]]
+    assert nu.diagonalizable is False and "massless" in nu.note
+
+
+def test_physical_registry(ckm):
+    """Charges (derived from the vacuum), conjugate pairs and Goldstones from ``model.physical``."""
+    b = ckm.bosons
+    assert ckm.charges == {b["h"]: 0, b["G0"]: 0, b["Gp"]: 1, b["Gm"]: -1,
+                           b["Z"]: 0, b["A"]: 0, b["Wp"]: 1, b["Wm"]: -1}
+    assert ckm.conjugates == {b["Gp"]: b["Gm"], b["Gm"]: b["Gp"], b["Wp"]: b["Wm"], b["Wm"]: b["Wp"]}
+    assert ckm.goldstones == (b["G0"], b["Gp"], b["Gm"])
+
+
+def test_term_coverage(ckm):
+    """The potential is fully recognised (``V = −μ²H†H + λ(H†H)²``). The Yukawas sit at explicit
+    integer flavour indices, which ``term_coverage`` documents as unmatched (``TermCoverage``
+    docstring: "explicit integer flavour indices"): the three Yukawa operators are reported
+    missing and the whole Yukawa sector, nothing else, is the remainder. Their content is pinned
+    instead by ``test_constructors_reproduce_component_yukawas_3gen`` and the L2 tests.
+
+    ``term_coverage`` decomposes only the ``P_R`` half of each fermion term (feynlag
+    ``general.py``, ``_canonical_fermion_half``), so this test does not check the conjugated
+    ``P_L`` half or its phase; that half is covered by
+    ``test_constructors_reproduce_component_yukawas_3gen``."""
+    tc = ckm.model.term_coverage()
+    ew = ckm.extra["ew"]
+    assert {t.label: c for t, c in tc.present} == {"(H†H)": -ew.mu2.s, "(H†H) (H†H)": ew.lam.s}
+    assert {t.label for t in tc.missing} == {"Ll̄·H eR", "QL̄·H̃ uR", "QL̄·H dR"}
+    assert set(tc.unmatched) == {"yukawa"}
+    # the remainder is exactly the P_R half of the Yukawa sector (the other half is its h.c.)
+    from feynlag import Bilinear, expand_bilinear
+    L_yuk = sp.expand(expand_bilinear(sp.expand(sum(
+        t.expr for t in ckm.model.lagrangian.terms if t.sector in ("yukawa", "other")))))
+    pr_half = sum(term for term in sp.Add.make_args(L_yuk)
+                  if all(b.gamma == diracPR for b in term.atoms(Bilinear)))
+    assert pr_half != 0
+    assert sp.expand(expand_bilinear(sp.expand(tc.unmatched["yukawa"])) - pr_half) == 0
+
+
+def test_summary_and_parameters(ckm):
+    """``summary()``: three flavours of each SM fermion; every parameter listed in order and
+    ``check_parameters()`` finds no undeclared symbol."""
+    s = ckm.model.summary()
+    rows = {r[0]: tuple(str(x) for x in r[1:6]) for r in s.field_rows}
+    for f in ("Ll", "eR", "QL", "uR", "dR"):
+        assert rows[f][-1] == "3", (f, rows[f])
+    assert rows["QL"][:4] == ("fermion L", "2", "1/6", "3")
+    assert [r[0] for r in s.param_rows] == [q.name for q in ckm.params]
+    assert ckm.model.check_parameters().undeclared == []
+
+
+@pytest.mark.xfail(strict=True, raises=(ValueError, AssertionError),
+                   reason="FG-11: yukawa refuses a flavour-matrix diagonal entry indices=(a, a) at an "
+                   "integer flavour index")
+def test_feynlag_integer_diagonal_flavour_matrix_gap(ckm):
+    """With integer flavour indices, ``Y[a, a]`` is an ordinary diagonal entry; ``yukawa(Y, …,
+    indices=(0, 0))`` should return ``−Y[0,0] L̄^0 H e_R^0 + h.c.``. feynlag 0.5.1 raises
+    ``ValueError`` ("needs two distinct leg indices"), a check meant for symbolic indices."""
+    from feynlag import yukawa
+    p, H = ckm.pieces, ckm.extra["ew"].H
+    Y = sp.IndexedBase("Y")
+    Ll, eR = p.fermions["Ll"], p.fermions["eR"]
+    try:                                                        # setup: off-diagonal works
+        off = yukawa(Y, Ll, H, eR, indices=(0, 1))
+    except Exception as exc:                                    # never counted as the xfail
+        pytest.fail(f"setup: the off-diagonal entry raised {exc!r}")
+    if not off.has(Y[0, 1]):
+        pytest.fail("setup: the off-diagonal entry was not built")
+    term = yukawa(Y, Ll, H, eR, indices=(0, 0))
+    assert term.has(Y[0, 0]) and term.has(Ll.eLbar[0]) and term.has(eR.eR[0])
+
+
+@pytest.mark.xfail(strict=True, raises=(ValueError, AssertionError),
+                   reason="FG-9: a scalar coupling with integer indices=(a, b), a != b, is silently "
+                   "put on (a, a) instead of raising ValueError")
+def test_feynlag_scalar_coupling_integer_indices_gap(ckm):
+    """With real flavour indices the silent collapse of FG-9 changes the physics: ``yukawa(y, …,
+    indices=(0, 1))`` with a scalar ``y`` returns the (0, 0) entry, an off-diagonal Yukawa moved
+    onto the diagonal. It should raise ``ValueError``."""
+    from feynlag import yukawa
+    p, H = ckm.pieces, ckm.extra["ew"].H
+    QL, dR = p.fermions["QL"], p.fermions["dR"]
+    y = sp.Symbol("y")
+    try:                                                        # setup: the diagonal form works
+        diag = yukawa(y, QL, H, dR, indices=0)
+    except Exception as exc:                                    # never counted as the xfail
+        pytest.fail(f"setup: the diagonal scalar form raised {exc!r}")
+    if not diag.has(dR.dR_1[0]):
+        pytest.fail("setup: the diagonal scalar form was not built")
+    try:
+        term = yukawa(y, QL, H, dR, indices=(0, 1))
+    except ValueError:
+        return
+    raise AssertionError(f"indices=(0, 1) silently built the (0, 0) entry: "
+                         f"{term.has(dR.dR_1[0]) and not term.has(dR.dR_1[1])}")
