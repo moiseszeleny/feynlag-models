@@ -177,8 +177,9 @@ def yukawa_terms(p, Hd, Hu, ye, yd, yu):
 
 
 def _flavour_matrix_term(Y, FL, S, FR):
-    """``−Σ_ab Y^{ab} F̄_L^a S F_R^b + h.c.`` for an explicit 3×3 ``Matrix`` ``Y`` at integer flavour
-    indices, built entry by entry with ``feynlag.terms.yukawa`` (zero entries dropped).
+    """``−Σ_ab Y^{ab} F̄_L^a S F_R^b + h.c.`` for an explicit ``Matrix`` ``Y`` (any shape, e.g. 3×3 or
+    the 3×2 seesaw ``y_ν``) at integer flavour indices, built entry by entry with
+    ``feynlag.terms.yukawa`` (zero entries dropped).
 
     An off-diagonal entry goes through a placeholder ``IndexedBase`` on ``indices=(a, b)``, then the
     placeholder and its conjugate are replaced by ``Y[a, b]`` and ``conj(Y[a, b])``. A diagonal entry
@@ -188,8 +189,8 @@ def _flavour_matrix_term(Y, FL, S, FR):
     """
     ph = sp.IndexedBase("Yph")
     out = sp.S.Zero
-    for a in range(3):
-        for b in range(3):
+    for a in range(Y.rows):
+        for b in range(Y.cols):
             y = Y[a, b]
             if y == 0:
                 continue

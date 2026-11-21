@@ -1,5 +1,6 @@
 """L0/L1: invariance, anomalies, the 5×5 seesaw mass matrix and its Takagi spectrum."""
 
+import pytest
 import sympy as sp
 
 from feynlag import diagonalize_takagi
@@ -123,3 +124,137 @@ def test_majorana_table_precision(ss):
         label = rf"| $`\bar{{{_state_tex(a)}}} {_state_tex(b)} h`$ | $`P_R`$ | "
         rows = [l for l in printed if l.startswith(label)]
         assert rows == [label + f"{want:.3e} |"], (a, b, rows, want)
+
+
+# ------------------------------------------------- feynlag 0.4.0 API (constructors, guided basis)
+
+def _component_level_neutrino_terms(ss):
+    """The Dirac Yukawa and Majorana mass typed component by component (the pre-0.4.0 body of
+    ``build``), kept here as the reference the constructors must reproduce:
+    ``−Σ_ab y_ν^{ab} L̄_a H̃ ν_R^b − ½ Σ_k M_k ν_R^{kT} C P_L ν_R^k + h.c.``, ``H̃ = (H⁰*, −G⁺*)``."""
+    from feynlag import Bilinear, MajoranaBilinear, diracPL, diracPR
+    from models.seesaw_type1_2n.model import N_L, N_R
+    e, p = ss.extra, ss.pieces
+    Gp, H0 = e["ew"].H.components
+    Ll = p.fermions["Ll"]
+    nuL, eL = Ll.components
+    nuLbar, eLbar = Ll.bar_components
+    nR, nRbar = e["nuR"].components[0], e["nuR"].bar_components[0]
+    yv, CPL = e["yv"], e["CPL"]
+    LYukD = sp.S.Zero
+    for a in range(N_L):
+        for b in range(N_R):
+            y, yc = yv[a, b], sp.conjugate(yv[a, b])
+            LYukD += -(y * sp.conjugate(H0) * Bilinear(nuLbar[a], diracPR, nR[b])
+                       + y * (-sp.conjugate(Gp)) * Bilinear(eLbar[a], diracPR, nR[b]))
+            LYukD += -(yc * H0 * Bilinear(nRbar[b], diracPL, nuL[a])
+                       + yc * (-Gp) * Bilinear(nRbar[b], diracPL, eL[a]))
+    LMaj = sp.S.Zero
+    for k in range(N_R):
+        op = -sp.Rational(1, 2) * e["MR"][k].s * MajoranaBilinear(nR[k], CPL, nR[k])
+        LMaj += op + sp.conjugate(op)
+    return LYukD, LMaj
+
+
+def test_constructors_reproduce_component_neutrino_terms(ss):
+    """``sm._flavour_matrix_term`` on the 3×2 ``y_ν`` with ``tilde(H)`` (off-diagonal entries on
+    ``indices=(a, b)``, the ``a == b`` entries in the single-index form, FG-11) and one
+    ``majorana_mass`` per ``k`` give exactly the component-level terms, both halves included."""
+    from feynlag import expand_bilinear
+    LYukD, LMaj = _component_level_neutrino_terms(ss)
+    X = lambda z: sp.expand(expand_bilinear(sp.expand(z)))   # noqa: E731
+    assert X(ss.extra["LYukD"] - LYukD) == 0
+    assert X(ss.extra["LMaj"] - LMaj) == 0
+
+
+def test_mass_blocks_report_sm_blocks(ss):
+    """``mass_blocks`` gives the SM Higgs and gauge blocks (what ``sm.ew_gauge_basis`` and
+    ``sm.sm_higgs_states`` read). The fermion blocks are refused (FG-12), so the neutrinos go
+    through ``seesaw_mass_matrix`` + ``diagonalize_takagi`` + ``MajoranaRotation``."""
+    m, b, p = ss.model, ss.bosons, ss.pieces
+    scalar = m.mass_blocks(kind="scalar")
+    assert [blk.fields for blk in scalar] == [[b["h"]], [b["G0"]], [b["Gp"]]]
+    assert [bool(blk.goldstones) for blk in scalar] == [False, True, True]
+    assert all(blk.diagonalizable for blk in scalar)
+    assert [blk.fields for blk in m.mass_blocks(kind="gauge")] == [
+        list(p.W.components[:2]), [p.W.components[2], p.B.components[0]]]
+
+
+def test_physical_registry(ss):
+    """Charges (derived from the vacuum), conjugate pairs and Goldstones from ``model.physical``."""
+    b = ss.bosons
+    assert ss.charges == {b["h"]: 0, b["G0"]: 0, b["Gp"]: 1, b["Gm"]: -1,
+                          b["Z"]: 0, b["A"]: 0, b["Wp"]: 1, b["Wm"]: -1}
+    assert ss.conjugates == {b["Gp"]: b["Gm"], b["Gm"]: b["Gp"], b["Wp"]: b["Wm"], b["Wm"]: b["Wp"]}
+    assert ss.goldstones == (b["G0"], b["Gp"], b["Gm"])
+
+
+def test_term_coverage(ss):
+    """The potential is fully recognised (``V = −μ²H†H + λ(H†H)²``). The Yukawas sit at explicit
+    integer flavour indices, which ``term_coverage`` documents as unmatched (``TermCoverage``
+    docstring: "explicit integer flavour indices"), so the four Yukawa operators, ``L̄ H̃ ν_R``
+    included, are reported missing. The bare ``ν_R`` Majorana mass is not in feynlag's operator
+    basis (FG-10), so it is not listed. The remainder is exactly the Yukawa and Majorana sector.
+
+    ``term_coverage`` decomposes only the ``P_R`` / ``C P_L`` half of each fermion term (feynlag
+    ``general.py``, ``_canonical_fermion_half``), so this test does not check the conjugated half
+    or its phase; that half is covered by ``test_constructors_reproduce_component_neutrino_terms``
+    (and, for the charged leptons and quarks, by ``sm_ckm``'s constructor test of the same helper)."""
+    from feynlag import Bilinear, MajoranaBilinear, diracPR, expand_bilinear
+    e = ss.extra
+    CPL = e["CPL"]
+    tc = ss.model.term_coverage()
+    assert {t.label: c for t, c in tc.present} == {"(H†H)": -e["ew"].mu2.s,
+                                                   "(H†H) (H†H)": e["ew"].lam.s}
+    assert {t.label for t in tc.missing} == {"Ll̄·H eR", "Ll̄·H̃ nuR", "QL̄·H̃ uR", "QL̄·H dR"}
+    assert set(tc.unmatched) == {"yukawa"}
+    L_fer = sp.expand(expand_bilinear(sp.expand(sum(
+        t.expr for t in ss.model.lagrangian.terms if t.sector in ("yukawa", "other")))))
+    half = sum(term for term in sp.Add.make_args(L_fer)
+               if all(x.gamma in (diracPR, CPL) for x in term.atoms(Bilinear, MajoranaBilinear)))
+    assert half.has(MajoranaBilinear) and half.has(e["nuR"].nuR[1])
+    assert sp.expand(expand_bilinear(sp.expand(tc.unmatched["yukawa"])) - half) == 0
+
+
+def test_summary_and_parameters(ss):
+    """``summary()``: ν_R is a right-handed gauge singlet with two flavours; every parameter is
+    listed in order and ``check_parameters()`` finds no undeclared symbol."""
+    s = ss.model.summary()
+    rows = {r[0]: tuple(str(x) for x in r[1:5]) for r in s.field_rows}
+    assert rows["nuR"] == ("fermion R", "1", "0", "1")
+    assert rows["Ll"] == ("fermion L", "2", "-1/2", "1")
+    assert set(rows) == {"H", "W", "B", "G", "Ll", "eR", "QL", "uR", "dR", "nuR"}
+    assert [r[0] for r in s.param_rows] == [q.name for q in ss.params]
+    assert ss.model.check_parameters().undeclared == []
+
+
+def test_consumer_interface(ss):
+    """feynlag-anomalies ``neutrino_mass`` substitutes trial Yukawas for ``yv_params[k].s`` into the
+    symbolic ``Mnu`` and fixes ``v`` and ``M_k`` from the benchmark: those symbols must be exactly
+    ``Mnu``'s, the Yukawas in a-major order, and the Takagi masses increasing."""
+    e = ss.extra
+    from models.seesaw_type1_2n.model import yukawa_name
+    assert [q.name for q in e["yv_params"]] == [yukawa_name(a, b) for a in range(3) for b in range(2)]
+    assert e["Mnu"].free_symbols == ({q.s for q in e["yv_params"]} | {q.s for q in e["MR"]}
+                                     | {e["ew"].v.s})
+    assert e["masses"] == sorted(e["masses"]) and len(e["masses"]) == 5
+
+
+@pytest.mark.xfail(strict=True, raises=(NotImplementedError, AssertionError),
+                   reason="FG-12: mass_blocks refuses a fermion block whose left- and right-handed "
+                   "fields have different numbers of flavours (3 nu_L, 2 nu_R)")
+def test_feynlag_unequal_flavour_mass_block_gap(ss):
+    """For the 3+2 seesaw ``mass_blocks(kind="fermion")`` should report the (ν_L, ν_R) block as not
+    diagonalizable (Majorana mass, Takagi route), as it does for one generation in
+    ``seesaw_type1``. feynlag 0.5.1 raises ``NotImplementedError`` ("different numbers of
+    flavours; build this mass matrix by hand"), so a bare ``mass_blocks()`` raises too."""
+    m, p = ss.model, ss.pieces
+    try:                                                        # setup: the boson blocks work
+        scalar = m.mass_blocks(kind="scalar")
+    except Exception as exc:                                    # never counted as the xfail
+        pytest.fail(f"setup: mass_blocks(kind='scalar') raised {exc!r}")
+    if len(scalar) != 3:
+        pytest.fail("setup: the SM scalar blocks were not found")
+    nu = [blk for blk in m.mass_blocks(kind="fermion") if p.fermions["Ll"].nuL in blk.fields]
+    assert len(nu) == 1 and ss.extra["nuR"].nuR in nu[0].right
+    assert nu[0].diagonalizable is False and "Majorana" in nu[0].note
