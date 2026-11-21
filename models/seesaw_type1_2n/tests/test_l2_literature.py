@@ -48,7 +48,8 @@ def _point(ss, yv_values=None, MR_values=None):
 
 
 def test_W_coupling_eq_2_5(ss, chi_table):
-    """W⁻ ē_a χ_k = (g/√2)·|U[a, k]| for every lepton flavour a and every mass eigenstate k:
+    """W⁻ ē_a χ_k = (g/√2)·U*[a, k] (phase included, n = U* χ) for every lepton flavour a and every
+    mass eigenstate k, so |W⁻ ē_a χ_k| = (g/√2)·|U[a, k]|:
     full strength for the light states, the mixing V_{aN} ≈ (m_D M_R⁻¹)_{aN} for N_{1,2}
     (Atre et al. Eq. 2.5, first term)."""
     e, vals = ss.extra, ss.values()
@@ -57,9 +58,15 @@ def test_W_coupling_eq_2_5(ss, chi_table):
     gsq = float(vals[ss.pieces.gw.s]) / 2**0.5
     for a in range(3):
         for k in range(5):
-            c = abs(coupling(chi_table, (eLbar[a], gL, chiL[k]), ss.bosons["Wm"], vals))
+            c = coupling(chi_table, (eLbar[a], gL, chiL[k]), ss.bosons["Wm"], vals)
             expected = gsq * abs(_num(e["U"][a, k]))
-            assert _close(c, expected, 1e-10), (a, k, c, expected)
+            assert _close(abs(c), expected, 1e-10), (a, k, c, expected)
+            # the phase too: with n = U* χ the coupling is (g/√2)·U*[a, k], not U[a, k]
+            want = gsq * _num(e["U"][a, k]).conjugate()
+            assert _close(c, want, 1e-10), (a, k, c, want)
+    # the check distinguishes U from U*: the Takagi factor has columns with phase i
+    assert any(abs(_num(e["U"][a, k]).imag) > 1e-3 * abs(_num(e["U"][a, k]))
+               for a in range(3) for k in range(5))
     light_sum = sum(abs(_num(e["U"][0, k]))**2 for k in range(3))
     assert abs(light_sum - 1) < 1e-12        # the light block is unitary up to O(V²)
 
