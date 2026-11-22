@@ -181,11 +181,11 @@ def _flavour_matrix_term(Y, FL, S, FR):
     the 3×2 seesaw ``y_ν``) at integer flavour indices, built entry by entry with
     ``feynlag.terms.yukawa`` (zero entries dropped).
 
-    An off-diagonal entry goes through a placeholder ``IndexedBase`` on ``indices=(a, b)``, then the
-    placeholder and its conjugate are replaced by ``Y[a, b]`` and ``conj(Y[a, b])``. A diagonal entry
-    is the scalar form on the one index ``a``: ``yukawa`` refuses an ``IndexedBase`` on ``(a, a)``
-    even for integers (FG-11), and a scalar coupling with ``(a, b)`` is silently put on ``(a, a)``
-    (FG-9), so neither is used where it would be wrong.
+    ``yukawa`` takes a scalar or an ``IndexedBase`` coupling, not an explicit ``Matrix``, so every
+    entry, diagonal included, goes through a placeholder ``IndexedBase`` on ``indices=(a, b)``; the
+    placeholder and its conjugate are then replaced by ``Y[a, b]`` and ``conj(Y[a, b])``. Integer
+    diagonal entries ``(a, a)`` are accepted since feynlag 0.5.2 (FG-11, resolved), and a scalar
+    coupling on ``(a, b)`` raises there (FG-9, resolved), so the placeholder is the one route.
     """
     ph = sp.IndexedBase("Yph")
     out = sp.S.Zero
@@ -194,11 +194,8 @@ def _flavour_matrix_term(Y, FL, S, FR):
             y = Y[a, b]
             if y == 0:
                 continue
-            if a == b:
-                out += yukawa(y, FL, S, FR, indices=a)
-            else:
-                out += yukawa(ph, FL, S, FR, indices=(a, b)).xreplace(
-                    {ph[a, b]: y, sp.conjugate(ph[a, b]): sp.conjugate(y)})
+            out += yukawa(ph, FL, S, FR, indices=(a, b)).xreplace(
+                {ph[a, b]: y, sp.conjugate(ph[a, b]): sp.conjugate(y)})
     return out
 
 

@@ -27,11 +27,13 @@
 - Masses and mixings exist only at numeric points. feynlag's `diagonalize_takagi` goes numeric on the
   generic $5\times5$, because the exact route does not finish (FG-5, resolved: before the `e34b356` pin
   it did not finish at all).
-- **FG-12**: `mass_blocks(kind="fermion")` refuses the $`3\times2`$ $`(\nu_L, \nu_R)`$ block (`NotImplementedError`), so the
-  neutrino sector is built by hand: the square `fermion_mass_matrix` sliced to $`3\times2`$, `seesaw_mass_matrix`, the
-  numeric Takagi and `MajoranaRotation`. The Higgs and gauge states come from `mass_blocks` as in `sm`.
-- `term_coverage()` reports the integer-index Yukawas as missing and the bare $`\nu_R`$ Majorana mass (FG-10) only in the
-  remainder.
+- FG-12 is resolved in feynlag 0.5.2: `mass_blocks(kind="fermion")` reports the $`3\times2`$ $`(\nu_L, \nu_R)`$ block
+  as not diagonalizable with the Majorana note, and the model reads $`m_D`$ from it. The rest of the neutrino sector
+  is `seesaw_mass_matrix`, the numeric Takagi and `MajoranaRotation`. The Higgs and gauge states come from
+  `mass_blocks` as in `sm`.
+- `term_coverage()` reports the integer-index Yukawas and the bare $`\nu_R`$ Majorana mass as missing (both are
+  written at integer flavour indices, the documented case; the Majorana operator is in the basis since 0.5.2,
+  FG-10 resolved), and their $`P_R`$ / $`C P_L`$ half as the remainder.
 - No loops ($\mu \to e\gamma$ from $N$ exchange), and no $0\nu\beta\beta$ amplitude.
 
 ## 5. Key references

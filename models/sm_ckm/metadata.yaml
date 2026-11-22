@@ -153,9 +153,7 @@ references:
     url: "https://github.com/moiseszeleny/feynlag"
     commit: "fe2208c87e80119b85ea479fbd074c1f925b81e5"
     verified_against: source_code
-feynlag_gaps:
-  - {id: FG-9, test: "tests/test_l0_l1.py::test_feynlag_scalar_coupling_integer_indices_gap"}
-  - {id: FG-11, test: "tests/test_l0_l1.py::test_feynlag_integer_diagonal_flavour_matrix_gap"}
+feynlag_gaps: []
 outputs:
   ufo: "outputs/SM_CKM_UFO"
   ufo_scope:
@@ -168,5 +166,5 @@ outputs:
   vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
-last_reviewed: 2026-11-20
+last_reviewed: 2026-11-22
 reviewed_by: "Moises Zeleny (with Claude)"

@@ -124,22 +124,19 @@ def test_physical_registry(ss):
 
 
 def test_term_coverage(ss):
-    """The potential and every dim-4 Yukawa the fields allow are present, ``y_ν`` on ``L̄ H̃ ν_R``
-    included (feynlag's ``L = −Σ c O``). The bare Majorana mass is the only remainder, because
-    feynlag's operator basis does not enumerate it (FG-10). At dim 5 the Weinberg operator is
-    absent, as it should be at tree level in the type-I seesaw. [physics judgment]"""
-    from feynlag import FL_I, MajoranaBilinear
+    """The potential, every dim-4 Yukawa the fields allow (``y_ν`` on ``L̄ H̃ ν_R`` included) and the
+    bare ``ν_R`` Majorana mass are present (feynlag's ``L = −Σ c O``), nothing is missing and
+    nothing is left over: the Majorana mass is in the operator basis since feynlag 0.5.2 (FG-10,
+    resolved). At dim 5 the Weinberg operator is absent, as it should be at tree level in the
+    type-I seesaw. [physics judgment]"""
     e, ys = ss.extra, ss.pieces.yukawa_params
     tc = ss.model.term_coverage()
     assert {t.label: c for t, c in tc.present} == {
         "(H†H)": -e["ew"].mu2.s, "(H†H) (H†H)": e["ew"].lam.s,
         "Ll̄·H eR": ys["ytau"].s, "QL̄·H dR": ys["yb"].s, "QL̄·H̃ uR": ys["yt"].s,
-        "Ll̄·H̃ nuR": e["yv"].s}
+        "Ll̄·H̃ nuR": e["yv"].s, "½ nuRᵀCnuR [Majorana]": e["MR"].s}
     assert tc.missing == []
-    nR = e["nuR"].nuR
-    majorana_half = -e["MR"].s * MajoranaBilinear(nR[FL_I], e["CPL"], nR[FL_I]) / 2   # diagonal
-    assert set(tc.unmatched) == {"yukawa"}
-    assert sp.expand(tc.unmatched["yukawa"] - majorana_half) == 0
+    assert tc.unmatched == {}
     assert [t.label for t in ss.model.term_coverage(max_dim=5).missing] == ["(Ll·εH)² [Weinberg]"]
 
 
@@ -155,44 +152,36 @@ def test_summary_and_parameters(ss):
     assert ss.model.check_parameters().undeclared == []
 
 
-@pytest.mark.xfail(strict=True, reason="FG-9: feynlag.terms silently ignores indices=(i, j) for a "
-                   "scalar coupling instead of raising ValueError")
-def test_feynlag_scalar_coupling_indices_gap(ss):
+def test_scalar_coupling_distinct_indices_raise(ss):
     """A scalar coupling is flavour-universal (δ_ij), so an explicit pair of distinct leg indices
-    contradicts it; ``yukawa`` and ``majorana_mass`` should raise ``ValueError``. feynlag 0.5.1 drops
-    the second index without a word and returns the term on ``(i, i)``."""
-    import pytest
+    contradicts it: ``yukawa`` and ``majorana_mass`` raise ``ValueError`` (FG-9, resolved in feynlag
+    0.5.2; up to 0.5.1 the second index was dropped and the ``(i, i)`` term returned). The model
+    uses the single-index forms (``test_constructor_terms_are_the_diagonal_component_terms``)."""
     from feynlag import majorana_mass, tilde, yukawa
     e, p = ss.extra, ss.pieces
     i, j = p.idx
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="flavour-universal"):
         yukawa(e["yv"], p.fermions["Ll"], tilde(e["ew"].H), e["nuR"], indices=(i, j))
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="flavour-universal"):
         majorana_mass(e["MR"], e["nuR"], indices=(i, j))
 
 
-@pytest.mark.xfail(strict=True, reason="FG-10: term_coverage/suggest_yukawa do not enumerate the "
-                   "bare Majorana mass of a gauge-singlet fermion")
-def test_feynlag_majorana_mass_coverage_gap(ss):
-    """The gauge-invariant ``−½ M_R ν_Rᵀ C P_L ν_R + h.c.`` should be a recognised invariant
-    (coefficient ∝ M_R) rather than an unmatched remainder."""
+def test_majorana_mass_in_operator_basis(ss):
+    """The gauge-invariant ``−½ M_R ν_Rᵀ C P_L ν_R + h.c.`` is a recognised invariant with
+    coefficient ``M_R``, not an unmatched remainder (FG-10, resolved in feynlag 0.5.2)."""
     tc = ss.model.term_coverage()
     assert tc.unmatched == {}
-    assert any(c.has(ss.extra["MR"].s) for _t, c in tc.present)
+    (coef,) = [c for t, c in tc.present if "Majorana" in t.label]
+    assert coef == ss.extra["MR"].s
 
 
-@pytest.mark.xfail(strict=True, raises=(ValueError, AssertionError),
-                   reason="FG-10: no bare Majorana mass for a fermion in a real "
-                   "non-singlet representation (SU(2) triplet): majorana_mass refuses it and "
-                   "suggest_yukawa does not enumerate it")
-def test_feynlag_triplet_majorana_gap():
+def test_triplet_majorana_mass():
     """A type-III-like triplet Σ (SU(2) 3, Y = 0) has the gauge-invariant bare Majorana mass
-    ``−½ M Σ^a C P_L Σ^a + h.c.``. It should be built by ``majorana_mass`` and offered by
-    ``suggest_yukawa``; feynlag 0.5.1 raises ``ValueError`` on the first and returns nothing
-    from the second.
+    ``−½ M Σ^a C P_L Σ^a + h.c.``: ``majorana_mass`` builds exactly the hand-written term and
+    ``suggest_yukawa`` offers it (FG-10, resolved in feynlag 0.5.2; up to 0.5.1 the first raised
+    ``ValueError`` and the second returned nothing).
 
-    The toy model is checked first, and a broken setup calls ``pytest.fail`` (not one of the
-    ``raises`` exceptions), so it fails the test instead of being absorbed by the xfail."""
+    The toy model is checked first; a broken setup calls ``pytest.fail``."""
     from feynlag import (Lagrangian, MajoranaBilinear, Model, WeylFermion, diracC, diracPL,
                          electroweak_scaffold, majorana_mass)
     from feynlag.suggest import suggest_yukawa
@@ -212,9 +201,9 @@ def test_feynlag_triplet_majorana_gap():
     if len(Sig.components) != 3 or op == 0:
         pytest.fail("toy setup: the triplet does not have three non-trivial components")
 
-    # the gap: the constructor refuses the invariant term (ValueError) ...
+    # the constructor builds the invariant term ...
     term = majorana_mass(M, Sig, indices=i)
     assert sp.expand(term - (op + sp.conjugate(op))) == 0
-    # ... and the operator basis does not offer it (AssertionError)
+    # ... and the operator basis offers it
     basis = suggest_yukawa([Sig], [ew.H], [ew.SU2L, ew.U1Y], max_dim=4, verify=False)
-    assert basis, "no bare Majorana mass offered for the triplet"
+    assert [t.label for t in basis if "Majorana" in t.label], [t.label for t in basis]

@@ -9,10 +9,10 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 |---|---|---|---|
 | `sm` | **L3** | 19 passed | UFO round-trip with $t$, $b$, $\tau$, $\nu$ and the EW bosons; L4 not re-claimed (feynlag's own MadGraph benchmark covers EW+leptons) |
 | `sm_singlet_z2` | **L3** | 19 passed (FG-8 resolved in feynlag 0.5.1) | Robens–Stefaniak Eqs. (7)–(13) reproduced ($\alpha = -\theta$, regime $\lambda_S v_S^2 \gt \lambda v^2$); gaps FG-1, FG-2 resolved |
-| `seesaw_type1` | **L2** | 16 passed + 3 strict xfails (FG-9, FG-10 twice) | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
-| `sm_ckm` (added 2026-09-17) | **L3** | 17 passed + 2 strict xfails (FG-9, FG-11) | three generations, CKM through a unitary $d_L$ rotation; PDG 2024 CKM review Eqs. (12.2), (12.3), (12.27), (12.28) and $J$; GIM derived |
-| `seesaw_type1_2n` (added 2026-09-24) | **L2** | 20 passed + 1 strict xfail (FG-12) | three generations, two $\nu_R$: rank-2 light sector ($m_{\nu_1} = 0$), Atre et al. Eq. (2.5) per flavour, Ibarra–Ross Eq. (6) reproduced, one-generation limit equals `seesaw_type1`; **L3 stopped** (FG-3) |
-| `froggatt_nielsen` (added 2026-10-05) | **L2** | 24 passed + 1 strict xfail (FG-13; the FG-6, FG-7 xfails were removed when both were resolved in feynlag 0.3.0) | three generations, global $`U(1)_{\rm FN}`$ flavon, exact $`c_{ij}(\phi/\Lambda)^{n_{ij}}`$ operators; LNS-2 Eqs. (2.3)–(2.7), (2.19) and LNS-1 Eqs. (5.7), (5.8) reproduced as textures, determinants and $\epsilon \to 0$ scaling; no UFO (not requested) |
+| `seesaw_type1` | **L2** | 19 passed (FG-9, FG-10 resolved in feynlag 0.5.2) | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
+| `sm_ckm` (added 2026-09-17) | **L3** | 19 passed (FG-9, FG-11 resolved in feynlag 0.5.2) | three generations, CKM through a unitary $d_L$ rotation; PDG 2024 CKM review Eqs. (12.2), (12.3), (12.27), (12.28) and $J$; GIM derived |
+| `seesaw_type1_2n` (added 2026-09-24) | **L2** | 21 passed (FG-12 resolved in feynlag 0.5.2) | three generations, two $\nu_R$: rank-2 light sector ($m_{\nu_1} = 0$), Atre et al. Eq. (2.5) per flavour, Ibarra–Ross Eq. (6) reproduced, one-generation limit equals `seesaw_type1`; **L3 stopped** (FG-3) |
+| `froggatt_nielsen` (added 2026-10-05) | **L2** | 25 passed (FG-13 resolved in feynlag 0.5.2; FG-6, FG-7 in 0.3.0) | three generations, global $`U(1)_{\rm FN}`$ flavon, exact $`c_{ij}(\phi/\Lambda)^{n_{ij}}`$ operators; LNS-2 Eqs. (2.3)–(2.7), (2.19) and LNS-1 Eqs. (5.7), (5.8) reproduced as textures, determinants and $\epsilon \to 0$ scaling; no UFO (not requested) |
 | `thdm_type2` | **L3** | 25 passed + 1 strict xfail (D-2) | GH Eqs. (6)–(17), Branco Eq. (16)/Table 2; benchmark inverted from (125, 300, 300, 320) GeV re-derived exactly by feynlag |
 
 Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the schema v2 section for the current count. `scripts/build_outputs.py --check` and
@@ -29,7 +29,9 @@ Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the sche
 - ~~`froggatt_nielsen::test_feynlag_svd_complex_gap`~~, ~~`froggatt_nielsen::test_feynlag_flavour_dependent_charge_gap`~~
   — removed: FG-6 and FG-7 are resolved at the `feynlag==0.3.0` pin, and the model uses
   `diagonalize_svd(method="numeric")` and `GlobalU1` itself.
-- Strict xfails for open feynlag gaps, each named in its `FEYNLAG_GAPS.md` row: FG-9 (`seesaw_type1::test_feynlag_scalar_coupling_indices_gap`, `sm_ckm::test_feynlag_scalar_coupling_integer_indices_gap`), FG-10 (two in `seesaw_type1`), FG-11 (`sm_ckm::test_feynlag_integer_diagonal_flavour_matrix_gap`), FG-12 (`seesaw_type1_2n::test_feynlag_unequal_flavour_mass_block_gap`), and FG-13 (`froggatt_nielsen::test_feynlag_term_coverage_global_symmetry_gap`).
+- ~~FG-9 to FG-13 strict xfails~~ (`seesaw_type1` ×3, `sm_ckm` ×2, `seesaw_type1_2n`, `froggatt_nielsen`) — became
+  passing tests at the `feynlag==0.5.2` pin (see the section on it below). No open feynlag gap has a strict xfail now:
+  FG-3 (Majorana UFO) stops an item and has no test.
 - No test is skipped. No `slow` (MadGraph) test exists yet: **L4 was not attempted** for any model.
 
 ## TODO(verify) list at the end of the pilot (43 markers; 17 after the schema-v2 migration, 6 after 2026-09-17 — see below)
@@ -503,6 +505,31 @@ Seventh and last per-model migration, at the `feynlag==0.5.1` pin. All outputs a
 - **Equality proof** (against `main`): 72 boson rules, **2289 fermion coefficients**, every rotation, `theta`, `MH1`,
   `MH2`, `Yu`, `Yd`, `Ye`, `eps` and the `model_exact` terms, parameters and `validate()` agree. The only formal flag
   is the Weinberg matrix's simpler form.
+
+## feynlag pin moved to `0.5.2`; FG-9 to FG-13 resolved (2026-11-22)
+
+- **Pin.** From `feynlag==0.5.1` to `feynlag==0.5.2` (tag `v0.5.2` = `0616bf4`, feynlag PR #63). Only FG-3 stays open.
+- **FG-9, FG-11.** A scalar coupling on two different leg indices raises `ValueError`, and an integer flavour-matrix
+  diagonal entry `(a, a)` is accepted. `sm._flavour_matrix_term` now builds every entry, diagonal included, through
+  one placeholder `IndexedBase` on `(a, b)`. The placeholder stays because `yukawa` takes no explicit `Matrix`
+  coupling. **[feynlag-verified: test_scalar_coupling_distinct_indices_raise, test_scalar_coupling_integer_off_diagonal_raises,
+  test_integer_diagonal_flavour_matrix_entry]**
+- **FG-10.** `term_coverage()` on `seesaw_type1` matches the bare $`\nu_R`$ Majorana mass (coefficient $`M_R`$),
+  with nothing missing or unmatched. `majorana_mass` builds the triplet $`\Sigma^a\Sigma^a`$ mass, and
+  `suggest_yukawa` offers it **[feynlag-verified: test_term_coverage, test_triplet_majorana_mass]**. In
+  `seesaw_type1_2n` the Majorana mass is written at integer flavour indices, so it is listed missing like the Yukawas
+  (the documented integer-index case).
+- **FG-12.** `seesaw_type1_2n` reads its $`3\times2`$ $`m_D`$ from `mass_blocks(kind="fermion")`. That block is
+  reported as not diagonalizable, with the Majorana / Takagi note **[feynlag-verified: test_fermion_mass_blocks]**.
+- **FG-13.** `term_coverage()` on the `froggatt_nielsen` `model_exact` imposes U(1)_FN and lists only the three
+  integer-index Yukawas as missing **[feynlag-verified: test_term_coverage_imposes_global_symmetry]**.
+- **Equality proof** (`model_equal.py` against `main`, old-vs-old first) for the three models whose build changed
+  through the shared helper: `sm_ckm`, `seesaw_type1_2n` and `froggatt_nielsen`. Old-vs-old is ALL EQUAL for each, at
+  0.5.2. Legacy-vs-new: every Yukawa term has expanded difference 0, and every boson rule, the fermion vertex table, the
+  physical Lagrangian, rotations, parameters and bookkeeping agree. The `seesaw_type1_2n` `mD`, `Mnu`, `U`, `D` and masses
+  are identical. The only formal flags are the Yukawa terms' expression form (diagonal entries now built on
+  `(a, a)`) and the extra key `mD_full` replaced by `nu_block`.
+- Tests: `seesaw_type1` 19, `sm_ckm` 19, `seesaw_type1_2n` 21 and `froggatt_nielsen` 25 passed, with no xfail.
 
 ## What to do next
 
