@@ -12,7 +12,7 @@ Scope: freeze the format on `sm` (root) + three extensions. feynlag pinned at
 | `seesaw_type1` | **L2** | 16 passed + 3 strict xfails (FG-9, FG-10 twice) | Takagi spectrum, seesaw series, Atre et al. Eq. (2.5) couplings; **L3 stopped** (FG-3, no Majorana UFO) |
 | `sm_ckm` (added 2026-09-17) | **L3** | 17 passed + 2 strict xfails (FG-9, FG-11) | three generations, CKM through a unitary $d_L$ rotation; PDG 2024 CKM review Eqs. (12.2), (12.3), (12.27), (12.28) and $J$; GIM derived |
 | `seesaw_type1_2n` (added 2026-09-24) | **L2** | 20 passed + 1 strict xfail (FG-12) | three generations, two $\nu_R$: rank-2 light sector ($m_{\nu_1} = 0$), Atre et al. Eq. (2.5) per flavour, Ibarra–Ross Eq. (6) reproduced, one-generation limit equals `seesaw_type1`; **L3 stopped** (FG-3) |
-| `froggatt_nielsen` (added 2026-10-05) | **L2** | 14 passed (the FG-6, FG-7 strict xfails were removed when both were resolved in feynlag 0.3.0) | three generations, global $`U(1)_{\rm FN}`$ flavon, exact $`c_{ij}(\phi/\Lambda)^{n_{ij}}`$ operators; LNS-2 Eqs. (2.3)–(2.7), (2.19) and LNS-1 Eqs. (5.7), (5.8) reproduced as textures, determinants and $\epsilon \to 0$ scaling; no UFO (not requested) |
+| `froggatt_nielsen` (added 2026-10-05) | **L2** | 24 passed + 1 strict xfail (FG-13; the FG-6, FG-7 xfails were removed when both were resolved in feynlag 0.3.0) | three generations, global $`U(1)_{\rm FN}`$ flavon, exact $`c_{ij}(\phi/\Lambda)^{n_{ij}}`$ operators; LNS-2 Eqs. (2.3)–(2.7), (2.19) and LNS-1 Eqs. (5.7), (5.8) reproduced as textures, determinants and $\epsilon \to 0$ scaling; no UFO (not requested) |
 | `thdm_type2` | **L3** | 25 passed + 1 strict xfail (D-2) | GH Eqs. (6)–(17), Branco Eq. (16)/Table 2; benchmark inverted from (125, 300, 300, 320) GeV re-derived exactly by feynlag |
 
 Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the schema v2 section for the current count. `scripts/build_outputs.py --check` and
@@ -29,7 +29,7 @@ Fast suite at the end of the pilot: `56 passed, 3 xfailed` (115 s); see the sche
 - ~~`froggatt_nielsen::test_feynlag_svd_complex_gap`~~, ~~`froggatt_nielsen::test_feynlag_flavour_dependent_charge_gap`~~
   — removed: FG-6 and FG-7 are resolved at the `feynlag==0.3.0` pin, and the model uses
   `diagonalize_svd(method="numeric")` and `GlobalU1` itself.
-- Strict xfails for open feynlag gaps, each named in its `FEYNLAG_GAPS.md` row: FG-9 (`seesaw_type1::test_feynlag_scalar_coupling_indices_gap`, `sm_ckm::test_feynlag_scalar_coupling_integer_indices_gap`), FG-10 (two in `seesaw_type1`), FG-11 (`sm_ckm::test_feynlag_integer_diagonal_flavour_matrix_gap`) and FG-12 (`seesaw_type1_2n::test_feynlag_unequal_flavour_mass_block_gap`).
+- Strict xfails for open feynlag gaps, each named in its `FEYNLAG_GAPS.md` row: FG-9 (`seesaw_type1::test_feynlag_scalar_coupling_indices_gap`, `sm_ckm::test_feynlag_scalar_coupling_integer_indices_gap`), FG-10 (two in `seesaw_type1`), FG-11 (`sm_ckm::test_feynlag_integer_diagonal_flavour_matrix_gap`), FG-12 (`seesaw_type1_2n::test_feynlag_unequal_flavour_mass_block_gap`), and FG-13 (`froggatt_nielsen::test_feynlag_term_coverage_global_symmetry_gap`).
 - No test is skipped. No `slow` (MadGraph) test exists yet: **L4 was not attempted** for any model.
 
 ## TODO(verify) list at the end of the pilot (43 markers; 17 after the schema-v2 migration, 6 after 2026-09-17 — see below)
@@ -482,6 +482,27 @@ for all seven models, nothing regenerated).
   equal; `Mnu`, `U`, `D`, `masses`, `MajoranaRotation` and the Majorana vertex page identical. The only formal flags are
   the expanded form of `LYukD` and the Weinberg matrix. `sm_ckm` and `froggatt_nielsen` re-proved equal for the helper
   change.
+
+## `froggatt_nielsen` on the feynlag 0.4.0+ API (2026-11-21)
+
+Seventh and last per-model migration, at the `feynlag==0.5.1` pin. All outputs are byte-identical (`build_outputs.py
+--check` clean for all seven models, nothing regenerated).
+
+- **Both models migrated.** `model_exact` (exact $`c_{ij}(\phi/\Lambda)^{n_{ij}}`$, `GlobalU1` U(1)_FN) and the
+  linearised `bundle.model` take a `ParameterSet` (the exact one a snapshot, without the linearised internals), in
+  the previous order. `validate()` still imposes U(1)_FN on every term **[feynlag-verified: test_global_u1_fn_every_term]**.
+- **FN Yukawas.** `L_exact` and `L_linear` (through `sm.yukawa_terms`, the placeholder route for field-dependent
+  entries) equal the component-level terms, both at the benchmark and at a charge set with $`n \lt 0`$ entries built
+  from $`(\phi^*)^{\lvert n\rvert}`$ **[feynlag-verified: test_constructors_reproduce_component_yukawas_exact_and_linear]**.
+- **Flavon.** `kinetic(phiF)` and `inner` give the hand-written $`(\partial\phi)^*(\partial\phi)`$ and potential
+  **[feynlag-verified: test_flavon_kinetic_and_potential_constructors]**. The $`(h, s)`$ mixing comes from
+  `mass_blocks()` and `diagonalize(…, angle=theta)` with the identical rotation matrix and angle solution; the flavon
+  phase $`a`$ is a massless, non-eaten state **[feynlag-verified: test_mass_blocks_report_scalar_gauge_and_flavoured_blocks]**.
+- **New gap FG-13.** `term_coverage` ignores `Model.global_groups`: on `model_exact` it reports seven U(1)_FN-violating
+  flavon operators as missing, a wrong result **[feynlag-verified: test_term_coverage_model_exact]**.
+- **Equality proof** (against `main`): 72 boson rules, **2289 fermion coefficients**, every rotation, `theta`, `MH1`,
+  `MH2`, `Yu`, `Yd`, `Ye`, `eps` and the `model_exact` terms, parameters and `validate()` agree. The only formal flag
+  is the Weinberg matrix's simpler form.
 
 ## What to do next
 

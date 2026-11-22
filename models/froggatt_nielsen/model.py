@@ -30,17 +30,14 @@ matrices, so masses and V_CKM come from feynlag's numeric SVD (:func:`mass_basis
 
 import sympy as sp
 
-from feynlag import (
-    GlobalU1, Model, ParameterSet, PartialMu, Scalar, dag, diagonalize_orthogonal_2x2,
-    to_physical_basis, tex_symbol,
-)
+from feynlag import GlobalU1, Model, ParameterSet, Scalar, conjugate_pair, inner, kinetic
 from feynlag.export.ufo import UFOParticle
 
 from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
 from feynlag_models.bundle import ModelBundle
 from feynlag_models.outputs import standard_outputs
-from feynlag_models.tex import TEX, external, internal
+from feynlag_models.tex import TEX
 from models.sm import model as sm
 
 ID = "froggatt_nielsen"
@@ -95,14 +92,30 @@ def fn_symmetry(pieces, phiF, charges, name="U1_FN"):
     return G
 
 
-def coefficient_params(bench, prefix):
-    """The 3×3 complex ``c_ij = |c| exp(i α)``: (matrix, [abs params], [arg params])."""
-    absp = [[external(f"{prefix}{i + 1}{j + 1}_abs", bench[f"{prefix}{i + 1}{j + 1}_abs"])
-             for j in range(3)] for i in range(3)]
-    argp = [[external(f"{prefix}{i + 1}{j + 1}_arg", bench[f"{prefix}{i + 1}{j + 1}_arg"])
-             for j in range(3)] for i in range(3)]
+def coefficient_params(P, bench, prefix):
+    """The 3×3 complex ``c_ij = |c| exp(i α)``, declared on the ``ParameterSet`` ``P`` (all the
+    moduli, then all the phases): (matrix, [abs params], [arg params])."""
+    def ext(name):
+        return P.external(name, bench[name], tex=TEX.get(name))
+    absp = [[ext(f"{prefix}{i + 1}{j + 1}_abs") for j in range(3)] for i in range(3)]
+    argp = [[ext(f"{prefix}{i + 1}{j + 1}_arg") for j in range(3)] for i in range(3)]
     C = sp.Matrix(3, 3, lambda i, j: absp[i][j].s * sp.exp(sp.I * argp[i][j].s))
     return C, [q for row in absp for q in row], [q for row in argp for q in row]
+
+
+def scalar_blocks(model):
+    """``(even, G0, Gp, a0)`` from ``model.mass_blocks(kind="scalar")``: the CP-even
+    ``(H0_r, phi_r)`` block that the portal ``λ_Hφ`` mixes, the Goldstone-tagged ``G0`` and ``G+``,
+    and the CP-odd flavon ``phi_i``, the massless Goldstone of the *global* U(1)_FN (not eaten,
+    so not Goldstone-tagged)."""
+    blocks = model.mass_blocks(kind="scalar")
+    if len(blocks) != 4:
+        raise ValueError(f"expected the (h, s) block, G0, G+ and a, got {blocks}")
+    (even,) = [b for b in blocks if b.size == 2 and b.cp == "even"]
+    (G0,) = [b.fields[0] for b in blocks if b.size == 1 and b.goldstones and not b.complex]
+    (Gp,) = [b.fields[0] for b in blocks if b.size == 1 and b.goldstones and b.complex]
+    (a0,) = [b.fields[0] for b in blocks if b.size == 1 and not b.goldstones]
+    return even, G0, Gp, a0
 
 
 def build(benchmark=None):
@@ -115,24 +128,25 @@ def build(benchmark=None):
     p.params = [q for q in p.params if q.name not in dropped]
     p.masses, p.yukawa_params = {}, {}
     ew = p.ew
+    P = ParameterSet(*p.params)
 
     # --- delta: the flavon -------------------------------------------------------
-    vphi = external("vphi", bench["vphi"], positive=True, unit_dim=1)
-    Lam = external("Lam", bench["Lam"], positive=True, unit_dim=1)
-    lamPhi = external("lamPhi", bench["lamPhi"])
-    lamHPhi = external("lamHPhi", bench["lamHPhi"])
-    muPhi2 = internal("muPhi2", unit_dim=2)
-    eps = internal("eps", vphi.s / (sp.sqrt(2) * Lam.s), positive=True)
+    vphi = P.external("vphi", bench["vphi"], tex=TEX.get("vphi"), positive=True, unit_dim=1)
+    Lam = P.external("Lam", bench["Lam"], tex=TEX.get("Lam"), positive=True, unit_dim=1)
+    lamPhi = P.external("lamPhi", bench["lamPhi"], tex=TEX.get("lamPhi"))
+    lamHPhi = P.external("lamHPhi", bench["lamHPhi"], tex=TEX.get("lamHPhi"))
+    muPhi2 = P.internal("muPhi2", tex=TEX.get("muPhi2"), unit_dim=2)
+    eps = P.internal("eps", vphi.s / (sp.sqrt(2) * Lam.s), tex=TEX.get("eps"), positive=True)
     phiF = Scalar("phi", reps={}, component_names=["phi"], tex=r"\phi")
     phi = phiF.components[0]
     phiF.expand_vev({phi: vphi}, tex=TEX)
     _vev, s0, a0 = phiF.vev_expansions[phi]
 
-    absphi2 = phi * sp.conjugate(phi)
-    HdH = (dag(ew.H) * ew.H.mat)[0]
-    V_phi = -muPhi2.s * absphi2 + lamPhi.s * absphi2**2 + lamHPhi.s * HdH * absphi2
+    absphi2 = inner(phiF, phiF)                             # φ* φ
+    V_phi = -muPhi2.s * absphi2 + lamPhi.s * absphi2**2 + lamHPhi.s * inner(ew.H, ew.H) * absphi2
     p.add_term(-V_phi, "potential", "flavon_potential")
-    p.add_term(PartialMu(sp.conjugate(phi)) * PartialMu(phi), "kinetic", "flavon_kinetic")
+    # (∂φ)*(∂φ), the canonical term of a complex scalar
+    p.add_term(sum(expr for expr, _sector in kinetic(phiF)), "kinetic", "flavon_kinetic")
     p.fields.append(phiF)
 
     # --- delta: FN Yukawas (exact operators) ----------------------------------------
@@ -141,7 +155,7 @@ def build(benchmark=None):
     C, c_abs, c_arg, Y, Y_exact, Y_linear = {}, {}, {}, {}, {}, {}
     w = vphi.s / sp.sqrt(2)
     for sector, (_l, _r, prefix) in SECTORS.items():
-        C[sector], c_abs[sector], c_arg[sector] = coefficient_params(bench, prefix)
+        C[sector], c_abs[sector], c_arg[sector] = coefficient_params(P, bench, prefix)
         n = powers[sector]
         Y[sector] = sp.Matrix(3, 3, lambda i, j: C[sector][i, j] * eps.s ** abs(n[i, j]))
         Y_exact[sector] = sp.Matrix(3, 3, lambda i, j:
@@ -156,56 +170,63 @@ def build(benchmark=None):
     p.params += [vphi, Lam, lamPhi, lamHPhi, muPhi2, eps, *c_params]
 
     U1_FN = fn_symmetry(p, phiF, charges)
+    # a snapshot of the parameters declared so far: the linearised model's internals stay out
     model_exact = Model(f"{ID}_exact", gauge_groups=p.gauge_groups, global_groups=[U1_FN],
-                        fields=p.fields, parameters=p.params, lagrangian=p.lagrangian())
+                        fields=p.fields, parameters=ParameterSet(*P), lagrangian=p.lagrangian())
 
     # --- the linearised model: spectrum, rotations, vertices --------------------------
     for name, expr in L_linear.items():
         p.replace_term(name, expr)
     p.yukawa = dict(L_linear)
+    g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
+    P.add(*sm.width_params(bench))
+    MW = P.internal("MW", g * v / 2, tex=TEX.get("MW"), positive=True, unit_dim=1)
+    MZ = P.internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, tex=TEX.get("MZ"), positive=True,
+                    unit_dim=1)
+    theta = P.internal("theta", tex=TEX.get("theta"))   # defined by diagonalize below
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
-                  parameters=p.params, lagrangian=p.lagrangian())
+                  parameters=P, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2, muPhi2])
-    phys = to_physical_basis(model, ew, tex=TEX)
+    Z, A, Wp, Wm = sm.ew_gauge_basis(model)
 
     # --- CP-even mixing (h, s) → (h1, h2), as in sm_singlet_z2 ----------------------
-    M_even = model.mass_matrix([phys.h, s0])
-    h1, h2 = (tex_symbol(name, TEX[name], real=True) for name in ("h1", "h2"))
-    theta = internal("theta")
-    rot = diagonalize_orthogonal_2x2(M_even, [phys.h, s0], [h1, h2], angle=theta.s)
-    theta.define(rot.angle_solution)
-    model.rotate(rot)
-    m1sq, m2sq = rot.masses_squared(M_even, simplifier=sp.expand)
+    # symbolic tan 2θ route, principal branch: h1 is the h-like state (labels follow mixing,
+    # CONVENTIONS.md / UG-4), so no values=, which would reorder the states by mass instead
+    even, G0, Gp, a_state = scalar_blocks(model)
+    if a_state != a0:
+        raise ValueError(f"expected the flavon phase {a0} as the massless CP-odd state, got {a_state}")
+    h_weak = even.fields[0]
+    mix = model.diagonalize(even, names=["h1", "h2"], tex=TEX, angle=theta)
+    h1, h2 = mix.new_fields
+    rot, M_even = mix.rotation, even.matrix
+    m1sq, m2sq = mix.masses_squared
+    MH1 = P.internal("MH1", sp.sqrt(m1sq), tex=TEX.get("MH1"), positive=True, unit_dim=1)
+    MH2 = P.internal("MH2", sp.sqrt(m2sq), tex=TEX.get("MH2"), positive=True, unit_dim=1)
 
-    bosons = dict(h1=h1, h2=h2, a=a0, G0=phys.G0, Gp=phys.Gp, Gm=phys.Gm,
-                  Z=phys.Z, A=phys.A, Wp=phys.Wp, Wm=phys.Wm)
-    bcharges = {h1: 0, h2: 0, a0: 0, phys.G0: 0, phys.Gp: 1, phys.Gm: -1,
-                phys.Z: 0, phys.A: 0, phys.Wp: 1, phys.Wm: -1}
-    conjugates = {phys.Gp: phys.Gm, phys.Gm: phys.Gp, phys.Wp: phys.Wm, phys.Wm: phys.Wp}
+    Gm, cmap = conjugate_pair(Gp, "Gm", tex=TEX["Gm"])
+    model.physical.add_bosons([G0, Gp, Gm], goldstones=[G0, Gp, Gm])
+    model.physical.add_bosons([a0])        # the U(1)_FN Goldstone: physical and massless
+    model.physical.add_conjugate_pair(Gp, Gm, cmap)
+    phys = model.physical
 
-    g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
-    MW = internal("MW", g * v / 2, positive=True, unit_dim=1)
-    MZ = internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, positive=True, unit_dim=1)
-    MH1 = internal("MH1", sp.sqrt(m1sq), positive=True, unit_dim=1)
-    MH2 = internal("MH2", sp.sqrt(m2sq), positive=True, unit_dim=1)
-    params = ParameterSet(*p.params, *sm.width_params(bench), MW, MZ, theta, MH1, MH2)
+    bosons = dict(h1=h1, h2=h2, a=a0, G0=G0, Gp=Gp, Gm=Gm, Z=Z, A=A, Wp=Wp, Wm=Wm)
 
     boson_particles = sm.ew_boson_particles(dict(bosons, h=h1), h_mass="MH1") + [
         UFOParticle(h2, 35, "h2", spin=1, mass="MH2", width="ZERO"),
         UFOParticle(a0, 9000005, "a0", spin=1, mass="ZERO", width="ZERO")]
 
     return ModelBundle(
-        id=ID, model=model, pieces=p, bosons=bosons, cmap=phys.cmap,
-        charges=bcharges, conjugates=conjugates, params=params, benchmark=bench,
+        id=ID, model=model, pieces=p, bosons=bosons, cmap=dict(phys.cmap),
+        charges=phys.charges, conjugates=dict(phys.conjugates), params=P, benchmark=bench,
         dirac=sm.dirac_specs(p), boson_particles=boson_particles,
-        goldstones=(phys.G0, phys.Gp, phys.Gm),
+        goldstones=tuple(phys.goldstones),
         extra=dict(ew=ew, phi=phi, phiF=phiF, s0=s0, a0=a0, vphi=vphi, Lam=Lam, lamPhi=lamPhi,
                    lamHPhi=lamHPhi, muPhi2=muPhi2, eps=eps, fn_charges=charges, powers=powers,
                    C=C, c_abs=c_abs, c_arg=c_arg, c_params=c_params,
                    Y=Y, Yu=Y["up"], Yd=Y["down"], Ye=Y["lepton"],
                    Y_exact=Y_exact, Y_linear=Y_linear, L_exact=L_exact, L_linear=L_linear,
                    model_exact=model_exact, U1_FN=U1_FN, M_even=M_even, rot=rot, theta=theta,
-                   MW=MW, MZ=MZ, MH1=MH1, MH2=MH2, h_weak=phys.h, ufo=False),
+                   MW=MW, MZ=MZ, MH1=MH1, MH2=MH2, h_weak=h_weak, ufo=False),
     )
 
 
