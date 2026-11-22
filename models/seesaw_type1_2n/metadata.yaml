@@ -162,7 +162,7 @@ references:
     verified_against: inspire_record
 feynlag_gaps:
   - {id: FG-3}
-  - {id: FG-9}    # avoided: no scalar coupling on indices=(a, b); xfails in seesaw_type1, sm_ckm
+  - {id: FG-9}    # inherits the sm._flavour_matrix_term workaround: off-diagonal Yukawa entries go through a placeholder IndexedBase on (a, b), never a scalar coupling there; xfails in seesaw_type1, sm_ckm
   - {id: FG-10}   # the bare nu_R Majorana mass is not in term_coverage's basis; xfails in seesaw_type1
   - {id: FG-11}   # inherits the sm._flavour_matrix_term workaround; xfail in sm_ckm
   - {id: FG-12, test: "tests/test_l0_l1.py::test_feynlag_unequal_flavour_mass_block_gap"}

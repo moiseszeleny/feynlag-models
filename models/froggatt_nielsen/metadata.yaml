@@ -241,7 +241,7 @@ references:
     verified_against: inspire_record
     conventions_map: []
 feynlag_gaps:
-  - {id: FG-9}    # avoided: no scalar coupling on indices=(a, b); xfails in seesaw_type1, sm_ckm
+  - {id: FG-9}    # inherits the sm._flavour_matrix_term workaround: off-diagonal Yukawa entries go through a placeholder IndexedBase on (a, b), never a scalar coupling there; xfails in seesaw_type1, sm_ckm
   - {id: FG-11}   # inherits the sm._flavour_matrix_term workaround; xfail in sm_ckm
   - {id: FG-13, test: "tests/test_l0_l1.py::test_feynlag_term_coverage_global_symmetry_gap"}
 outputs:
