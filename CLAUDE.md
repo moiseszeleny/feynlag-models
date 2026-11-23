@@ -43,18 +43,22 @@ Data flows from `SMPieces` to a feynlag `Model`, then to a `ModelBundle`, which 
 
 - **`models/sm/model.py` is the root and the parent of everything.**
   - `pieces(benchmark, higgs=True)` returns a `feynlag_models.bundle.SMPieces`: the gauge
-    groups, one fermion generation ($t$, $b$, $\tau$, $\nu_\tau$, with colour), the parameter list, and
+    groups, one fermion generation ($t$, $b$, $\tau$, $\nu_\tau$, with colour), the parameters, and
     sector-tagged Lagrangian terms, before any `Model` exists.
+  - `p.params` is a feynlag `ParameterSet`. A child extends it in place (`P = p.params`, then
+    `P.external` / `P.internal` / `P.add`) and passes that same set to `Model(parameters=P)` and
+    `ModelBundle(params=P)`. Symbolic flavour indices are feynlag's `FL_I` / `FL_J`.
   - `higgs=False` omits the Higgs doublet and Yukawas, for models that replace the scalar
     sector, like the 2HDM.
   - Reusable pieces: `yukawa_terms(p, Hd, Hu, ye, yd, yu)` builds the Yukawas for any pair of
     doublets. `dirac_specs(p)` gives the Dirac fermions for export. `ew_boson_particles`
     and `width_params` give the UFO boson particles and width inputs.
 - **Each child `models/<id>/model.py` is "parent + delta".** It calls `sm.pieces(...)`,
-  appends fields, parameters and `p.add_term(expr, sector, name)`, then assembles the `Model`.
+  appends fields, parameters (on `p.params`) and `p.add_term(expr, sector, name)`, then assembles
+  the `Model`.
   - `build()` then solves tadpoles, registers rotations (the SM: `model.mass_blocks()` and
-    `model.diagonalize()`, which give the Weinberg and $W^\pm$ rotations; children not yet moved to
-    the 0.4.0 API still use `to_physical_basis` or the primitives), and returns a `ModelBundle`.
+    `model.diagonalize()`, which give the Weinberg and $W^\pm$ rotations; every model is on the
+    0.4.0+ API), and returns a `ModelBundle`.
   - The bundle holds the model, the physical `bosons` dict, the conjugate map, the charges,
     a `ParameterSet` including the mass and angle internals, the Dirac specs, the UFO
     particles, the Goldstones, and model-specific handles in `extra`.

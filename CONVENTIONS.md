@@ -97,6 +97,8 @@ R(\theta) = \begin{pmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta 
   $t, b, \tau, \nu_\tau$. Dirac fermions are two Weyl fields (`tL`/`tR`, …). Yukawas are
   $`-y\,\bar\psi_L\Phi\psi_R + \text{h.c.}`$ with $\tilde\Phi = (\Phi^{0*}, -\Phi^{+*})$.
   The Dirac mass is $m_f = y_f v/\sqrt2$ (SM, seesaw, singlet) or $y_f v_i/\sqrt2$ (2HDM).
+  The symbolic flavour index of one generation is feynlag's `FL_I` (a second one, `FL_J`, where
+  a term needs two legs), never a model-local symbol.
 - **Three generations** (`sm.pieces(generations=3)`, used by `sm_ckm`): flavour indices are the
   integers $0, 1, 2$, the Yukawa matrices enter as $`-Y^{ab}\,\bar\psi_{L a}\Phi\psi_{R b} + \text{h.c.}`$,
   and $Y_u$, $Y_e$ are diagonal. Quark mixing lives in the down sector:

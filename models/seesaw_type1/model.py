@@ -14,7 +14,7 @@ Majorana, mixing ν_L with ν_R^c), following ``examples/sm_seesaw.py``.
 import sympy as sp
 
 from feynlag import (
-    MajoranaRotation, Model, ParameterSet, WeylFermion, diagonalize_takagi, diracC, diracPL,
+    FL_I, FL_J, MajoranaRotation, Model, WeylFermion, diagonalize_takagi, diracC, diracPL,
     diracPR, fermion_mass_matrix, majorana_mass, majorana_mass_matrix, seesaw_light_mass,
     seesaw_mass_matrix, tilde, yukawa,
 )
@@ -42,10 +42,10 @@ def build(benchmark=None):
     bench = benchmark_point() if benchmark is None else dict(benchmark)
     p = sm.pieces(bench, higgs=True)
     ew = p.ew
-    i, j = p.idx
+    i, j = FL_I, FL_J
 
     # --- delta: ν_R, Dirac Yukawa via H̃, Majorana mass ------------------
-    P = ParameterSet(*p.params)
+    P = p.params
     yv = P.external("yv", bench["yv"], tex=TEX["yv"], positive=True)
     MR = P.external("MR", bench["MR"], tex=TEX["MR"], positive=True, unit_dim=1)
     nuR = WeylFermion("nuR", reps={}, chirality="R", nflavors=1, component_names=["nuR"],
@@ -64,7 +64,6 @@ def build(benchmark=None):
     p.add_term(LMaj, "other", "majorana_mass")
     p.fields.append(nuR)
     p.fermions["nuR"] = nuR
-    p.params += [yv, MR]
 
     g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
     P.add(*sm.width_params(bench))
@@ -127,7 +126,7 @@ def physical_neutrino_lagrangian(bundle):
     """Yukawa + gauge sectors with the weak neutrinos rotated to the Majorana χ_k."""
     e = bundle.extra
     L = bundle.physical_fermion_lagrangian()
-    return e["rot"].apply(L, bundle.pieces.idx, 1)
+    return e["rot"].apply(L, (FL_I, FL_J), 1)
 
 
 def majorana_vertex_markdown(bundle):

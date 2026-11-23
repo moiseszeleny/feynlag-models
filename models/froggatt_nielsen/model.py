@@ -118,6 +118,12 @@ def scalar_blocks(model):
     return even, G0, Gp, a0
 
 
+def _without(P, names):
+    """A copy of the ParameterSet ``P`` without the parameters called ``names``, order kept
+    (``ParameterSet`` has no removal method)."""
+    return ParameterSet(*(q for q in P if q.name not in names))
+
+
 def build(benchmark=None):
     bench = benchmark_point() if benchmark is None else dict(benchmark)
     # sm.pieces declares the mass inputs MU…MTA and the diagonal Yukawas they fix; here the masses
@@ -125,10 +131,9 @@ def build(benchmark=None):
     dropped = [n for row in sm.MASS_NAMES[3] for n in row]
     p = sm.pieces({**bench, **{n: 1.0 for n in dropped}}, higgs=True, generations=3)
     dropped += [n for row in sm.YUKAWA_NAMES[3] for n in row]
-    p.params = [q for q in p.params if q.name not in dropped]
+    p.params = P = _without(p.params, dropped)
     p.masses, p.yukawa_params = {}, {}
     ew = p.ew
-    P = ParameterSet(*p.params)
 
     # --- delta: the flavon -------------------------------------------------------
     vphi = P.external("vphi", bench["vphi"], tex=TEX.get("vphi"), positive=True, unit_dim=1)
@@ -167,7 +172,6 @@ def build(benchmark=None):
     for name, expr in L_exact.items():
         p.replace_term(name, expr)
     c_params = [q for sector in SECTORS for q in (*c_abs[sector], *c_arg[sector])]
-    p.params += [vphi, Lam, lamPhi, lamHPhi, muPhi2, eps, *c_params]
 
     U1_FN = fn_symmetry(p, phiF, charges)
     # a snapshot of the parameters declared so far: the linearised model's internals stay out

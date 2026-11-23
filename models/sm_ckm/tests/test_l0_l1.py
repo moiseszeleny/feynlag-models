@@ -3,7 +3,7 @@
 import pytest
 import sympy as sp
 
-from feynlag import diracPR, fermion_mass_matrix
+from feynlag import FL_I, FL_J, diracPR, fermion_mass_matrix
 from feynlag_models.checks import (assert_dual_equal, massive_gauge_boson_count,
                                    zero_eigenvalue_count)
 
@@ -65,7 +65,7 @@ def test_fermion_masses(ckm):
     """Weak basis: M_u = diag(m_u, m_c, m_t), M_e = diag(m_e, m_μ, m_τ) and
     M_d = V diag(m_d, m_s, m_b); the left rotation V† M_d is diagonal with the
     input masses (d'_L = V d_L, d_R unrotated)."""
-    vac, res, idx = ckm.model.vacuum, ckm.params.resolve(), ckm.pieces.idx
+    vac, res, idx = ckm.model.vacuum, ckm.params.resolve(), (FL_I, FL_J)
     V = ckm.extra["V_expr"]
     for name, (L, bar, fld, mnames) in _mass_blocks(ckm).items():
         M = fermion_mass_matrix(L, bar, fld, vac, 3, idx, gamma=diracPR).subs(res)
@@ -198,6 +198,7 @@ def test_term_coverage(ckm):
 def test_summary_and_parameters(ckm):
     """``summary()``: three flavours of each SM fermion; every parameter listed in order and
     ``check_parameters()`` finds no undeclared symbol."""
+    assert ckm.params is ckm.pieces.params        # one ParameterSet, extended in place
     s = ckm.model.summary()
     rows = {r[0]: tuple(str(x) for x in r[1:6]) for r in s.field_rows}
     for f in ("Ll", "eR", "QL", "uR", "dR"):

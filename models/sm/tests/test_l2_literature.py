@@ -2,7 +2,7 @@
 
 import sympy as sp
 
-from feynlag import DiracGamma, diracPL, diracPR
+from feynlag import FL_I, DiracGamma, diracPL, diracPR
 from feynlag_models.checks import assert_dual_equal
 
 mu = sp.Symbol("mu", integer=True)
@@ -29,7 +29,7 @@ def test_hVV_and_hff(sm):
     assert_dual_equal(_rule(rules, b["h"], b["h"], b["Z"], b["Z"]), sp.I * (g**2 + gp**2) / 2, msg="hhZZ")
 
     tab = sm.fermion_table()
-    i = p.idx[0]
+    i = FL_I
     for name, bar, fld, M in (
             ("tau", p.fermions["Ll"].bar_components[1], p.fermions["eR"].components[0], p.masses["MTA"]),
             ("t", p.fermions["QL"].bar_components[0], p.fermions["uR"].components[0], p.masses["MT"]),
@@ -50,7 +50,7 @@ def test_gauge_currents(sm):
     sw2 = gp**2 / (g**2 + gp**2)
     e = g * gp / gZ
     tab = sm.fermion_table()
-    i = p.idx[0]
+    i = FL_I
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
     nuL, eL = Ll.components
     nuLbar, eLbar = Ll.bar_components

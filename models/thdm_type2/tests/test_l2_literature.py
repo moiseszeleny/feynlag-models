@@ -10,7 +10,7 @@ relative to Branco et al. Eq. (16).
 import pytest
 import sympy as sp
 
-from feynlag import diracPL, diracPR
+from feynlag import FL_I, diracPL, diracPR
 from feynlag_models.checks import assert_dual_equal
 
 
@@ -49,7 +49,7 @@ def test_neutral_yukawa_xi_factors_table2(thdm, ftab):
     −i(m_f/v)ξ_A and the (f̄_R P_L f_L) A coefficient is +i(m_f/v)ξ_A."""
     e, b, p = thdm.extra, thdm.bosons, thdm.pieces
     v, al, be = e["v"].s, e["alpha"].s, e["beta"].s
-    i = p.idx[0]
+    i = FL_I
     yuk = {y.s: y.expr for y in p.yukawa_params.values()}
     res = _res(e)
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
@@ -84,7 +84,7 @@ def test_neutral_yukawa_xi_factors_table2(thdm, ftab):
 
 def _charged_couplings(thdm, ftab):
     e, b, p = thdm.extra, thdm.bosons, thdm.pieces
-    i = p.idx[0]
+    i = FL_I
     yuk = {y.s: y.expr for y in p.yukawa_params.values()}
     res = _res(e)
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))

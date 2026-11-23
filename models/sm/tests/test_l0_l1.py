@@ -2,7 +2,7 @@
 
 import sympy as sp
 
-from feynlag import diracPR, fermion_mass_matrix
+from feynlag import FL_I, FL_J, diracPR, fermion_mass_matrix
 from feynlag_models.checks import (assert_dual_equal, massive_gauge_boson_count,
                                    zero_eigenvalue_count)
 
@@ -55,7 +55,6 @@ def test_goldstone_count(sm):
 
 def test_fermion_masses(sm):
     p = sm.pieces
-    i, j = p.idx
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
     vac = sm.model.vacuum
     v = p.ew.v.s
@@ -65,7 +64,7 @@ def test_fermion_masses(sm):
         "b": (p.yukawa["yukawa_b"], QL.bar_components[3], dR.components[0], p.masses["MB"]),
     }
     for name, (L, bar, fld, M) in cases.items():
-        m = fermion_mass_matrix(L, bar, fld, vac, 1, (i, j), gamma=diracPR)[0, 0]
+        m = fermion_mass_matrix(L, bar, fld, vac, 1, (FL_I, FL_J), gamma=diracPR)[0, 0]
         y = sm.params[f"y{'tau' if name == 'tau' else name}"].expr
         assert_dual_equal(m.subs(sm.params.resolve()), M.s, msg=f"m_{name}")
         assert_dual_equal(y, sp.sqrt(2) * M.s / v, msg=f"y_{name}")
@@ -80,7 +79,7 @@ def _component_level_yukawas(p):
     from feynlag import Bilinear, diracPL
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
     Gp, H0 = p.ew.H.components
-    i = p.idx[0]
+    i = FL_I
     ys = {k: q.s for k, q in p.yukawa_params.items()}
     ytau, yb, yt = ys["ytau"], ys["yb"], ys["yt"]
 
@@ -165,6 +164,7 @@ def test_term_coverage(sm):
 def test_summary_and_parameters(sm):
     """``summary()`` lists every field with its representations, and every Lagrangian or
     VEV symbol is a declared parameter or a field (``check_parameters``)."""
+    assert sm.params is sm.pieces.params        # one ParameterSet, extended in place
     s = sm.model.summary()
     assert s.field_header[:5] == ["field", "type", "SU2L", "U1Y", "SU3c"]
     reps = {row[0]: tuple(str(x) for x in row[1:5]) for row in s.field_rows}
@@ -179,3 +179,24 @@ def test_summary_and_parameters(sm):
     assert {row[0] for row in s.param_rows} == {q.name for q in sm.params}
     report = sm.model.check_parameters()
     assert report.undeclared == []
+
+
+def test_shared_pieces_interface():
+    """The shared declaration layer: ``SMPieces.params`` is the ``ParameterSet`` children extend
+    in place (same names, order and objects as before: gauge couplings, ``v``, ``λ``, ``μ²``, the
+    mass inputs, then the Yukawa internals), and the symbolic flavour index is feynlag's ``FL_I``
+    (the private ``idx`` pair is gone)."""
+    from feynlag import ParameterSet
+    from models.sm import model as sm_model
+    for higgs in (True, False):
+        p = sm_model.pieces(higgs=higgs)
+        assert isinstance(p.params, ParameterSet)
+        assert not hasattr(p, "idx")
+    p = sm_model.pieces()
+    assert [q.name for q in p.params] == ["gw", "g1", "gs", "v", "lam", "mu2", "MT", "MB", "MTA",
+                                          "yt", "yb", "ytau"]
+    bare = sm_model.pieces(higgs=False).params
+    assert bare is not p.params
+    assert [q.name for q in bare] == ["gw", "g1", "gs", "MT", "MB", "MTA"]
+    Ll, eR = p.fermions["Ll"], p.fermions["eR"]
+    assert p.yukawa["yukawa_tau"].has(Ll.eLbar[FL_I], eR.eR[FL_I])

@@ -531,6 +531,24 @@ Seventh and last per-model migration, at the `feynlag==0.5.1` pin. All outputs a
   `(a, a)`) and the extra key `mD_full` replaced by `nu_block`.
 - Tests: `seesaw_type1` 19, `sm_ckm` 19, `seesaw_type1_2n` 21 and `froggatt_nielsen` 25 passed, with no xfail.
 
+## Shared SM interface cleanup (2026-11-22)
+
+Physics unchanged. All outputs are byte-identical.
+
+- **`SMPieces.params` is a `ParameterSet`.** Children extend it in place (`P = p.params`, then `P.external` /
+  `P.internal` / `P.add`) instead of `p.params += [...]` followed by `ParameterSet(*p.params)`. It is the same object as
+  `bundle.params`.
+  - `thdm_type2` keeps an explicit snapshot of its Lagrangian parameters.
+  - `froggatt_nielsen` drops the SM mass inputs with a local `_without` helper, because `ParameterSet` has no
+    removal method.
+- **`SMPieces.idx` is removed.** The symbolic flavour indices are feynlag's `FL_I` / `FL_J`. Their assumptions are
+  identical to the old `i`, `j` (`integer=True`); only the names differ (`fl_i`, `fl_j`). No committed output
+  prints an index.
+- **Equality proof.** `model_equal.py` against `main`, run for all 7 models: old-vs-old first, then legacy-vs-new
+  with the legacy side relabelled from `i`, `j` to `fl_i`, `fl_j`. ALL EQUAL for each: every term (identical expression),
+  rule, rotation, parameter (order, kind, value, expr, tex), `Model.parameters` order, bookkeeping entry and
+  `extra` key.
+
 ## What to do next
 
 - Attempt L4 for `sm_singlet_z2` ($e^+e^- \to Z h_1$ against the stock `sm` result times $\cos^2\theta$) with the MG5 at `~/.local/mg5dl`.

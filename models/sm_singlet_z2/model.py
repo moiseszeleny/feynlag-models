@@ -12,7 +12,7 @@ the SM one times cos θ (sin θ).
 
 import sympy as sp
 
-from feynlag import Model, ParameterSet, Scalar, ZN, conjugate_pair, inner, kinetic
+from feynlag import Model, Scalar, ZN, conjugate_pair, inner, kinetic
 from feynlag.export.ufo import UFOParticle
 
 from feynlag_models import MODELS_DIR
@@ -48,7 +48,7 @@ def build(benchmark=None):
     ew = p.ew
 
     # --- delta: the singlet ---------------------------------------------
-    P = ParameterSet(*p.params)
+    P = p.params
     vS = P.external("vS", bench["vS"], tex=TEX["vS"], positive=True, unit_dim=1)
     lamS = P.external("lamS", bench["lamS"], tex=TEX["lamS"])
     lamHS = P.external("lamHS", bench["lamHS"], tex=TEX["lamHS"])
@@ -65,7 +65,6 @@ def build(benchmark=None):
     # ½(∂S)², the canonical term of a real scalar (feynlag ≥ 0.5.1; FG-8 resolved)
     p.add_term(sum(expr for expr, _sector in kinetic(S)), "kinetic", "singlet_kinetic")
     p.fields.append(S)
-    p.params += [vS, lamS, lamHS, muS2]
     p.discrete_groups = [Z2]
 
     g, gp, v = ew.gw.s, ew.g1.s, ew.v.s

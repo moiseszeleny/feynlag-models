@@ -3,7 +3,7 @@
 import pytest
 import sympy as sp
 
-from feynlag import (ZN, Model, check_discrete_invariance, check_global_invariance, diracPR,
+from feynlag import (FL_I, FL_J, ZN, Model, check_discrete_invariance, check_global_invariance, diracPR,
                      fermion_mass_matrix)
 from feynlag_models.checks import (assert_dual_equal, massive_gauge_boson_count,
                                    zero_eigenvalue_count)
@@ -116,7 +116,7 @@ def _mass_blocks(fn, L):
 def test_fermion_mass_matrices(fn):
     """M_f = (v/√2) c^f_ij ε^{n_ij}, ε = v_φ/(√2 Λ), from the exact operators and identically
     from the linearised ones (feynlag's fermion_mass_matrix, both vacua)."""
-    e, idx = fn.extra, fn.pieces.idx
+    e, idx = fn.extra, (FL_I, FL_J)
     v = e["ew"].v.s
     eps = {e["eps"].s: e["eps"].expr}
     for model, L in ((e["model_exact"], e["L_exact"]), (fn.model, e["L_linear"])):
@@ -277,6 +277,7 @@ def test_term_coverage_model_exact(fn):
 def test_summary_and_parameters(fn):
     """``summary()`` of both models: the flavon is a complex gauge singlet with U(1)_FN charge 1 on
     ``model_exact``; every parameter is listed in order and none is undeclared."""
+    assert fn.params is fn.pieces.params        # one ParameterSet, extended in place
     ex = fn.extra["model_exact"]
     s = ex.summary()
     assert s.field_header[:6] == ["field", "type", "SU2L", "U1Y", "SU3c", "U1_FN"]
@@ -330,3 +331,22 @@ def test_term_coverage_imposes_global_symmetry(fn):
     old = {"phi phi", "phi (H†H)", "phi phi phi", "phi phi phi†", "phi phi (H†H)",
            "phi phi phi phi", "phi phi phi phi†"}
     assert old.isdisjoint(t.label for t in missing)
+
+
+def test_without_keeps_order_kinds_and_tex():
+    """``_without`` (``ParameterSet`` has no removal method) drops exactly the named parameters and
+    keeps the remaining ones as the same objects, in order, with their kind and tex."""
+    from feynlag import ParameterSet
+    from models.froggatt_nielsen.model import _without
+    from models.sm import model as sm
+    from models.sm_ckm.model import benchmark_point as ckm_benchmark
+    P = sm.pieces(ckm_benchmark(), generations=3).params      # three-generation mass inputs
+    dropped = [n for row in sm.MASS_NAMES[3] for n in row] + ["yt", "ytau"]
+    Q = _without(P, dropped)
+    assert isinstance(Q, ParameterSet) and Q is not P
+    kept = [q for q in P if q.name not in dropped]
+    assert [q.name for q in Q] == [q.name for q in kept] and len(kept) == len(P) - len(dropped)
+    for a, b in zip(Q, kept):
+        assert a is b and type(a) is type(b) and a.tex == b.tex
+    assert [q.name for q in P][:3] == ["gw", "g1", "gs"]       # P itself is untouched
+    assert len(P) == len(Q) + len(dropped)

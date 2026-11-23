@@ -10,7 +10,7 @@ itself and returns a :class:`~feynlag_models.bundle.ModelBundle`.
 import sympy as sp
 
 from feynlag import (
-    Model, ParameterSet, SU3, WeylFermion, conjugate_pair,
+    FL_I, Model, ParameterSet, SU3, WeylFermion, conjugate_pair,
     electroweak_gauge, electroweak_scaffold, kinetic, tilde, yukawa,
 )
 from feynlag.export.ufo import UFOParticle
@@ -50,9 +50,9 @@ YUKAWA_NAMES = {1: (("yt",), ("yb",), ("ytau",)),
 
 
 def flavours(p):
-    """Flavour indices used in the Lagrangian: the symbolic ``i`` for one
+    """Flavour indices used in the Lagrangian: feynlag's symbolic ``FL_I`` for one
     generation (unchanged SM), the integers ``0, 1, 2`` for three."""
-    return [p.idx[0]] if p.generations == 1 else list(range(p.generations))
+    return [FL_I] if p.generations == 1 else list(range(p.generations))
 
 
 def pieces(benchmark=None, higgs=True, generations=1):
@@ -83,7 +83,6 @@ def pieces(benchmark=None, higgs=True, generations=1):
     SU3c = SU3("SU3c", coupling=gs)
     G = SU3c.bosons("G", component_tex=G_TEX)
 
-    i, j = sp.symbols("i j", integer=True)
     Ll = WeylFermion("Ll", reps={SU2L: 2, U1Y: -sp.Rational(1, 2)},
                      chirality="L", nflavors=generations, component_names=["nuL", "eL"],
                      component_tex=FERMION_TEX["Ll"])
@@ -110,10 +109,10 @@ def pieces(benchmark=None, higgs=True, generations=1):
     masses = {n: external(n, bench[n], positive=True, unit_dim=1)
               for n in mass_names}
 
-    params = [gw_p, g1_p, gs, *masses.values()]
+    params = ParameterSet(gw_p, g1_p, gs, *masses.values())
     fields = [W, B, G, Ll, eR, QL, uR, dR]
     p = SMPieces(SU2L=SU2L, U1Y=U1Y, SU3c=SU3c, gw=gw_p, g1=g1_p, gs=gs,
-                 W=W, B=B, G=G, idx=(i, j), fermions=fermions,
+                 W=W, B=B, G=G, fermions=fermions,
                  params=params, fields=fields, terms=[], benchmark=bench,
                  generations=generations)
     p.masses = masses
@@ -125,7 +124,7 @@ def pieces(benchmark=None, higgs=True, generations=1):
 
     if higgs:
         p.ew = ew
-        p.params = [ew.gw, ew.g1, gs, ew.v, ew.lam, ew.mu2, *masses.values()]
+        p.params = ParameterSet(ew.gw, ew.g1, gs, ew.v, ew.lam, ew.mu2, *masses.values())
         p.fields = [ew.H, ew.W, ew.B, G, Ll, eR, QL, uR, dR]
         from feynlag.models import higgs_lagrangian
         for sector, expr in higgs_lagrangian(ew.H, ew.lam, ew.mu2).items():
@@ -135,7 +134,7 @@ def pieces(benchmark=None, higgs=True, generations=1):
         for yrow, mrow in zip(YUKAWA_NAMES[generations], MASS_NAMES[generations]):
             for yn, mn in zip(yrow, mrow):
                 ys[yn] = internal(yn, sp.sqrt(2) * masses[mn].s / ew.v.s)
-        p.params += list(ys.values())
+        p.params.add(*ys.values())
         p.yukawa_params = ys
         yu, yd, ye = (diagonal_yukawa(ys, row) for row in YUKAWA_NAMES[generations])
         p.yukawa = yukawa_terms(p, ew.H, ew.H, ye, yd, yu)
@@ -169,10 +168,9 @@ def yukawa_terms(p, Hd, Hu, ye, yd, yu):
     """
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
     if p.generations == 1:
-        i = p.idx[0]
-        return {"yukawa_tau": yukawa(ye, Ll, Hd, eR, indices=i),
-                "yukawa_b": yukawa(yd, QL, Hd, dR, indices=i),
-                "yukawa_t": yukawa(yu, QL, tilde(Hu), uR, indices=i)}
+        return {"yukawa_tau": yukawa(ye, Ll, Hd, eR, indices=FL_I),
+                "yukawa_b": yukawa(yd, QL, Hd, dR, indices=FL_I),
+                "yukawa_t": yukawa(yu, QL, tilde(Hu), uR, indices=FL_I)}
     return _yukawa_terms_3(p, Hd, Hu, ye, yd, yu)
 
 
@@ -340,7 +338,8 @@ def build(benchmark=None):
     p = pieces(benchmark, higgs=True)
     ew = p.ew
     g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
-    P = ParameterSet(*p.params, *width_params(p.benchmark))
+    P = p.params
+    P.add(*width_params(p.benchmark))
     MW = P.internal("MW", g * v / 2, tex=TEX["MW"], positive=True, unit_dim=1)
     MZ = P.internal("MZ", sp.sqrt(g**2 + gp**2) * v / 2, tex=TEX["MZ"], positive=True,
                     unit_dim=1)
