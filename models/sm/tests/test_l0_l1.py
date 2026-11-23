@@ -55,7 +55,6 @@ def test_goldstone_count(sm):
 
 def test_fermion_masses(sm):
     p = sm.pieces
-    i, j = (FL_I, FL_J)
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
     vac = sm.model.vacuum
     v = p.ew.v.s
@@ -65,7 +64,7 @@ def test_fermion_masses(sm):
         "b": (p.yukawa["yukawa_b"], QL.bar_components[3], dR.components[0], p.masses["MB"]),
     }
     for name, (L, bar, fld, M) in cases.items():
-        m = fermion_mass_matrix(L, bar, fld, vac, 1, (i, j), gamma=diracPR)[0, 0]
+        m = fermion_mass_matrix(L, bar, fld, vac, 1, (FL_I, FL_J), gamma=diracPR)[0, 0]
         y = sm.params[f"y{'tau' if name == 'tau' else name}"].expr
         assert_dual_equal(m.subs(sm.params.resolve()), M.s, msg=f"m_{name}")
         assert_dual_equal(y, sp.sqrt(2) * M.s / v, msg=f"y_{name}")
@@ -196,6 +195,8 @@ def test_shared_pieces_interface():
     p = sm_model.pieces()
     assert [q.name for q in p.params] == ["gw", "g1", "gs", "v", "lam", "mu2", "MT", "MB", "MTA",
                                           "yt", "yb", "ytau"]
-    assert sm_model.pieces(higgs=False).params is not p.params
+    bare = sm_model.pieces(higgs=False).params
+    assert bare is not p.params
+    assert [q.name for q in bare] == ["gw", "g1", "gs", "MT", "MB", "MTA"]
     Ll, eR = p.fermions["Ll"], p.fermions["eR"]
     assert p.yukawa["yukawa_tau"].has(Ll.eLbar[FL_I], eR.eR[FL_I])

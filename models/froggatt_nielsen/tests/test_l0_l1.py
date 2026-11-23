@@ -2,9 +2,8 @@
 
 import pytest
 import sympy as sp
-from feynlag import FL_I, FL_J
 
-from feynlag import (ZN, Model, check_discrete_invariance, check_global_invariance, diracPR,
+from feynlag import (FL_I, FL_J, ZN, Model, check_discrete_invariance, check_global_invariance, diracPR,
                      fermion_mass_matrix)
 from feynlag_models.checks import (assert_dual_equal, massive_gauge_boson_count,
                                    zero_eigenvalue_count)
@@ -332,3 +331,22 @@ def test_term_coverage_imposes_global_symmetry(fn):
     old = {"phi phi", "phi (H†H)", "phi phi phi", "phi phi phi†", "phi phi (H†H)",
            "phi phi phi phi", "phi phi phi phi†"}
     assert old.isdisjoint(t.label for t in missing)
+
+
+def test_without_keeps_order_kinds_and_tex():
+    """``_without`` (``ParameterSet`` has no removal method) drops exactly the named parameters and
+    keeps the remaining ones as the same objects, in order, with their kind and tex."""
+    from feynlag import ParameterSet
+    from models.froggatt_nielsen.model import _without
+    from models.sm import model as sm
+    from models.sm_ckm.model import benchmark_point as ckm_benchmark
+    P = sm.pieces(ckm_benchmark(), generations=3).params      # three-generation mass inputs
+    dropped = [n for row in sm.MASS_NAMES[3] for n in row] + ["yt", "ytau"]
+    Q = _without(P, dropped)
+    assert isinstance(Q, ParameterSet) and Q is not P
+    kept = [q for q in P if q.name not in dropped]
+    assert [q.name for q in Q] == [q.name for q in kept] and len(kept) == len(P) - len(dropped)
+    for a, b in zip(Q, kept):
+        assert a is b and type(a) is type(b) and a.tex == b.tex
+    assert [q.name for q in P][:3] == ["gw", "g1", "gs"]       # P itself is untouched
+    assert len(P) == len(Q) + len(dropped)

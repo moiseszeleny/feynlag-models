@@ -68,7 +68,7 @@ def _component_level_terms(ss):
     is the same as one shared index only at one generation."""
     from feynlag import Bilinear, MajoranaBilinear, diracPL, diracPR
     e, p = ss.extra, ss.pieces
-    i, j = (FL_I, FL_J)
+    i, j = FL_I, FL_J
     Gp, H0 = e["ew"].H.components
     Ll, yv, MR, CPL = p.fermions["Ll"], e["yv"].s, e["MR"].s, e["CPL"]
     nR, nRbar = e["nuR"].nuR, e["nuR"].nuRbar
@@ -161,7 +161,7 @@ def test_scalar_coupling_distinct_indices_raise(ss):
     uses the single-index forms (``test_constructor_terms_are_the_diagonal_component_terms``)."""
     from feynlag import majorana_mass, tilde, yukawa
     e, p = ss.extra, ss.pieces
-    i, j = (FL_I, FL_J)
+    i, j = FL_I, FL_J
     with pytest.raises(ValueError, match="flavour-universal"):
         yukawa(e["yv"], p.fermions["Ll"], tilde(e["ew"].H), e["nuR"], indices=(i, j))
     with pytest.raises(ValueError, match="flavour-universal"):
@@ -172,14 +172,13 @@ def test_majorana_mass_in_operator_basis(ss):
     """The gauge-invariant ``−½ M_R ν_Rᵀ C P_L ν_R + h.c.`` is a recognised invariant with
     coefficient ``M_R``, not an unmatched remainder (FG-10, resolved in feynlag 0.5.2). The ½ is
     pinned too: with feynlag's ``L = −Σ c O``, ``−M_R O`` at the model's flavour index (the basis
-    operator's two leg indices both set to ``i``) is exactly the model's ``LMaj``, both halves."""
-    from feynlag import FL_I, FL_J
-    e, i = ss.extra, FL_I
+    operator's two leg indices both set to ``FL_I``) is exactly the model's ``LMaj``, both halves."""
+    e = ss.extra
     tc = ss.model.term_coverage()
     assert tc.unmatched == {}
     ((op, coef),) = [(t, c) for t, c in tc.present if "Majorana" in t.label]
     assert coef == e["MR"].s
-    matched = op.expr.xreplace({FL_I: i, FL_J: i})
+    matched = op.expr.xreplace({FL_J: FL_I})
     assert sp.expand(-coef * matched - e["LMaj"]) == 0
 
 

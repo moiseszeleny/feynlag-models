@@ -181,7 +181,8 @@ def build(benchmark=None):
                    rot_even=rot_even, rot_odd=rot_odd, rot_ch=rot_ch, alpha=alpha,
                    MW=MW, MZ=MZ, MH0=MH0, MHH=MHH, MA0=MA0, MHp=MHp,
                    rho=tuple(even.fields), eta=tuple(odd.fields),
-                   branch_valid_for=mix_even.branch_valid_for),
+                   branch_valid_for=mix_even.branch_valid_for,
+                   lagrangian_params=lagrangian_params),
     )
 
 

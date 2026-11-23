@@ -97,14 +97,13 @@ def test_goldstone_count_and_gauge_masses(thdm):
 def test_fermion_masses(thdm):
     """m_b = y_b v1/√2, m_τ = y_τ v1/√2, m_t = y_t v2/√2 — equal to the inputs."""
     p, e = thdm.pieces, thdm.extra
-    i, j = (FL_I, FL_J)
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
     res = thdm.params.resolve()
     cases = {"tau": (p.yukawa["yukawa_tau"], Ll.bar_components[1], eR.components[0], p.masses["MTA"]),
              "t": (p.yukawa["yukawa_t"], QL.bar_components[0], uR.components[0], p.masses["MT"]),
              "b": (p.yukawa["yukawa_b"], QL.bar_components[3], dR.components[0], p.masses["MB"])}
     for name, (L, bar, fld, M) in cases.items():
-        m = fermion_mass_matrix(L, bar, fld, thdm.model.vacuum, 1, (i, j), gamma=diracPR)[0, 0]
+        m = fermion_mass_matrix(L, bar, fld, thdm.model.vacuum, 1, (FL_I, FL_J), gamma=diracPR)[0, 0]
         assert_dual_equal(m.subs(res), M.s, msg=f"m_{name}")
 
 
@@ -304,3 +303,18 @@ def test_mA_mHp_forms_symbolically_equal_to_previous(thdm):
     on_vev = {v1: v * sp.cos(b), v2: v * sp.sin(b), beta: b}
     for new, old in ((mA2, old_mA2), (mHp2, old_mHp2)):
         assert sp.simplify((old - new).subs(on_vev)) == 0
+
+
+def test_lagrangian_params_snapshot(thdm):
+    """The benchmark snapshot ``diagonalize(values=…)`` evaluates is exactly the Lagrangian parameters:
+    the inputs, the β/v1/v2 and m11²/m22² internals and the Yukawas, in the bundle's order. It
+    excludes the widths and the mass and angle internals declared after it (``alpha`` is not
+    defined until ``diagonalize`` itself)."""
+    lp, names = thdm.extra["lagrangian_params"], [q.name for q in thdm.params]
+    assert lp is not thdm.params
+    assert [q.name for q in lp] == names[:len(lp)] == [
+        "gw", "g1", "gs", "v", "tanb", "m12sq", "lam1", "lam2", "lam3", "lam4", "lam5",
+        "MT", "MB", "MTA", "beta", "v1", "v2", "m11sq", "m22sq", "yt", "yb", "ytau"]
+    assert names[len(lp):] == ["WZ", "WW", "WH", "WT", "WHH", "WA0", "WHp",
+                               "alpha", "MW", "MZ", "MH0", "MHH", "MA0", "MHp"]
+    assert all(lp[q.name] is thdm.params[q.name] for q in lp)
