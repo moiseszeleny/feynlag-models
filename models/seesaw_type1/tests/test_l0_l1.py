@@ -168,11 +168,17 @@ def test_scalar_coupling_distinct_indices_raise(ss):
 
 def test_majorana_mass_in_operator_basis(ss):
     """The gauge-invariant ``−½ M_R ν_Rᵀ C P_L ν_R + h.c.`` is a recognised invariant with
-    coefficient ``M_R``, not an unmatched remainder (FG-10, resolved in feynlag 0.5.2)."""
+    coefficient ``M_R``, not an unmatched remainder (FG-10, resolved in feynlag 0.5.2). The ½ is
+    pinned too: with feynlag's ``L = −Σ c O``, ``−M_R O`` at the model's flavour index (the basis
+    operator's two leg indices both set to ``i``) is exactly the model's ``LMaj``, both halves."""
+    from feynlag import FL_I, FL_J
+    e, i = ss.extra, ss.pieces.idx[0]
     tc = ss.model.term_coverage()
     assert tc.unmatched == {}
-    (coef,) = [c for t, c in tc.present if "Majorana" in t.label]
-    assert coef == ss.extra["MR"].s
+    ((op, coef),) = [(t, c) for t, c in tc.present if "Majorana" in t.label]
+    assert coef == e["MR"].s
+    matched = op.expr.xreplace({FL_I: i, FL_J: i})
+    assert sp.expand(-coef * matched - e["LMaj"]) == 0
 
 
 def test_triplet_majorana_mass():

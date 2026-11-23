@@ -256,7 +256,8 @@ def test_fermion_mass_blocks(ss):
     fermion = m.mass_blocks(kind="fermion")
     (nu,) = [blk for blk in fermion if blk.fields == [Ll.nuL]]
     assert nu.right == [e["nuR"].nuR] and nu.matrix.shape == (3, 2)
-    assert nu.matrix == e["mD"]
+    # this block is what the model reads as e["mD"]; its entries are checked against y_ν v/√2 and the
+    # square fermion_mass_matrix in test_mass_matrix_entries
     assert nu.diagonalizable is False
     assert all(s in nu.note for s in ("Majorana", "seesaw_mass_matrix", "diagonalize_takagi"))
     flavoured = [blk for blk in fermion if blk is not nu]

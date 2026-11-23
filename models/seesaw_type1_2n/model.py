@@ -104,7 +104,9 @@ def build(benchmark=None):
     # Majorana note pointing to seesaw_mass_matrix + diagonalize_takagi + MajoranaRotation (below)
     (nu_block,) = [blk for blk in model.mass_blocks(kind="fermion")
                    if blk.fields == [nuL] and blk.right == [nR]]
-    assert nu_block.diagonalizable is False and "Majorana" in nu_block.note, nu_block.note
+    if nu_block.diagonalizable is not False or "Majorana" not in nu_block.note:
+        raise RuntimeError("mass_blocks: the (nu_L, nu_R) block should be reported as not "
+                           f"diagonalizable with the Majorana note, got {nu_block.note!r}")
     mD = nu_block.matrix
     MRmat = majorana_mass_matrix(LMaj, nR, model.vacuum, N_R, (i, j), gamma=CPL)
     Mnu = seesaw_mass_matrix(mD, MRmat)
