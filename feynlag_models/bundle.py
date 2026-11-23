@@ -75,7 +75,13 @@ class DiracSpec:
 
 @dataclass
 class SMPieces:
-    """Everything the SM root declares *before* the ``Model`` is assembled."""
+    """Everything the SM root declares *before* the ``Model`` is assembled.
+
+    ``params`` is the model's ``feynlag.ParameterSet``: a child extends it in place
+    (``P = p.params``, then ``P.external`` / ``P.internal`` / ``P.add``) and hands that same set
+    to ``Model(parameters=P)`` and ``ModelBundle(params=P)``. Symbolic flavour indices are
+    feynlag's ``FL_I`` / ``FL_J`` (bar leg, field leg).
+    """
 
     SU2L: object
     U1Y: object
@@ -86,9 +92,8 @@ class SMPieces:
     W: object
     B: object
     G: object
-    idx: tuple                          # (i, j) flavour index symbols
     fermions: dict                      # name → WeylFermion (Ll, eR, QL, uR, dR)
-    params: list                        # ExternalParameter/InternalParameter, dependency-safe
+    params: object                      # feynlag ParameterSet, extended in place by children
     fields: list                        # every Field to hand to Model
     terms: list                         # (expr, sector, name)
     yukawa: dict = field(default_factory=dict)   # name → Lagrangian expr (for mass matrices)

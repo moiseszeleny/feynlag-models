@@ -2,7 +2,7 @@
 
 import sympy as sp
 
-from feynlag import check_discrete_invariance, diracPR, fermion_mass_matrix
+from feynlag import FL_I, FL_J, check_discrete_invariance, diracPR, fermion_mass_matrix
 from feynlag_models.checks import (assert_dual_equal, massive_gauge_boson_count,
                                    zero_eigenvalue_count)
 
@@ -97,7 +97,7 @@ def test_goldstone_count_and_gauge_masses(thdm):
 def test_fermion_masses(thdm):
     """m_b = y_b v1/√2, m_τ = y_τ v1/√2, m_t = y_t v2/√2 — equal to the inputs."""
     p, e = thdm.pieces, thdm.extra
-    i, j = p.idx
+    i, j = (FL_I, FL_J)
     Ll, eR, QL, uR, dR = (p.fermions[k] for k in ("Ll", "eR", "QL", "uR", "dR"))
     res = thdm.params.resolve()
     cases = {"tau": (p.yukawa["yukawa_tau"], Ll.bar_components[1], eR.components[0], p.masses["MTA"]),
@@ -276,6 +276,7 @@ def test_term_coverage(thdm):
 def test_summary_and_parameters(thdm):
     """``summary()``: two hypercharge-½ doublets replace the SM Higgs; every parameter is listed
     and ``check_parameters()`` finds no undeclared symbol."""
+    assert thdm.params is thdm.pieces.params        # one ParameterSet, extended in place
     s = thdm.model.summary()
     assert s.field_header[:5] == ["field", "type", "SU2L", "U1Y", "SU3c"]
     rows = {r[0]: tuple(str(x) for x in r[1:5]) for r in s.field_rows}

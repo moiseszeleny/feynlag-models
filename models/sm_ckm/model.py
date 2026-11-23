@@ -24,7 +24,7 @@ import math
 
 import sympy as sp
 
-from feynlag import Model, ParameterSet, Rotation, WeylFermion, standard_ckm
+from feynlag import Model, Rotation, WeylFermion, standard_ckm
 
 from feynlag_models import MODELS_DIR
 from feynlag_models import metadata as md
@@ -79,10 +79,10 @@ def build(benchmark=None):
     L_down = sm.yukawa_terms(p, ew.H, ew.H, sp.zeros(3), Yd, sp.zeros(3))["yukawa_down"]
     p.replace_term("yukawa_down", L_down)
     p.yukawa["yukawa_down"] = L_down
-    p.params += ckm_params
+    P = p.params
+    P.add(*ckm_params)
 
     # parameters declared once, in the order the UFO card has always had
-    P = ParameterSet(*p.params)
     P.add(*sm.width_params(bench))
     g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
     MW = P.internal("MW", g * v / 2, tex=TEX["MW"], positive=True, unit_dim=1)

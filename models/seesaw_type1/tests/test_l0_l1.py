@@ -2,6 +2,7 @@
 
 import pytest
 import sympy as sp
+from feynlag import FL_I, FL_J
 
 from feynlag_models.checks import (assert_dual_equal, massive_gauge_boson_count,
                                    zero_eigenvalue_count)
@@ -67,7 +68,7 @@ def _component_level_terms(ss):
     is the same as one shared index only at one generation."""
     from feynlag import Bilinear, MajoranaBilinear, diracPL, diracPR
     e, p = ss.extra, ss.pieces
-    i, j = p.idx
+    i, j = (FL_I, FL_J)
     Gp, H0 = e["ew"].H.components
     Ll, yv, MR, CPL = p.fermions["Ll"], e["yv"].s, e["MR"].s, e["CPL"]
     nR, nRbar = e["nuR"].nuR, e["nuR"].nuRbar
@@ -87,7 +88,7 @@ def test_constructor_terms_are_the_diagonal_component_terms(ss):
     tests."""
     from feynlag import diracC, diracPL
     LY, LM = _component_level_terms(ss)
-    e, (i, j) = ss.extra, ss.pieces.idx
+    e, (i, j) = ss.extra, (FL_I, FL_J)
     assert e["CPL"] == diracC * diracPL
     assert sp.expand(e["LYukD"] - LY.xreplace({j: i})) == 0
     assert sp.expand(e["LMaj"] - LM.xreplace({j: i})) == 0
@@ -143,6 +144,7 @@ def test_term_coverage(ss):
 def test_summary_and_parameters(ss):
     """``summary()``: ν_R is a right-handed gauge singlet; every parameter is listed in order and
     ``check_parameters()`` finds no undeclared symbol."""
+    assert ss.params is ss.pieces.params        # one ParameterSet, extended in place
     s = ss.model.summary()
     rows = {r[0]: tuple(str(x) for x in r[1:5]) for r in s.field_rows}
     assert rows["nuR"] == ("fermion R", "1", "0", "1")
@@ -159,7 +161,7 @@ def test_scalar_coupling_distinct_indices_raise(ss):
     uses the single-index forms (``test_constructor_terms_are_the_diagonal_component_terms``)."""
     from feynlag import majorana_mass, tilde, yukawa
     e, p = ss.extra, ss.pieces
-    i, j = p.idx
+    i, j = (FL_I, FL_J)
     with pytest.raises(ValueError, match="flavour-universal"):
         yukawa(e["yv"], p.fermions["Ll"], tilde(e["ew"].H), e["nuR"], indices=(i, j))
     with pytest.raises(ValueError, match="flavour-universal"):
@@ -172,7 +174,7 @@ def test_majorana_mass_in_operator_basis(ss):
     pinned too: with feynlag's ``L = −Σ c O``, ``−M_R O`` at the model's flavour index (the basis
     operator's two leg indices both set to ``i``) is exactly the model's ``LMaj``, both halves."""
     from feynlag import FL_I, FL_J
-    e, i = ss.extra, ss.pieces.idx[0]
+    e, i = ss.extra, FL_I
     tc = ss.model.term_coverage()
     assert tc.unmatched == {}
     ((op, coef),) = [(t, c) for t, c in tc.present if "Majorana" in t.label]

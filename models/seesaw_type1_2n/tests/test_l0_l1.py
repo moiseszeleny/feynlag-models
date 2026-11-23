@@ -2,7 +2,7 @@
 
 import sympy as sp
 
-from feynlag import diagonalize_takagi
+from feynlag import FL_I, FL_J, diagonalize_takagi
 from feynlag_models.checks import (assert_dual_equal, massive_gauge_boson_count,
                                    zero_eigenvalue_count)
 
@@ -27,7 +27,7 @@ def test_mass_matrix_entries(ss):
     e, p = ss.extra, ss.pieces
     v = e["ew"].v.s
     Ll, nR = p.fermions["Ll"], e["nuR"].nuR
-    full = fermion_mass_matrix(e["LYukD"], Ll.nuLbar, nR, ss.model.vacuum, 3, p.idx, gamma=diracPR)
+    full = fermion_mass_matrix(e["LYukD"], Ll.nuLbar, nR, ss.model.vacuum, 3, (FL_I, FL_J), gamma=diracPR)
     assert full.shape == (3, 3) and full[:, 2] == sp.zeros(3, 1)
     assert e["mD"].shape == (3, 2)
     assert sp.simplify(e["mD"] - full[:, :2]) == sp.zeros(3, 2)
@@ -224,6 +224,7 @@ def test_term_coverage(ss):
 def test_summary_and_parameters(ss):
     """``summary()``: ν_R is a right-handed gauge singlet with two flavours; every parameter is
     listed in order and ``check_parameters()`` finds no undeclared symbol."""
+    assert ss.params is ss.pieces.params        # one ParameterSet, extended in place
     s = ss.model.summary()
     rows = {r[0]: tuple(str(x) for x in r[1:5]) for r in s.field_rows}
     assert rows["nuR"] == ("fermion R", "1", "0", "1")

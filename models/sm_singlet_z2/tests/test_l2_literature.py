@@ -9,7 +9,7 @@ h = cα h̃ − sα h0 versus feynlag's h1 = cθ h + sθ s gives α = −θ.
 
 import sympy as sp
 
-from feynlag import diracPR
+from feynlag import FL_I, diracPR
 from feynlag_models.checks import assert_dual_equal
 
 
@@ -95,7 +95,7 @@ def test_coupling_rescaling(xsm):
                       (sp.I * g**2 * v / 2)**2, msg="sum rule")
 
     tab = xsm.fermion_table()
-    i = p.idx[0]
+    i = FL_I
     yuk = {y.s: y.expr for y in p.yukawa_params.values()}
     for name, bar, fld, M in (
             ("tau", p.fermions["Ll"].bar_components[1], p.fermions["eR"].components[0], p.masses["MTA"]),

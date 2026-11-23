@@ -147,6 +147,7 @@ def test_term_coverage(xsm):
 def test_summary_and_parameters(xsm):
     """``summary()``: S is a real gauge singlet, odd under Z2, and the SM fields are even;
     ``check_parameters()`` finds no undeclared symbol."""
+    assert xsm.params is xsm.pieces.params        # one ParameterSet, extended in place
     s = xsm.model.summary()
     assert s.field_header[:6] == ["field", "type", "SU2L", "U1Y", "SU3c", "Z2"]
     rows = {r[0]: tuple(str(x) for x in r[1:6]) for r in s.field_rows}

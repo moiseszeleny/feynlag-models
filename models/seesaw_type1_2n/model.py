@@ -19,7 +19,7 @@ finish on a generic 5×5 (FG-5, resolved in feynlag ``e34b356``).
 import sympy as sp
 
 from feynlag import (
-    MajoranaRotation, Model, ParameterSet, WeylFermion, diagonalize_takagi, diracC, diracPL,
+    FL_I, FL_J, MajoranaRotation, Model, WeylFermion, diagonalize_takagi, diracC, diracPL,
     majorana_mass, majorana_mass_matrix, seesaw_light_mass,
     seesaw_mass_matrix, tilde,
 )
@@ -51,10 +51,10 @@ def build(benchmark=None):
     bench = benchmark_point() if benchmark is None else dict(benchmark)
     p = sm.pieces(bench, higgs=True, generations=3)
     ew = p.ew
-    i, j = p.idx
+    i, j = FL_I, FL_J
 
     # --- delta: ν_R (2 flavours), 3×2 Dirac Yukawa via H̃, diagonal Majorana mass ---
-    P = ParameterSet(*p.params)
+    P = p.params
     yv = sp.Matrix(N_L, N_R, lambda a, b: 0)
     yv_params = []
     for a in range(N_L):
@@ -83,7 +83,6 @@ def build(benchmark=None):
     p.add_term(LMaj, "other", "majorana_mass")
     p.fields.append(nuR)
     p.fermions["nuR"] = nuR
-    p.params += [*yv_params, *MR]
 
     g, gp, v = ew.gw.s, ew.g1.s, ew.v.s
     P.add(*sm.width_params(bench))
@@ -145,7 +144,7 @@ def physical_neutrino_lagrangian(bundle):
     """Yukawa + gauge sectors with the weak neutrinos rotated to the Majorana χ_k.
 
     Every flavour index is already an integer, so ``apply`` gets no index symbols: passing
-    ``pieces.idx`` would sum each term once per index combination.
+    the symbolic ``(FL_I, FL_J)`` would sum each term once per index combination.
     """
     return bundle.extra["rot"].apply(bundle.physical_fermion_lagrangian(), (), 1)
 

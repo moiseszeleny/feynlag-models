@@ -68,8 +68,9 @@ def build(benchmark=None):
     SU2L, U1Y = p.SU2L, p.U1Y
 
     # --- parameters: (v, tanβ, m12², λ1..λ5) external; v1, v2, m11², m22² internal
-    # (declared once, in the order the UFO parameter card has always had)
-    P = ParameterSet(p.gw, p.g1, p.gs)
+    # (declared once, in the order the UFO parameter card has always had). pieces(higgs=False)
+    # declares gw, g1, gs and the masses; the set is rebuilt in the 2HDM order and becomes p.params
+    P = p.params = ParameterSet(p.gw, p.g1, p.gs)
     v = P.external("v", bench["v"], tex=TEX["v"], positive=True, unit_dim=1)
     tanb = P.external("tanb", bench["tanb"], tex=TEX["tanb"], positive=True)
     m12sq = P.external("m12sq", bench["m12sq"], tex=TEX["m12sq"], unit_dim=2)
@@ -115,7 +116,7 @@ def build(benchmark=None):
         p.add_term(expr, "yukawa", name)
 
     p.fields = [H1, H2] + p.fields
-    p.params = list(P)
+    lagrangian_params = ParameterSet(*P)   # snapshot: the Lagrangian parameters, before widths
     p.discrete_groups = [Z2]
 
     P.add(*sm.width_params(bench))
@@ -133,7 +134,7 @@ def build(benchmark=None):
                   parameters=P, lagrangian=p.lagrangian())
     model.solve_tadpoles([m11sq, m22sq])
     # the Lagrangian parameters at the benchmark (tadpoles solved; alpha is not defined yet)
-    values = ParameterSet(*p.params).numeric()
+    values = lagrangian_params.numeric()
 
     # --- physical basis --------------------------------------------------------
     Z, A, Wp, Wm = sm.ew_gauge_basis(model)

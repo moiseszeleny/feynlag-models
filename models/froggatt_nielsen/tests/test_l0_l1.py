@@ -2,6 +2,7 @@
 
 import pytest
 import sympy as sp
+from feynlag import FL_I, FL_J
 
 from feynlag import (ZN, Model, check_discrete_invariance, check_global_invariance, diracPR,
                      fermion_mass_matrix)
@@ -116,7 +117,7 @@ def _mass_blocks(fn, L):
 def test_fermion_mass_matrices(fn):
     """M_f = (v/√2) c^f_ij ε^{n_ij}, ε = v_φ/(√2 Λ), from the exact operators and identically
     from the linearised ones (feynlag's fermion_mass_matrix, both vacua)."""
-    e, idx = fn.extra, fn.pieces.idx
+    e, idx = fn.extra, (FL_I, FL_J)
     v = e["ew"].v.s
     eps = {e["eps"].s: e["eps"].expr}
     for model, L in ((e["model_exact"], e["L_exact"]), (fn.model, e["L_linear"])):
@@ -277,6 +278,7 @@ def test_term_coverage_model_exact(fn):
 def test_summary_and_parameters(fn):
     """``summary()`` of both models: the flavon is a complex gauge singlet with U(1)_FN charge 1 on
     ``model_exact``; every parameter is listed in order and none is undeclared."""
+    assert fn.params is fn.pieces.params        # one ParameterSet, extended in place
     ex = fn.extra["model_exact"]
     s = ex.summary()
     assert s.field_header[:6] == ["field", "type", "SU2L", "U1Y", "SU3c", "U1_FN"]
