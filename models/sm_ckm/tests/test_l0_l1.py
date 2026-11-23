@@ -126,8 +126,8 @@ def _component_level_yukawas_3(p, Hd, Hu, ye, yd, yu):
 
 def test_constructors_reproduce_component_yukawas_3gen(ckm):
     """``sm.yukawa_terms`` for three generations builds each nonzero entry with
-    ``feynlag.terms.yukawa`` (off-diagonal: a placeholder flavour matrix on ``(a, b)``; diagonal:
-    the scalar form on ``a``, FG-11) and equals the component-level reference for the diagonal
+    ``feynlag.terms.yukawa`` (a placeholder flavour matrix on ``(a, b)``, diagonal entries on
+    ``(a, a)``) and equals the component-level reference for the diagonal
     Y_e, Y_u (with ``tilde(H)``) and the complex Y_d = V·diag(y): colour sums, h.c. and
     conjugated couplings included. These are the model's own terms."""
     from models.sm import model as sm
@@ -207,47 +207,35 @@ def test_summary_and_parameters(ckm):
     assert ckm.model.check_parameters().undeclared == []
 
 
-@pytest.mark.xfail(strict=True, raises=(ValueError, AssertionError),
-                   reason="FG-11: yukawa refuses a flavour-matrix diagonal entry indices=(a, a) at an "
-                   "integer flavour index")
-def test_feynlag_integer_diagonal_flavour_matrix_gap(ckm):
-    """With integer flavour indices, ``Y[a, a]`` is an ordinary diagonal entry; ``yukawa(Y, …,
-    indices=(0, 0))`` should return ``−Y[0,0] L̄^0 H e_R^0 + h.c.``. feynlag 0.5.1 raises
-    ``ValueError`` ("needs two distinct leg indices"), a check meant for symbolic indices."""
+def test_integer_diagonal_flavour_matrix_entry(ckm):
+    """With integer flavour indices, ``Y[a, a]`` is an ordinary diagonal entry: ``yukawa(Y, …,
+    indices=(0, 0))`` returns ``−Y[0,0] L̄^0 H e_R^0 + h.c.``, equal to the scalar form on the one
+    index with ``y → Y[0,0]`` (FG-11, resolved in feynlag 0.5.2; up to 0.5.1 it raised
+    ``ValueError``, a check meant for symbolic indices). ``sm._flavour_matrix_term`` relies on it."""
     from feynlag import yukawa
     p, H = ckm.pieces, ckm.extra["ew"].H
-    Y = sp.IndexedBase("Y")
+    Y, y = sp.IndexedBase("Y"), sp.Symbol("y")
     Ll, eR = p.fermions["Ll"], p.fermions["eR"]
-    try:                                                        # setup: off-diagonal works
-        off = yukawa(Y, Ll, H, eR, indices=(0, 1))
-    except Exception as exc:                                    # never counted as the xfail
-        pytest.fail(f"setup: the off-diagonal entry raised {exc!r}")
-    if not off.has(Y[0, 1]):
-        pytest.fail("setup: the off-diagonal entry was not built")
     term = yukawa(Y, Ll, H, eR, indices=(0, 0))
     assert term.has(Y[0, 0]) and term.has(Ll.eLbar[0]) and term.has(eR.eR[0])
+    scalar = yukawa(y, Ll, H, eR, indices=0)
+    assert sp.expand(term.xreplace({Y[0, 0]: y, sp.conjugate(Y[0, 0]): sp.conjugate(y)})
+                     - scalar) == 0
+    i = sp.Symbol("i", integer=True)                 # a repeated *symbolic* index is still refused
+    with pytest.raises(ValueError):
+        yukawa(Y, Ll, H, eR, indices=(i, i))
 
 
-@pytest.mark.xfail(strict=True, raises=(ValueError, AssertionError),
-                   reason="FG-9: a scalar coupling with integer indices=(a, b), a != b, is silently "
-                   "put on (a, a) instead of raising ValueError")
-def test_feynlag_scalar_coupling_integer_indices_gap(ckm):
-    """With real flavour indices the silent collapse of FG-9 changes the physics: ``yukawa(y, …,
-    indices=(0, 1))`` with a scalar ``y`` returns the (0, 0) entry, an off-diagonal Yukawa moved
-    onto the diagonal. It should raise ``ValueError``."""
+def test_scalar_coupling_integer_off_diagonal_raises(ckm):
+    """With real flavour indices a scalar coupling on ``(a, b)``, ``a != b``, would move an
+    off-diagonal Yukawa onto the diagonal; ``yukawa`` raises ``ValueError`` instead (FG-9, resolved
+    in feynlag 0.5.2; up to 0.5.1 it silently returned the ``(0, 0)`` entry). The one-index
+    diagonal form is unchanged."""
     from feynlag import yukawa
     p, H = ckm.pieces, ckm.extra["ew"].H
     QL, dR = p.fermions["QL"], p.fermions["dR"]
     y = sp.Symbol("y")
-    try:                                                        # setup: the diagonal form works
-        diag = yukawa(y, QL, H, dR, indices=0)
-    except Exception as exc:                                    # never counted as the xfail
-        pytest.fail(f"setup: the diagonal scalar form raised {exc!r}")
-    if not diag.has(dR.dR_1[0]):
-        pytest.fail("setup: the diagonal scalar form was not built")
-    try:
-        term = yukawa(y, QL, H, dR, indices=(0, 1))
-    except ValueError:
-        return
-    raise AssertionError(f"indices=(0, 1) silently built the (0, 0) entry: "
-                         f"{term.has(dR.dR_1[0]) and not term.has(dR.dR_1[1])}")
+    diag = yukawa(y, QL, H, dR, indices=0)
+    assert diag.has(dR.dR_1[0]) and not diag.has(dR.dR_1[1])
+    with pytest.raises(ValueError, match="flavour-universal"):
+        yukawa(y, QL, H, dR, indices=(0, 1))

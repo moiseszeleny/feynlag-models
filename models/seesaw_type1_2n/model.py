@@ -20,7 +20,7 @@ import sympy as sp
 
 from feynlag import (
     MajoranaRotation, Model, ParameterSet, WeylFermion, diagonalize_takagi, diracC, diracPL,
-    diracPR, fermion_mass_matrix, majorana_mass, majorana_mass_matrix, seesaw_light_mass,
+    majorana_mass, majorana_mass_matrix, seesaw_light_mass,
     seesaw_mass_matrix, tilde,
 )
 
@@ -75,7 +75,7 @@ def build(benchmark=None):
 
     # integer flavour indices throughout (CONVENTIONS.md, three generations):
     # −Σ_ab y_ν^{ab} L̄_a H̃ ν_R^b + h.c., entry by entry through the shared sm helper (off-diagonal
-    # entries on indices=(a, b); the a == b entries yv_e1, yv_mu2 in the single-index form, FG-11),
+    # entry on indices=(a, b) through a placeholder flavour matrix),
     # and −½ Σ_k M_k ν_R^{kT} C P_L ν_R^k + h.c., one diagonal entry per k
     LYukD = sm._flavour_matrix_term(yv, Ll, tilde(ew.H), nuR)
     LMaj = sum((majorana_mass(MR[k], nuR, indices=k, gamma=CPL) for k in range(N_R)), sp.S.Zero)
@@ -94,16 +94,20 @@ def build(benchmark=None):
     model = Model(ID, gauge_groups=p.gauge_groups, fields=p.fields,
                   parameters=P, lagrangian=p.lagrangian())
     model.solve_tadpoles([ew.mu2])
-    # gauge and Higgs states as in the SM. mass_blocks(kind="fermion") refuses the 3×2 (ν_L, ν_R)
-    # block (FG-12), so the neutrinos go through the seesaw matrix and the Takagi route below
+    # gauge and Higgs states as in the SM
     Z, A, Wp, Wm = sm.ew_gauge_basis(model)
     h, G0, Gp, Gm = sm.sm_higgs_states(model)
     phys = model.physical
 
     # --- seesaw mass matrix (symbolic) ---------------------------------------
-    # fermion_mass_matrix is square; no term carries nR[2], so its third column is zero
-    mD_full = fermion_mass_matrix(LYukD, nuLbar, nR, model.vacuum, N_L, (i, j), gamma=diracPR)
-    mD = mD_full[:, :N_R]
+    # the 3×2 Dirac block (ν_L, ν_R) from mass_blocks: reported as not diagonalizable, with the
+    # Majorana note pointing to seesaw_mass_matrix + diagonalize_takagi + MajoranaRotation (below)
+    (nu_block,) = [blk for blk in model.mass_blocks(kind="fermion")
+                   if blk.fields == [nuL] and blk.right == [nR]]
+    if nu_block.diagonalizable is not False or "Majorana" not in nu_block.note:
+        raise RuntimeError("mass_blocks: the (nu_L, nu_R) block should be reported as not "
+                           f"diagonalizable with the Majorana note, got {nu_block.note!r}")
+    mD = nu_block.matrix
     MRmat = majorana_mass_matrix(LMaj, nR, model.vacuum, N_R, (i, j), gamma=CPL)
     Mnu = seesaw_mass_matrix(mD, MRmat)
     m_light_approx = seesaw_light_mass(mD, MRmat)
@@ -130,7 +134,7 @@ def build(benchmark=None):
         dirac=dirac, boson_particles=sm.ew_boson_particles(bosons),
         goldstones=tuple(phys.goldstones),
         extra=dict(ew=ew, yv=yv, yv_params=yv_params, MR=MR, nuR=nuR,
-                   LYukD=LYukD, LMaj=LMaj, CPL=CPL, mD_full=mD_full, mD=mD, MRmat=MRmat,
+                   LYukD=LYukD, LMaj=LMaj, CPL=CPL, nu_block=nu_block, mD=mD, MRmat=MRmat,
                    Mnu=Mnu, Mn=Mn, m_light_approx=m_light_approx, U=U, D=Dm, masses=masses,
                    light=light, heavy=heavy, rot=rot, chi=(chiL, chiR, chiLbar, chiRbar),
                    MW=MW, MZ=MZ, MH=MH, ufo=False),

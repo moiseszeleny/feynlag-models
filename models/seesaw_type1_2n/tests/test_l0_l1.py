@@ -1,6 +1,5 @@
 """L0/L1: invariance, anomalies, the 5×5 seesaw mass matrix and its Takagi spectrum."""
 
-import pytest
 import sympy as sp
 
 from feynlag import diagonalize_takagi
@@ -21,13 +20,17 @@ def test_validate_invariance_and_anomalies(ss):
 
 
 def test_mass_matrix_entries(ss):
-    """feynlag's square fermion_mass_matrix has an exactly zero third column (no ν_R3); the
-    3×2 m_D = y_ν v/√2 entry by entry, M_R = diag(M_1, M_2), and M_ν = [[0, m_D], [m_D^T, M_R]]."""
-    e = ss.extra
+    """The 3×2 m_D (the (ν_L, ν_R) block of ``mass_blocks``) = y_ν v/√2 entry by entry, and agrees
+    with feynlag's square ``fermion_mass_matrix``, whose third column is exactly zero (no ν_R3);
+    M_R = diag(M_1, M_2), and M_ν = [[0, m_D], [m_D^T, M_R]]."""
+    from feynlag import diracPR, fermion_mass_matrix
+    e, p = ss.extra, ss.pieces
     v = e["ew"].v.s
-    assert e["mD_full"].shape == (3, 3)
-    assert e["mD_full"][:, 2] == sp.zeros(3, 1)
+    Ll, nR = p.fermions["Ll"], e["nuR"].nuR
+    full = fermion_mass_matrix(e["LYukD"], Ll.nuLbar, nR, ss.model.vacuum, 3, p.idx, gamma=diracPR)
+    assert full.shape == (3, 3) and full[:, 2] == sp.zeros(3, 1)
     assert e["mD"].shape == (3, 2)
+    assert sp.simplify(e["mD"] - full[:, :2]) == sp.zeros(3, 2)
     for a in range(3):
         for b in range(2):
             assert_dual_equal(e["mD"][a, b], e["yv"][a, b] * v / sp.sqrt(2), msg=f"m_D[{a},{b}]")
@@ -158,7 +161,7 @@ def _component_level_neutrino_terms(ss):
 
 def test_constructors_reproduce_component_neutrino_terms(ss):
     """``sm._flavour_matrix_term`` on the 3×2 ``y_ν`` with ``tilde(H)`` (off-diagonal entries on
-    ``indices=(a, b)``, the ``a == b`` entries in the single-index form, FG-11) and one
+    ``indices=(a, b)`` through a placeholder flavour matrix, diagonal entries included) and one
     ``majorana_mass`` per ``k`` give exactly the component-level terms, both halves included."""
     from feynlag import expand_bilinear
     LYukD, LMaj = _component_level_neutrino_terms(ss)
@@ -169,8 +172,7 @@ def test_constructors_reproduce_component_neutrino_terms(ss):
 
 def test_mass_blocks_report_sm_blocks(ss):
     """``mass_blocks`` gives the SM Higgs and gauge blocks (what ``sm.ew_gauge_basis`` and
-    ``sm.sm_higgs_states`` read). The fermion blocks are refused (FG-12), so the neutrinos go
-    through ``seesaw_mass_matrix`` + ``diagonalize_takagi`` + ``MajoranaRotation``."""
+    ``sm.sm_higgs_states`` read); the fermion blocks are pinned in ``test_fermion_mass_blocks``."""
     m, b, p = ss.model, ss.bosons, ss.pieces
     scalar = m.mass_blocks(kind="scalar")
     assert [blk.fields for blk in scalar] == [[b["h"]], [b["G0"]], [b["Gp"]]]
@@ -193,8 +195,10 @@ def test_term_coverage(ss):
     """The potential is fully recognised (``V = −μ²H†H + λ(H†H)²``). The Yukawas sit at explicit
     integer flavour indices, which ``term_coverage`` documents as unmatched (``TermCoverage``
     docstring: "explicit integer flavour indices"), so the four Yukawa operators, ``L̄ H̃ ν_R``
-    included, are reported missing. The bare ``ν_R`` Majorana mass is not in feynlag's operator
-    basis (FG-10), so it is not listed. The remainder is exactly the Yukawa and Majorana sector.
+    included, are reported missing. The bare ``ν_R`` Majorana mass is in feynlag's operator basis
+    since 0.5.2 (FG-10, resolved), but the model writes it at integer flavour indices too
+    (``majorana_mass(M_k, ν_R, indices=k)``), so it is listed missing for the same documented
+    reason, not matched. The remainder is exactly the Yukawa and Majorana sector.
 
     ``term_coverage`` decomposes only the ``P_R`` / ``C P_L`` half of each fermion term (feynlag
     ``general.py``, ``_canonical_fermion_half``), so this test does not check the conjugated half
@@ -206,7 +210,8 @@ def test_term_coverage(ss):
     tc = ss.model.term_coverage()
     assert {t.label: c for t, c in tc.present} == {"(H†H)": -e["ew"].mu2.s,
                                                    "(H†H) (H†H)": e["ew"].lam.s}
-    assert {t.label for t in tc.missing} == {"Ll̄·H eR", "Ll̄·H̃ nuR", "QL̄·H̃ uR", "QL̄·H dR"}
+    assert {t.label for t in tc.missing} == {"Ll̄·H eR", "Ll̄·H̃ nuR", "QL̄·H̃ uR", "QL̄·H dR",
+                                             "½ nuRᵀCnuR [Majorana]"}
     assert set(tc.unmatched) == {"yukawa"}
     L_fer = sp.expand(expand_bilinear(sp.expand(sum(
         t.expr for t in ss.model.lagrangian.terms if t.sector in ("yukawa", "other")))))
@@ -240,21 +245,24 @@ def test_consumer_interface(ss):
     assert e["masses"] == sorted(e["masses"]) and len(e["masses"]) == 5
 
 
-@pytest.mark.xfail(strict=True, raises=(NotImplementedError, AssertionError),
-                   reason="FG-12: mass_blocks refuses a fermion block whose left- and right-handed "
-                   "fields have different numbers of flavours (3 nu_L, 2 nu_R)")
-def test_feynlag_unequal_flavour_mass_block_gap(ss):
-    """For the 3+2 seesaw ``mass_blocks(kind="fermion")`` should report the (ν_L, ν_R) block as not
-    diagonalizable (Majorana mass, Takagi route), as it does for one generation in
-    ``seesaw_type1``. feynlag 0.5.1 raises ``NotImplementedError`` ("different numbers of
-    flavours; build this mass matrix by hand"), so a bare ``mass_blocks()`` raises too."""
-    m, p = ss.model, ss.pieces
-    try:                                                        # setup: the boson blocks work
-        scalar = m.mass_blocks(kind="scalar")
-    except Exception as exc:                                    # never counted as the xfail
-        pytest.fail(f"setup: mass_blocks(kind='scalar') raised {exc!r}")
-    if len(scalar) != 3:
-        pytest.fail("setup: the SM scalar blocks were not found")
-    nu = [blk for blk in m.mass_blocks(kind="fermion") if p.fermions["Ll"].nuL in blk.fields]
-    assert len(nu) == 1 and ss.extra["nuR"].nuR in nu[0].right
-    assert nu[0].diagonalizable is False and "Majorana" in nu[0].note
+def test_fermion_mass_blocks(ss):
+    """``mass_blocks(kind="fermion")`` reports the 3×2 (ν_L, ν_R) block, which the model reads as
+    ``m_D``: not diagonalizable, with the Majorana note (the seesaw / Takagi route the model takes).
+    The charged-lepton and per-colour quark blocks are flavoured, pointing to the numeric SVD.
+    (FG-12, resolved in feynlag 0.5.2; up to 0.5.1 the unequal flavour counts raised
+    ``NotImplementedError`` and took the whole fermion report with them.)"""
+    m, p, e = ss.model, ss.pieces, ss.extra
+    Ll, QL = p.fermions["Ll"], p.fermions["QL"]
+    fermion = m.mass_blocks(kind="fermion")
+    (nu,) = [blk for blk in fermion if blk.fields == [Ll.nuL]]
+    assert nu.right == [e["nuR"].nuR] and nu.matrix.shape == (3, 2)
+    # this block is what the model reads as e["mD"]; its entries are checked against y_ν v/√2 and the
+    # square fermion_mass_matrix in test_mass_matrix_entries
+    assert nu.diagonalizable is False
+    assert all(s in nu.note for s in ("Majorana", "seesaw_mass_matrix", "diagonalize_takagi"))
+    flavoured = [blk for blk in fermion if blk is not nu]
+    assert {str(blk.fields[0]) for blk in flavoured} == {"eL", *(str(c) for c in QL.components)}
+    for blk in flavoured:
+        assert blk.nflavors == 3 and blk.diagonalizable is False
+        assert "diagonalize_svd(method='numeric')" in blk.note
+    assert len(m.mass_blocks()) == len(fermion) + 5        # a bare call no longer raises

@@ -32,9 +32,9 @@ Write formulas in LaTeX and code in backticks (`CONVENTIONS.md`, section "Markdo
 ## 4. What feynlag cannot yet do for this model
 - FG-4 (integer flavour indices in `fermion_mass_matrix`) is resolved; the L1 masses call
   `fermion_mass_matrix` directly.
-- FG-11: `feynlag.terms.yukawa` refuses a flavour-matrix diagonal entry at an integer index, so the
-  three-generation Yukawas build diagonal entries with the scalar form on one index (`sm._flavour_matrix_term`).
-- FG-9: a scalar coupling with integer `indices=(a, b)` is silently put on `(a, a)`; it is never used that way here.
+- FG-9 and FG-11 are resolved in feynlag 0.5.2: a scalar coupling on integer `indices=(a, b)`, `a != b`, raises,
+  and a flavour-matrix diagonal entry `(a, a)` at an integer index is accepted, so `sm._flavour_matrix_term`
+  builds every entry through one placeholder flavour matrix.
 - `term_coverage()` cannot decompose Yukawas at explicit integer flavour indices (documented in feynlag's
   `TermCoverage`): the three Yukawa operators show as missing and the Yukawa sector as unmatched.
 - No symbolic $3\times3$ complex SVD. The CKM enters as an input rotation (feynlag's documented

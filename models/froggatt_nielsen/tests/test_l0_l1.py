@@ -167,10 +167,6 @@ def test_benchmark_flavour_values_match_spectrum_md(fn):
 
 # ------------------------------------------------- feynlag 0.4.0 API (constructors, guided basis)
 
-#: the seven potential operators term_coverage lists as missing on model_exact although each
-#: carries net U(1)_FN charge (FG-13: the declared GlobalU1 is not imposed on the suggestions)
-FN_VIOLATING = {"phi phi", "phi (H†H)", "phi phi phi", "phi phi phi†", "phi phi (H†H)",
-                "phi phi phi phi", "phi phi phi phi†"}
 INTEGER_INDEX_YUKAWAS = {"Ll̄·H eR", "QL̄·H̃ uR", "QL̄·H dR"}
 
 
@@ -251,30 +247,24 @@ def test_physical_registry(fn):
 
 def test_term_coverage_model_exact(fn):
     """``term_coverage`` on ``model_exact``. Present: the whole potential, in feynlag's
-    ``V = Σ c O`` (``−μ²``, ``−μ_φ²``, ``λ``, ``λ_Hφ``, ``λ_φ``). Missing, for two reasons:
-
-    - the three Yukawa operators: the FN Yukawas sit at explicit integer flavour indices and are
-      operators above dimension 4, both outside the operator basis (``TermCoverage`` documents the
-      integer-index case);
-    - seven flavon operators that each carry net U(1)_FN charge, so the declared ``GlobalU1``
-      forbids them: ``term_coverage`` does not impose ``model.global_groups`` (FG-13, strict xfail
-      ``test_feynlag_term_coverage_global_symmetry_gap``). This test checks they really are
-      U(1)_FN-violating, so the list cannot grow silently.
+    ``V = Σ c O`` (``−μ²``, ``−μ_φ²``, ``λ``, ``λ_Hφ``, ``λ_φ``). Missing: only the three Yukawa
+    operators. The FN Yukawas sit at explicit integer flavour indices and are operators above
+    dimension 4, both outside the operator basis (``TermCoverage`` documents the integer-index
+    case). The declared ``GlobalU1`` is imposed on the suggestions since feynlag 0.5.2 (FG-13,
+    resolved), so no U(1)_FN-violating flavon operator (``φ²``, ``φ H†H``, …) is listed; that is
+    pinned by ``test_term_coverage_imposes_global_symmetry``.
 
     The remainder is exactly the ``P_R`` half of the FN Yukawas. ``term_coverage`` decomposes only
     that half (feynlag ``general.py``, ``_canonical_fermion_half``), so the conjugated half and its
     phase are covered by ``test_constructors_reproduce_component_yukawas_exact_and_linear``."""
     from feynlag import Bilinear, expand_bilinear
     e = fn.extra
-    ex, U = e["model_exact"], e["U1_FN"]
+    ex = e["model_exact"]
     tc = ex.term_coverage()
     assert {t.label: c for t, c in tc.present} == {
         "(H†H)": -e["ew"].mu2.s, "phi phi†": -e["muPhi2"].s, "(H†H) (H†H)": e["ew"].lam.s,
         "phi phi† (H†H)": e["lamHPhi"].s, "phi phi phi† phi†": e["lamPhi"].s}
-    missing = {t.label: t for t in tc.missing}
-    assert set(missing) == INTEGER_INDEX_YUKAWAS | FN_VIOLATING
-    for label in FN_VIOLATING:
-        assert check_global_invariance(missing[label].expr, U)[0] is False, label
+    assert {t.label for t in tc.missing} == INTEGER_INDEX_YUKAWAS
     assert set(tc.unmatched) == {"yukawa"}
     L_fer = sp.expand(expand_bilinear(sp.expand(sum(
         t.expr for t in ex.lagrangian.terms if t.sector in ("yukawa", "other")))))
@@ -314,29 +304,29 @@ def test_consumer_interface(fn):
     assert list(y) == sorted(y)
 
 
-@pytest.mark.xfail(strict=True, raises=(AssertionError,),
-                   reason="FG-13: term_coverage ignores Model.global_groups and lists "
-                   "U(1)_FN-violating operators as missing")
-def test_feynlag_term_coverage_global_symmetry_gap(fn):
+def test_term_coverage_imposes_global_symmetry(fn):
     """``term_coverage`` decomposes on the operator basis "for the model's own fields and declared
-    symmetries", but passes only the gauge and discrete groups to ``suggest_potential`` /
-    ``suggest_yukawa``: with the ``GlobalU1`` U(1)_FN declared, operators with net FN charge
-    (``φ²``, ``φ H†H``, ``φ³``, …) are reported as missing. No missing operator should carry net
-    U(1)_FN charge."""
+    symmetries", the declared ``GlobalU1`` U(1)_FN included: no missing operator carries net FN
+    charge (FG-13, resolved in feynlag 0.5.2; up to 0.5.1 ``φ²``, ``φ H†H``, ``φ³``, ``φ²φ*``,
+    ``φ² H†H``, ``φ⁴`` and ``φ³φ*`` were listed as missing)."""
     e = fn.extra
     try:                                                        # setup: U(1)_FN declared and holds
         ex, U = e["model_exact"], e["U1_FN"]
         if ex.global_groups != [U] or not ex.validate().ok:
             raise RuntimeError("U(1)_FN is not declared on model_exact, or validate() fails")
         missing = ex.term_coverage().missing
-    except Exception as exc:                                    # never counted as the xfail
+    except Exception as exc:
         pytest.fail(f"setup: {exc!r}")
     violating = []
     for t in missing:
         try:
             ok = check_global_invariance(t.expr, U)[0]
         except ValueError:     # a Yukawa suggestion on symbolic flavour indices: no per-generation
-            continue           # charge to check (the integer-index limitation, not FG-13)
+            continue           # charge to check (the integer-index limitation)
         if not ok:
             violating.append(t.label)
     assert violating == [], violating
+    # the seven operators feynlag 0.5.1 listed (net FN charges 2, 1, 3, 1, 2, 4, 2) are gone
+    old = {"phi phi", "phi (H†H)", "phi phi phi", "phi phi phi†", "phi phi (H†H)",
+           "phi phi phi phi", "phi phi phi phi†"}
+    assert old.isdisjoint(t.label for t in missing)

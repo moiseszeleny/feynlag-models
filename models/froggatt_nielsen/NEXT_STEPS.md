@@ -59,8 +59,8 @@ Write formulas in LaTeX and code in backticks (`CONVENTIONS.md`, section "Markdo
 ## 4. What feynlag cannot yet do for this model
 - FG-6 and FG-7 are resolved in feynlag 0.3.0 (numeric complex `diagonalize_svd`; `GlobalU1`
   with per-flavour charges); see `FEYNLAG_GAPS.md`.
-- **FG-13**: `term_coverage()` on `model_exact` ignores the declared `GlobalU1`, so it lists seven
-  U(1)_FN-violating flavon operators as missing. The three Yukawa operators also show as missing, because the FN
+- FG-13 is resolved in feynlag 0.5.2: `term_coverage()` on `model_exact` imposes the declared `GlobalU1`, so no
+  U(1)_FN-violating flavon operator is listed. The three Yukawa operators still show as missing, because the FN
   Yukawas are integer-index operators above dimension 4; their $`P_R`$ half is the remainder (documented).
   `validate()` imposes U(1)_FN on every term.
 - The $`(h, s)`$ mixing, the gauge states and the Goldstones come from `mass_blocks()` / `diagonalize()`; the
