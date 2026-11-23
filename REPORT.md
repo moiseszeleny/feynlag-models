@@ -545,7 +545,7 @@ Physics unchanged. All outputs are byte-identical.
   identical to the old `i`, `j` (`integer=True`); only the names differ (`fl_i`, `fl_j`). No committed output
   prints an index.
 - **Equality proof.** `model_equal.py` against `main`, run for all 7 models: old-vs-old first, then legacy-vs-new
-  with the legacy side relabelled `i→fl_i`, `j→fl_j`. ALL EQUAL for each: every term (identical expression),
+  with the legacy side relabelled from `i`, `j` to `fl_i`, `fl_j`. ALL EQUAL for each: every term (identical expression),
   rule, rotation, parameter (order, kind, value, expr, tex), `Model.parameters` order, bookkeeping entry and
   `extra` key.
 
