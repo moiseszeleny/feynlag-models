@@ -99,7 +99,10 @@ def colour_anomaly_coefficient(U1, su3, su2):
 
     Sums over the U(1)'s Weyl-fermion assignments that are colour triplets: each carries its SU(2)
     multiplicity (2 for a doublet) and enters with ``+q`` if left-handed and ``−q`` if right-handed
-    (as a left-handed conjugate). This is ``2 Σ_LH q T(R)`` with ``T(3) = 1/2``. feynlag's
+    (as a left-handed conjugate). This is ``2 Σ_LH q T(R)`` with ``T(3) = 1/2``, i.e. the
+    domain-wall number ``N_DW = 2N``, with ``N = Σ_LH q T(R)`` the coefficient of the ``E/N``
+    convention. At the benchmark ``N_DW = 21`` (``N = 21/2``); for a flavon of charge 1 the axion
+    decay constant is ``f_a = v_φ / N_DW``. LNS-2 Eq. (4.9) counts each doublet once (D-2). feynlag's
     ``check_anomalies`` skips global groups by design, hence this helper. Nonzero means the U(1)
     is QCD-anomalous, so its Goldstone is an axion-like state (here: an axiflavon).
     """

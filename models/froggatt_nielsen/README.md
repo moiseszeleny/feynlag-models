@@ -64,7 +64,15 @@ to the implementer by the request and is recorded in `metadata.yaml`. [physics j
   $`\sum_{\rm gen}(2q_Q - q_u - q_d)`$ is $21$ at the benchmark (LNS-2 Eq. (2.5) charges), computed
   from the declared `GlobalU1` (`extra["colour_anomaly"]`), since feynlag's anomaly check skips
   global groups. So $a$ gets a QCD-induced mass and is an axiflavon
-  **[feynlag-verified: `test_u1_fn_colour_anomaly_coefficient`]**.
+  **[feynlag-verified: `test_u1_fn_colour_anomaly_coefficient`]**. The $21$ is
+  $`2\sum q\,T(R) = N_{\rm DW}`$, the domain-wall number ($N = 21/2$ in the $E/N$ convention), so
+  $`f_a = v_\phi/N_{\rm DW}`$. LNS-2 Eq. (4.9) prints the anomaly with each doublet counted once,
+  which gives $16$ (discrepancy D-2, `status: resolved`); the doublet-weighted form is the one
+  invariant under hypercharge and baryon-number shifts of the charges
+  **[feynlag-verified: `test_colour_anomaly_is_shift_invariant_lns_eq_4_9_is_not`]**. LNS's escape,
+  an accidental $`U(1)_X`$ of their two-doublet Yukawa sector absorbing the anomaly (Sec. 4.3), does
+  not apply: this model has one Higgs doublet, so the axiflavon is physical. A $`Z_N`$ version
+  would need $`Z_N`$ itself free of the QCD anomaly (LNS-2 Eq. (4.10)) [physics judgment].
 
 ## New Lagrangian terms
 The flavon kinetic term, the potential

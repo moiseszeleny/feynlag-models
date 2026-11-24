@@ -269,7 +269,7 @@ route to masses and $`V_{\rm CKM}`$. The request asked for L2; L2 is reached.
   flavon couplings are `benchmark.placeholders`. The 27 complex $`c_{ij}`$ are one seeded draw
   (`default_rng(20261005)`), **not a fit**.
 - **Tests.** L0/L1: 7 passed (exact operators valid, $`U(1)_{\rm FN}`$ per monomial with a negative
-  control, flavon powers, tadpoles, CP-even block, four massless scalars, mass matrices from both models)
+  control, flavon powers, tadpoles, CP-even block, four scalars massless at tree level, mass matrices from both models)
   and 2 strict xfails (FG-6, FG-7; both since removed, see below). L2: 7 passed against LNS-1 (hep-ph/9212278v1) and LNS-2
   (hep-ph/9310320v1): the master-model charges, the Eq. (2.6) textures symbolically, $\det Y$ exactly
   $\epsilon^{12}$ and $\epsilon^{9}$ (Eqs. (2.7), (2.19)), and the mass (Eq. (2.4)) and CKM (Eq. (2.3);
@@ -283,7 +283,7 @@ route to masses and $`V_{\rm CKM}`$. The request asked for L2; L2 is reached.
   the model now uses feynlag's numeric `diagonalize_svd` and `GlobalU1`, the workarounds and the two
   strict xfails are removed, and the benchmark masses and $\lvert V_{ij}\rvert$ in `spectrum.md`
   are unchanged.
-- **No UFO.** Not requested (P3 is gated at L2), and the export would carry the massless $a$; so L3 is
+- **No UFO.** Not requested (P3 is gated at L2), and the export would carry $a$, massless at tree level; so L3 is
   not attempted, and `outputs` has the LaTeX and Markdown pages only.
 - **Literature.** LNS-1 and LNS-2 read as arXiv v1 text with `pdftotext`, exponents checked against
   page renders; INSPIRE ids (341758, 359267) and DOIs from the INSPIRE API. Froggatt–Nielsen 1979
@@ -500,7 +500,7 @@ Seventh and last per-model migration, at the `feynlag==0.5.1` pin. All outputs a
 - **Flavon.** `kinetic(phiF)` and `inner` give the hand-written $`(\partial\phi)^*(\partial\phi)`$ and potential
   **[feynlag-verified: test_flavon_kinetic_and_potential_constructors]**. The $`(h, s)`$ mixing comes from
   `mass_blocks()` and `diagonalize(…, angle=theta)` with the identical rotation matrix and angle solution; the flavon
-  phase $`a`$ is a massless, non-eaten state **[feynlag-verified: test_mass_blocks_report_scalar_gauge_and_flavoured_blocks]**.
+  phase $`a`$ is a non-eaten state, massless at tree level **[feynlag-verified: test_mass_blocks_report_scalar_gauge_and_flavoured_blocks]**.
 - **New gap FG-13.** `term_coverage` ignores `Model.global_groups`: on `model_exact` it reports seven U(1)_FN-violating
   flavon operators as missing, a wrong result **[feynlag-verified: test_term_coverage_model_exact]**.
 - **Equality proof** (against `main`): 72 boson rules, **2289 fermion coefficients**, every rotation, `theta`, `MH1`,
@@ -563,7 +563,12 @@ axiflavon once QCD is included. Tree-level physics is unchanged.
   $21$, the same value and formula as `feynlag-anomalies` `step_4.colour_anomaly_coefficient`, and
   $`2\sum H(Q) + \sum H(\bar u) + \sum H(\bar d)`$ in LNS's convention
   **[feynlag-verified: `test_u1_fn_colour_anomaly_coefficient`]**. feynlag's `check_anomalies` skips global groups by
-  design, so this is not a gap row.
+  design, so this is not a gap row. It is the domain-wall number $`N_{\rm DW} = 2N`$ ($N = 21/2$), so
+  $`f_a = v_\phi/N_{\rm DW}`$.
+- **D-2 (`resolved`).** LNS-2 Eq. (4.9) counts each doublet once and gives $16$; the doublet-weighted $21$ is invariant
+  under hypercharge and baryon-number shifts, the once-counted form is not
+  **[feynlag-verified: `test_colour_anomaly_is_shift_invariant_lns_eq_4_9_is_not`]**. LNS's $`U(1)_X`$ escape needs two
+  Higgs doublets, so it does not apply to this one-doublet model.
 - **Follow-up.** The axion constraints (stellar cooling, dark matter, the QCD-induced mass) are listed in
   `NEXT_STEPS.md` without numbers.
 

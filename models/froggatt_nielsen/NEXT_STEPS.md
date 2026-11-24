@@ -16,6 +16,12 @@ Write formulas in LaTeX and code in backticks (`CONVENTIONS.md`, section "Markdo
   (stellar cooling, axion dark matter), on top of the flavour-violating familon bounds. No numbers
   are quoted here; the confrontation belongs to `feynlag-anomalies`, with sourced bounds.
   [physics judgment]
+- **LNS's way out does not apply.** LNS-2 Sec. 4.3 avoids the QCD anomaly with an accidental
+  $`U(1)_X`$ of their two-doublet ($`\phi_u`$, $`\phi_d`$) Yukawa sector: the true horizontal
+  symmetry is a $`Z_n \subset U(1)_H \times U(1)_X`$ with $`A_{\tilde H} = 0 \pmod n`$ (Eq. (4.10)).
+  This model has one Higgs doublet and no $`U(1)_X`$, so the axiflavon is physical. A $`Z_N`$ version
+  (above) would need $`Z_N`$ itself free of the QCD anomaly, in the sense of Eq. (4.10). Note that
+  LNS-2 Eq. (4.9) counts each doublet once (16 here instead of 21; discrepancy D-2). [physics judgment]
 - **Discrete $`Z_N`$ instead of $U(1)$.** LNS-2 Sec. 2.1 requires the horizontal symmetry of the
   full Lagrangian to be a $`Z_N \subset U(1)`$, so that a term breaking it by $n \gt N$ units is
   suppressed only by $\lambda^{n \bmod N}$. A $`Z_N`$ benchmark would remove the Goldstone and
