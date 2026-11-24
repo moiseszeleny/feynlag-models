@@ -21,7 +21,9 @@ Two feynlag ``Model``s are built from the same declarations:
   attached to a fermion pair. Spectrum, rotations and vertices use this model: extracting the
   exact operators gives up to 9-boson vertices and is ~10× slower (probe, 2026-10-05).
 
-U(1)_FN is exact in the Lagrangian, so the flavon phase ``a`` is a massless Goldstone. It is
+U(1)_FN is exact in the Lagrangian, so the flavon phase ``a`` is massless at tree level. The
+benchmark charges are colour-anomalous (U(1)_FN–SU(3)_c² coefficient 21, ``extra["colour_anomaly"]``),
+so once QCD is included ``a`` is an axiflavon with a QCD-induced mass. U(1)_FN is
 declared on ``model_exact`` as a feynlag ``GlobalU1`` with the per-generation charges
 (``extra["U1_FN"]``), so ``validate()`` checks it on every term. The linearised model breaks it
 explicitly (the constant piece of ``φ^n``) and does not carry it. The 3×3 Yukawas are generic complex
@@ -92,6 +94,28 @@ def fn_symmetry(pieces, phiF, charges, name="U1_FN"):
     return G
 
 
+def colour_anomaly_coefficient(U1, su3, su2):
+    """The U(1)–SU(3)_c² anomaly coefficient ``Σ_gen (2 q_Q − q_u − q_d)`` of a declared global U(1).
+
+    Sums over the U(1)'s Weyl-fermion assignments that are colour triplets: each carries its SU(2)
+    multiplicity (2 for a doublet) and enters with ``+q`` if left-handed and ``−q`` if right-handed
+    (as a left-handed conjugate). This is ``2 Σ_LH q T(R)`` with ``T(3) = 1/2``. feynlag's
+    ``check_anomalies`` skips global groups by design, hence this helper. Nonzero means the U(1)
+    is QCD-anomalous, so its Goldstone is an axion-like state (here: an axiflavon).
+    """
+    total = 0
+    for field, charge in U1.assignments:
+        colour = getattr(field, "reps", {}).get(su3)
+        if colour is None or not hasattr(field, "chirality"):
+            continue
+        if colour != 3:
+            raise ValueError(f"{field.name}: only colour triplets are handled, got {colour}")
+        qs = charge if isinstance(charge, (tuple, list)) else (charge,) * field.nflavors
+        sign = {"L": 1, "R": -1}[field.chirality]
+        total += sign * field.reps.get(su2, 1) * sum(qs)
+    return sp.nsimplify(total)
+
+
 def coefficient_params(P, bench, prefix):
     """The 3×3 complex ``c_ij = |c| exp(i α)``, declared on the ``ParameterSet`` ``P`` (all the
     moduli, then all the phases): (matrix, [abs params], [arg params])."""
@@ -106,8 +130,8 @@ def coefficient_params(P, bench, prefix):
 def scalar_blocks(model):
     """``(even, G0, Gp, a0)`` from ``model.mass_blocks(kind="scalar")``: the CP-even
     ``(H0_r, phi_r)`` block that the portal ``λ_Hφ`` mixes, the Goldstone-tagged ``G0`` and ``G+``,
-    and the CP-odd flavon ``phi_i``, the massless Goldstone of the *global* U(1)_FN (not eaten,
-    so not Goldstone-tagged)."""
+    and the CP-odd flavon ``phi_i``, the Goldstone of the *global* U(1)_FN, massless at tree level
+    (an axiflavon once QCD is included; not eaten, so not Goldstone-tagged)."""
     blocks = model.mass_blocks(kind="scalar")
     if len(blocks) != 4:
         raise ValueError(f"expected the (h, s) block, G0, G+ and a, got {blocks}")
@@ -209,7 +233,7 @@ def build(benchmark=None):
 
     Gm, cmap = conjugate_pair(Gp, "Gm", tex=TEX["Gm"])
     model.physical.add_bosons([G0, Gp, Gm], goldstones=[G0, Gp, Gm])
-    model.physical.add_bosons([a0])        # the U(1)_FN Goldstone: physical and massless
+    model.physical.add_bosons([a0])        # the U(1)_FN Goldstone: physical, massless at tree level
     model.physical.add_conjugate_pair(Gp, Gm, cmap)
     phys = model.physical
 
@@ -229,7 +253,9 @@ def build(benchmark=None):
                    C=C, c_abs=c_abs, c_arg=c_arg, c_params=c_params,
                    Y=Y, Yu=Y["up"], Yd=Y["down"], Ye=Y["lepton"],
                    Y_exact=Y_exact, Y_linear=Y_linear, L_exact=L_exact, L_linear=L_linear,
-                   model_exact=model_exact, U1_FN=U1_FN, M_even=M_even, rot=rot, theta=theta,
+                   model_exact=model_exact, U1_FN=U1_FN,
+                   colour_anomaly=colour_anomaly_coefficient(U1_FN, p.SU3c, p.SU2L),
+                   M_even=M_even, rot=rot, theta=theta,
                    MW=MW, MZ=MZ, MH1=MH1, MH2=MH2, h_weak=h_weak, ufo=False),
     )
 
@@ -283,7 +309,7 @@ def benchmark_flavour(bundle, dps=60):
 def outputs(bundle, out_dir):
     e = bundle.extra
     masses = {"$m_{h_1}$": e["MH1"].expr, "$m_{h_2}$": e["MH2"].expr, r"$\theta$": e["theta"].expr,
-              "$m_a$": sp.S.Zero, "$m_W$": e["MW"].expr, "$m_Z$": e["MZ"].expr,
+              "$m_a$ (tree level)": sp.S.Zero, "$m_W$": e["MW"].expr, "$m_Z$": e["MZ"].expr,
               r"$\epsilon$": e["eps"].expr}
     fermion_masses, absV = benchmark_flavour(bundle)
     names = {"up": ("u", "c", "t"), "down": ("d", "s", "b"), "lepton": ("e", r"\mu", r"\tau")}

@@ -255,7 +255,8 @@ stage-1 fit (P3) needs the Yukawas as symbolic functions of $\epsilon$ and the $
 route to masses and $`V_{\rm CKM}`$. The request asked for L2; L2 is reached.
 
 - **Design.** Parent `sm_ckm` (`replaces_sector: yukawa`). A complex singlet flavon $\phi$ (FN charge $+1$)
-  and a **global, exact** $`U(1)_{\rm FN}`$, so the flavon phase $a$ is a massless Goldstone; the choice is
+  and a **global, exact** $`U(1)_{\rm FN}`$, so the flavon phase $a$ is a Goldstone, massless at tree level (an axiflavon once QCD is
+  included: see "Axiflavon wording: UG-3" below); the choice is
   recorded in `metadata.yaml` [physics judgment]. The per-generation fermion charges are integer
   benchmark inputs (`qQ1` … `qe3`). `build()` assembles two `Model`s: `extra["model_exact"]` with the exact
   $`c_{ij}(\phi/\Lambda)^{n_{ij}}`$ operators (dimension up to 10 at the benchmark) for L0 and the mass
@@ -548,6 +549,23 @@ Physics unchanged. All outputs are byte-identical.
   with the legacy side relabelled from `i`, `j` to `fl_i`, `fl_j`. ALL EQUAL for each: every term (identical expression),
   rule, rotation, parameter (order, kind, value, expr, tex), `Model.parameters` order, bookkeeping entry and
   `extra` key.
+
+## Axiflavon wording: UG-3 (2026-11-24)
+
+`feynlag-anomalies` UG-3: `froggatt_nielsen` called the flavon phase $a$ an exact massless Goldstone. With the
+benchmark (LNS-2 Eq. (2.5)) charges $`U(1)_{\rm FN}`$ is QCD-anomalous, so $a$ is massless only at tree level and an
+axiflavon once QCD is included. Tree-level physics is unchanged.
+
+- **Wording.** README, `model.py`, `metadata.yaml` (`broken_by`, key result), `NEXT_STEPS.md`, test docstrings and the
+  `spectrum.md` label ("$m_a$ (tree level)") now say "massless at tree level".
+- **Anomaly coefficient.** `colour_anomaly_coefficient` computes the $`U(1)_{\rm FN}`$–$`SU(3)_c^2`$ coefficient
+  $`\sum_{\rm gen}(2q_Q - q_u - q_d)`$ from the `GlobalU1` declared on `model_exact` (`extra["colour_anomaly"]`); it is
+  $21$, the same value and formula as `feynlag-anomalies` `step_4.colour_anomaly_coefficient`, and
+  $`2\sum H(Q) + \sum H(\bar u) + \sum H(\bar d)`$ in LNS's convention
+  **[feynlag-verified: `test_u1_fn_colour_anomaly_coefficient`]**. feynlag's `check_anomalies` skips global groups by
+  design, so this is not a gap row.
+- **Follow-up.** The axion constraints (stellar cooling, dark matter, the QCD-induced mass) are listed in
+  `NEXT_STEPS.md` without numbers.
 
 ## What to do next
 

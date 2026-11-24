@@ -94,7 +94,8 @@ def test_cp_even_mass_matrix_and_spectrum(fn):
 
 def test_goldstone_count(fn):
     """Three would-be Goldstones (eaten by W±, Z) plus the flavon phase a, the Goldstone of the
-    spontaneously broken global U(1)_FN: four massless real scalars."""
+    spontaneously broken global U(1)_FN: four real scalars massless at tree level (a is an
+    axiflavon once QCD is included; see ``test_u1_fn_colour_anomaly_coefficient``)."""
     p, vals, b = fn.pieces, fn.values(), fn.bosons
     W1, W2, W3 = p.W.components
     Mg = fn.model.gauge_mass_matrix([W1, W2, W3, p.B.components[0]])
@@ -215,7 +216,7 @@ def test_flavon_kinetic_and_potential_constructors(fn):
 
 def test_mass_blocks_report_scalar_gauge_and_flavoured_blocks(fn):
     """``mass_blocks`` on the linearised model: the CP-even ``(H0_r, phi_r)`` block, the eaten
-    ``G0``/``G+`` and the CP-odd flavon ``a`` (massless U(1)_FN Goldstone, not eaten, so not
+    ``G0``/``G+`` and the CP-odd flavon ``a`` (U(1)_FN Goldstone, massless at tree level, not eaten, so not
     Goldstone-tagged); the SM gauge blocks; every charged fermion block flavoured, i.e. not
     diagonalizable symbolically (numeric SVD via ``mass_basis``), and ``ν_L`` massless."""
     m, b, p, e = fn.model, fn.bosons, fn.pieces, fn.extra

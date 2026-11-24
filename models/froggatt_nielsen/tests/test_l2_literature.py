@@ -33,6 +33,24 @@ def test_benchmark_charges_are_lns_master_model(fn):
     assert q["uR"] == tuple(-h for h in LNS2_H_UBAR)
 
 
+def test_u1_fn_colour_anomaly_coefficient(fn):
+    """U(1)_FN is QCD-anomalous at the benchmark (UG-3 from feynlag-anomalies): the
+    U(1)_FN–SU(3)_c² coefficient Σ_gen (2 q_Q − q_u − q_d) is 21, so the flavon phase a is
+    massless only at tree level and an axiflavon once QCD is included.
+
+    The 21 is computed, not quoted: from the ``GlobalU1`` declared on ``model_exact``
+    (``extra["colour_anomaly"]``), from the benchmark charges with the formula of
+    ``feynlag-anomalies`` ``puzzles/flavor_puzzle/solutions/step_4.py::colour_anomaly_coefficient``
+    (same keys: ``qu``, ``qd`` are the charges of the right-handed fields), and from the LNS-2
+    master-model charges, hep-ph/9310320 Eq. (2.5), with H(f̄) = −q(f_R):
+    2 ΣH(Q) + ΣH(ū) + ΣH(d̄) = 10 + 4 + 7. Normalisation: 2 Σ_LH-Weyl q T(R), T(3) = 1/2.
+    feynlag's ``check_anomalies`` skips global groups, so ``validate()`` cannot see this."""
+    q = fn.extra["fn_charges"]
+    from_charges = 2 * sum(q["QL"]) - sum(q["uR"]) - sum(q["dR"])
+    from_lns = 2 * sum(LNS2_H_Q) + sum(LNS2_H_UBAR) + sum(LNS2_H_DBAR)
+    assert fn.extra["colour_anomaly"] == from_charges == from_lns == 21
+
+
 def test_yukawa_texture_lns_eq_2_6(fn):
     """Y^f_ij = c_ij ε^{n_ij}, n_ij = H(Q_i) + H(f̄_j) ≥ 0 (LNS-2 Eq. 2.2), reproduces the
     textures of LNS-2 Eq. (2.6) power by power, and Y is exactly that monomial times c_ij."""

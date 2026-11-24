@@ -3,10 +3,19 @@
 Write formulas in LaTeX and code in backticks (`CONVENTIONS.md`, section "Markdown").
 
 ## 1. Natural extensions
-- **A mass for the familon.** $`U(1)_{\rm FN}`$ is exact here, so $a$ is massless. A soft
+- **A mass for the familon.** $`U(1)_{\rm FN}`$ is exact in the Lagrangian, so $a$ is massless at
+  tree level. It is not exact quantum mechanically: the benchmark charges have a
+  $`U(1)_{\rm FN}`$–$`SU(3)_c^2`$ anomaly (coefficient $21$, `test_u1_fn_colour_anomaly_coefficient`),
+  so QCD gives $a$ a mass and makes it an axiflavon (UG-3 from `feynlag-anomalies`). A soft
   breaking term such as $`\mu_b^2\,\phi^2 + \text{h.c.}`$ (or a higher power of $\phi$) gives $a$ a
   mass and turns it into a pseudo-Goldstone, which opens a UFO export without a massless
   pseudoscalar. [physics judgment]
+- **Axiflavon constraints.** Since $a$ couples to $`G\tilde G`$ with the anomaly coefficient, it
+  behaves as a QCD axion with decay constant set by $v_\phi$ divided by that coefficient: its mass
+  scales as $`m_a \propto m_\pi f_\pi \times (\text{coefficient})/v_\phi`$, and the axion bounds apply
+  (stellar cooling, axion dark matter), on top of the flavour-violating familon bounds. No numbers
+  are quoted here; the confrontation belongs to `feynlag-anomalies`, with sourced bounds.
+  [physics judgment]
 - **Discrete $`Z_N`$ instead of $U(1)$.** LNS-2 Sec. 2.1 requires the horizontal symmetry of the
   full Lagrangian to be a $`Z_N \subset U(1)`$, so that a term breaking it by $n \gt N$ units is
   suppressed only by $\lambda^{n \bmod N}$. A $`Z_N`$ benchmark would remove the Goldstone and
@@ -73,7 +82,7 @@ Write formulas in LaTeX and code in backticks (`CONVENTIONS.md`, section "Markdo
   per vertex) was about ten times slower than from the linearised model (probe on 2026-10-05),
   which is why `bundle.model` is linearised. Not a gap row: it is a cost, not a wrong result.
 - **No UFO.** Not attempted (not requested). Unitary-gauge export would have to handle the
-  massless $a$, and the higher-dimension operators would need the linearised form.
+  $a$ massless at tree level, and the higher-dimension operators would need the linearised form.
 
 ## 5. Key references
 1. M. Leurer, Y. Nir, N. Seiberg, "Mass matrix models", Nucl. Phys. B 398 (1993) 319–342,

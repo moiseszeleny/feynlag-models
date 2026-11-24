@@ -23,7 +23,7 @@ new_fields:
     chirality: null
     generations: 1
 new_symmetries:
-  - {name: U1_FN, kind: global, acts_on: [phi, QL, uR, dR, Ll, eR], status: spontaneously_broken, broken_by: "<phi> = v_phi/sqrt2; the flavon phase a is an exact massless Goldstone (no explicit breaking is included; physics judgment). Fermion charges are per generation and are benchmark inputs qQ1..qe3; H is uncharged."}
+  - {name: U1_FN, kind: global, acts_on: [phi, QL, uR, dR, Ll, eR], status: spontaneously_broken, broken_by: "<phi> = v_phi/sqrt2; the flavon phase a is a Goldstone, massless at tree level (no explicit breaking in the Lagrangian; physics judgment). The benchmark charges are colour-anomalous (U(1)_FN-SU(3)_c^2 coefficient 21), so a is an axiflavon once QCD is included. Fermion charges are per generation and are benchmark inputs qQ1..qe3; H is uncharged."}
 free_parameters:
   - {name: vphi,    tex: "v_\\phi",          mass_dim: 1, role: flavon VEV}
   - {name: Lam,     tex: "\\Lambda",         mass_dim: 1, role: FN messenger scale}
@@ -128,7 +128,8 @@ key_results:
   - {statement: "gauge invariant, hermitian, anomaly-free with the exact c (phi/Lambda)^n Yukawa operators", test: "tests/test_l0_l1.py::test_validate_exact_operators"}
   - {statement: "global U(1)_FN holds monomial by monomial (phi: +1, per-generation fermion charges, H: 0)", test: "tests/test_l0_l1.py::test_global_u1_fn_every_term"}
   - {statement: "M_f = (v/sqrt2) c^f_ij eps^n_ij, n_ij = q(F_L,i) - q(f_R,j), eps = v_phi/(sqrt2 Lambda)", test: "tests/test_l0_l1.py::test_fermion_mass_matrices"}
-  - {statement: "four massless real scalars: G0, G+- (eaten) and the U(1)_FN Goldstone a", test: "tests/test_l0_l1.py::test_goldstone_count"}
+  - {statement: "four real scalars massless at tree level: G0, G+- (eaten) and the U(1)_FN Goldstone a", test: "tests/test_l0_l1.py::test_goldstone_count"}
+  - {statement: "U(1)_FN-SU(3)_c^2 anomaly coefficient sum_gen (2 q_Q - q_u - q_d) = 21 at the LNS-2 benchmark charges: a is an axiflavon once QCD is included", test: "tests/test_l2_literature.py::test_u1_fn_colour_anomaly_coefficient"}
   - {statement: "Y^f textures and det Y^f = det(c) eps^(sum of charges) reproduce LNS-2 Eqs. (2.6), (2.7), (2.19)", test: "tests/test_l2_literature.py::test_determinant_is_charge_sum_lns_eq_2_19"}
   - {statement: "m_i ~ v eps^n_ii and |V_ij| ~ eps^|q(Q_i)-q(Q_j)| as finite O(1) limits (LNS-2 Eqs. 2.3, 2.4)", test: "tests/test_l2_literature.py::test_ckm_scaling_lns_eq_2_3"}
   - {statement: "one-flavon couplings: -M_ij (h/v + (|n_ij| s + i n_ij a)/v_phi) dbar_L,i d_R,j for either sign of n_ij (physics judgment, not from LNS)", test: "tests/test_l2_literature.py::test_flavon_couplings_negative_powers"}
@@ -247,5 +248,5 @@ outputs:
   vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
-last_reviewed: 2026-11-22
+last_reviewed: 2026-11-24
 reviewed_by: "Moises Zeleny (with Claude)"
