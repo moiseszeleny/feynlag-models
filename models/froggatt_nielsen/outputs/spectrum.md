@@ -3,7 +3,7 @@
 | $m_{h_1}$ | $`\sqrt{2 {\lambda} {v}^{2} \cos^{2}{\left({\theta} \right)} + 2 {\lambda_{H\phi}} {v} {v_\phi} \sin{\left({\theta} \right)} \cos{\left({\theta} \right)} + 2 {\lambda_\phi} {v_\phi}^{2} \sin^{2}{\left({\theta} \right)}}`$ | 124.877 |
 | $m_{h_2}$ | $`\sqrt{2 {\lambda} {v}^{2} \sin^{2}{\left({\theta} \right)} - 2 {\lambda_{H\phi}} {v} {v_\phi} \sin{\left({\theta} \right)} \cos{\left({\theta} \right)} + 2 {\lambda_\phi} {v_\phi}^{2} \cos^{2}{\left({\theta} \right)}}`$ | 1264.92 |
 | $\theta$ | $`\frac{\operatorname{atan}{\left(\frac{{\lambda_{H\phi}} {v} {v_\phi}}{{\lambda} {v}^{2} - {\lambda_\phi} {v_\phi}^{2}} \right)}}{2}`$ | -0.00439538 |
-| $m_a$ | $`0`$ | 0 |
+| $m_a$ (tree level) | $`0`$ | 0 |
 | $m_W$ | $`\frac{{g} {v}}{2}`$ | 80.4185 |
 | $m_Z$ | $`\frac{{v} \sqrt{{g'}^{2} + {g}^{2}}}{2}`$ | 91.1876 |
 | $\epsilon$ | $`\frac{\sqrt{2} {v_\phi}}{2 {\Lambda}}`$ | 0.2 |
