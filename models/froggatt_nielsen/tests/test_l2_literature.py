@@ -11,7 +11,7 @@ import numpy as np
 import sympy as sp
 
 from feynlag_models.checks import assert_dual_equal
-from models.froggatt_nielsen.model import ckm, mass_basis
+from models.froggatt_nielsen.model import ckm, colour_anomaly_coefficient, fn_symmetry, mass_basis
 
 # LNS-2 Eq. (2.5): the "master model" charges (H(Q), H(d̄), H(ū)) for generations 1, 2, 3
 LNS2_H_Q, LNS2_H_DBAR, LNS2_H_UBAR = (3, 2, 0), (3, 2, 2), (3, 1, 0)
@@ -31,6 +31,49 @@ def test_benchmark_charges_are_lns_master_model(fn):
     assert q["QL"] == LNS2_H_Q
     assert q["dR"] == tuple(-h for h in LNS2_H_DBAR)
     assert q["uR"] == tuple(-h for h in LNS2_H_UBAR)
+
+
+def test_u1_fn_colour_anomaly_coefficient(fn):
+    """U(1)_FN is QCD-anomalous at the benchmark (UG-3 from feynlag-anomalies): the
+    U(1)_FN–SU(3)_c² coefficient Σ_gen (2 q_Q − q_u − q_d) is 21, so the flavon phase a is
+    massless only at tree level and an axiflavon once QCD is included.
+
+    The 21 is computed, not quoted: from the ``GlobalU1`` declared on ``model_exact``
+    (``extra["colour_anomaly"]``), from the benchmark charges with the formula of
+    ``feynlag-anomalies`` ``puzzles/flavor_puzzle/solutions/step_4.py::colour_anomaly_coefficient``
+    (same keys: ``qu``, ``qd`` are the charges of the right-handed fields), and from the LNS-2
+    master-model charges, hep-ph/9310320 Eq. (2.5), with H(f̄) = −q(f_R):
+    2 ΣH(Q) + ΣH(ū) + ΣH(d̄) = 10 + 4 + 7. Normalisation: 2 Σ_LH-Weyl q T(R), T(3) = 1/2.
+    feynlag's ``check_anomalies`` skips global groups, so ``validate()`` cannot see this."""
+    q = fn.extra["fn_charges"]
+    from_charges = 2 * sum(q["QL"]) - sum(q["uR"]) - sum(q["dR"])
+    from_lns = 2 * sum(LNS2_H_Q) + sum(LNS2_H_UBAR) + sum(LNS2_H_DBAR)
+    assert fn.extra["colour_anomaly"] == from_charges == from_lns == 21
+
+
+def _once_counted(charges):
+    """LNS-2 Eq. (4.9) as printed, in our charges: Σ_i [H(Q_i) + H(ū_i) + H(d̄_i)] with
+    H(f̄) = −q(f_R), i.e. Q counted once, without its SU(2) multiplicity."""
+    return sum(charges["QL"]) - sum(charges["uR"]) - sum(charges["dR"])
+
+
+def test_colour_anomaly_is_shift_invariant_lns_eq_4_9_is_not(fn):
+    """D-2. LNS-2 Sec. 4.3 Eq. (4.9) prints the QCD anomaly as A_H = Σ_i [H(Q_i) + H(ū_i) + H(d̄_i)],
+    counting each doublet Q once; at the master-model charges that is 16, ours is 21. As printed it
+    drops the SU(2) multiplicity of Q (two colour triplets per doublet). The physical coefficient
+    2q_Q − q_u − q_d is unchanged when every charge is shifted by hypercharge or by baryon number
+    (both are QCD-anomaly-free), while the once-counted form changes. (LNS apply (4.9) to charges
+    already fixed by U(1)_X × U(1)_Y × U(1)_B, which may be why the multiplicity was not needed
+    there.) The shifts read Y from the declared fields, not from copied numbers."""
+    p, q = fn.pieces, fn.extra["fn_charges"]
+    assert _once_counted(q) == 16 and fn.extra["colour_anomaly"] == 21
+    hyper = {f: p.fermions[f].reps[p.U1Y] for f in q}
+    baryon = {f: (sp.Rational(1, 3) if p.SU3c in p.fermions[f].reps else 0) for f in q}
+    for shift in (hyper, baryon):
+        shifted = {f: tuple(sp.nsimplify(c) + shift[f] for c in qs) for f, qs in q.items()}
+        G = fn_symmetry(p, fn.extra["phiF"], shifted)
+        assert colour_anomaly_coefficient(G, p.SU3c, p.SU2L) == 21
+        assert _once_counted(shifted) != 16
 
 
 def test_yukawa_texture_lns_eq_2_6(fn):

@@ -23,7 +23,7 @@ new_fields:
     chirality: null
     generations: 1
 new_symmetries:
-  - {name: U1_FN, kind: global, acts_on: [phi, QL, uR, dR, Ll, eR], status: spontaneously_broken, broken_by: "<phi> = v_phi/sqrt2; the flavon phase a is an exact massless Goldstone (no explicit breaking is included; physics judgment). Fermion charges are per generation and are benchmark inputs qQ1..qe3; H is uncharged."}
+  - {name: U1_FN, kind: global, acts_on: [phi, QL, uR, dR, Ll, eR], status: spontaneously_broken, broken_by: "<phi> = v_phi/sqrt2; the flavon phase a is a Goldstone, massless at tree level (no explicit breaking in the Lagrangian; physics judgment). The benchmark charges are colour-anomalous (U(1)_FN-SU(3)_c^2 coefficient 21), so a is an axiflavon once QCD is included. Fermion charges are per generation and are benchmark inputs qQ1..qe3; H is uncharged."}
 free_parameters:
   - {name: vphi,    tex: "v_\\phi",          mass_dim: 1, role: flavon VEV}
   - {name: Lam,     tex: "\\Lambda",         mass_dim: 1, role: FN messenger scale}
@@ -128,7 +128,8 @@ key_results:
   - {statement: "gauge invariant, hermitian, anomaly-free with the exact c (phi/Lambda)^n Yukawa operators", test: "tests/test_l0_l1.py::test_validate_exact_operators"}
   - {statement: "global U(1)_FN holds monomial by monomial (phi: +1, per-generation fermion charges, H: 0)", test: "tests/test_l0_l1.py::test_global_u1_fn_every_term"}
   - {statement: "M_f = (v/sqrt2) c^f_ij eps^n_ij, n_ij = q(F_L,i) - q(f_R,j), eps = v_phi/(sqrt2 Lambda)", test: "tests/test_l0_l1.py::test_fermion_mass_matrices"}
-  - {statement: "four massless real scalars: G0, G+- (eaten) and the U(1)_FN Goldstone a", test: "tests/test_l0_l1.py::test_goldstone_count"}
+  - {statement: "four real scalars massless at tree level: G0, G+- (eaten) and the U(1)_FN Goldstone a", test: "tests/test_l0_l1.py::test_goldstone_count"}
+  - {statement: "U(1)_FN-SU(3)_c^2 anomaly coefficient sum_gen (2 q_Q - q_u - q_d) = 2 sum q T(R) = N_DW = 21 at the LNS-2 benchmark charges (N = 21/2 in the E/N convention, f_a = v_phi/N_DW): a is an axiflavon once QCD is included", test: "tests/test_l2_literature.py::test_u1_fn_colour_anomaly_coefficient"}
   - {statement: "Y^f textures and det Y^f = det(c) eps^(sum of charges) reproduce LNS-2 Eqs. (2.6), (2.7), (2.19)", test: "tests/test_l2_literature.py::test_determinant_is_charge_sum_lns_eq_2_19"}
   - {statement: "m_i ~ v eps^n_ii and |V_ij| ~ eps^|q(Q_i)-q(Q_j)| as finite O(1) limits (LNS-2 Eqs. 2.3, 2.4)", test: "tests/test_l2_literature.py::test_ckm_scaling_lns_eq_2_3"}
   - {statement: "one-flavon couplings: -M_ij (h/v + (|n_ij| s + i n_ij a)/v_phi) dbar_L,i d_R,j for either sign of n_ij (physics judgment, not from LNS)", test: "tests/test_l2_literature.py::test_flavon_couplings_negative_powers"}
@@ -201,6 +202,15 @@ discrepancies:
     theirs: "entries with n < 0 vanish (supersymmetric, holomorphic superpotential); LNS-1 (5.6) notes powers of S^dagger in non-SUSY models but ignores them"
     status: convention
     note: "At the benchmark every n_ij >= 0, so the two agree there; a benchmark with negative n would differ from LNS by these entries."
+  - id: D-2
+    quantity: "U(1)_FN-SU(3)_c^2 (QCD) anomaly coefficient at the master-model charges"
+    ref: lns1994
+    location: {equation: "(4.9)", section: "4.3"}
+    ours: "sum_gen (2 q_Q - q_u - q_d) = 2 sum H(Q) + sum H(ubar) + sum H(dbar) = 21 (each doublet holds two colour triplets)"
+    theirs: "A_H = sum_i [H(Q_i) + H(ubar_i) + H(dbar_i)], Q counted once: 16 at the Eq. (2.5) charges"
+    status: resolved
+    test: "tests/test_l2_literature.py::test_colour_anomaly_is_shift_invariant_lns_eq_4_9_is_not"
+    note: "Eq. (4.9) as printed (arXiv v1 text, checked 2026-11-24) drops the SU(2) multiplicity of Q. Shifting all charges by hypercharge or by baryon number (both QCD-anomaly-free) leaves 2H(Q)+H(ubar)+H(dbar) unchanged but changes the once-counted form; LNS apply (4.9) to charges already fixed by U(1)_X x U(1)_Y x U(1)_B. Their conclusion, that a Z_n in U(1)_H x U(1)_X can be made QCD-anomaly-free (Eqs. 4.10-4.12), is not used here."
 references:
   - key: lns1993
     kind: article
@@ -247,5 +257,5 @@ outputs:
   vertices_md: "outputs/vertices.md"
   spectrum: "outputs/spectrum.md"
   stamp: "outputs/STAMP.json"
-last_reviewed: 2026-11-22
+last_reviewed: 2026-11-24
 reviewed_by: "Moises Zeleny (with Claude)"

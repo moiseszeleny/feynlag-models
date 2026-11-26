@@ -1,7 +1,7 @@
 # SM + Froggatt–Nielsen flavon (global $`U(1)_{\rm FN}`$, three generations) — physics card
 
 **id** `froggatt_nielsen` · **parents** `sm_ckm` (replaces the `yukawa` sector) · **maturity** L2
-(no UFO: not requested, and the model has a massless Goldstone and operators of dimension up to 10;
+(no UFO: not requested, and the model has a Goldstone massless at tree level and operators of dimension up to 10;
 see "Observables that test it")
 
 Tags: **[feynlag-verified: test]** = pinned by a test in `tests/`; **[physics judgment]** = not machine-checked.
@@ -53,12 +53,26 @@ to the implementer by the request and is recorded in `metadata.yaml`. [physics j
   $u_R$ charge breaks exactly the up Yukawa, so the check has teeth, and a $`Z_N`$ with one charge
   per multiplet cannot express the symmetry
   **[feynlag-verified: `tests/test_l0_l1.py::test_global_u1_fn_every_term`]**.
-- The flavon phase $a$ is an exactly massless Goldstone. With the three would-be Goldstones eaten
-  by $W^\pm$ and $Z$, there are four massless real scalars
+- The flavon phase $a$ is a Goldstone, massless at tree level (an axiflavon once QCD is included,
+  because the benchmark charges are colour-anomalous; see the next bullet). With the three
+  would-be Goldstones eaten by $W^\pm$ and $Z$, there are four real scalars massless at tree level
   **[feynlag-verified: `test_goldstone_count`]**.
 - Gauge anomalies are those of `sm_ckm`, since $\phi$ is a gauge singlet; the global
   $`U(1)_{\rm FN}`$ is not required to be anomaly-free
-  **[feynlag-verified: `test_validate_exact_operators`]** (gauge anomalies only).
+  **[feynlag-verified: `test_validate_exact_operators`]** (gauge anomalies only). It is not
+  anomaly-free with QCD: the $`U(1)_{\rm FN}`$–$`SU(3)_c^2`$ coefficient
+  $`\sum_{\rm gen}(2q_Q - q_u - q_d)`$ is $21$ at the benchmark (LNS-2 Eq. (2.5) charges), computed
+  from the declared `GlobalU1` (`extra["colour_anomaly"]`), since feynlag's anomaly check skips
+  global groups. So $a$ gets a QCD-induced mass and is an axiflavon
+  **[feynlag-verified: `test_u1_fn_colour_anomaly_coefficient`]**. The $21$ is
+  $`2\sum q\,T(R) = N_{\rm DW}`$, the domain-wall number ($N = 21/2$ in the $E/N$ convention), so
+  $`f_a = v_\phi/N_{\rm DW}`$. LNS-2 Eq. (4.9) prints the anomaly with each doublet counted once,
+  which gives $16$ (discrepancy D-2, `status: resolved`); the doublet-weighted form is the one
+  invariant under hypercharge and baryon-number shifts of the charges
+  **[feynlag-verified: `test_colour_anomaly_is_shift_invariant_lns_eq_4_9_is_not`]**. LNS's escape,
+  an accidental $`U(1)_X`$ of their two-doublet Yukawa sector absorbing the anomaly (Sec. 4.3), does
+  not apply: this model has one Higgs doublet, so the axiflavon is physical. A $`Z_N`$ version
+  would need $`Z_N`$ itself free of the QCD anomaly (LNS-2 Eq. (4.10)) [physics judgment].
 
 ## New Lagrangian terms
 The flavon kinetic term, the potential
@@ -173,10 +187,10 @@ $\Lambda$ are integrated out and not in the model. [physics judgment]
   masses are $O(1)$ multiples of the FN powers, not the measured values (for example
   $\lvert V_{us}\rvert \approx 0.19$, $m_t \approx 95$ GeV, computed on 2026-10-05, not pinned by a
   test). [physics judgment] Fitting is the job of `feynlag-anomalies` (P3 of the flavour puzzle).
-- Flavon-mediated FCNC (meson mixing, $\mu \to e\gamma$ once leptons mix) and the massless
-  Goldstone $a$ (a familon), which couples to $\bar f_i f_j$ with strength $`n_{ij} M_{ij}/v_\phi`$.
+- Flavon-mediated FCNC (meson mixing, $\mu \to e\gamma$ once leptons mix) and the
+  Goldstone $a$ (a familon, massless at tree level; an axiflavon with QCD), which couples to $\bar f_i f_j$ with strength $`n_{ij} M_{ij}/v_\phi`$.
   These constrain $v_\phi$ and are not checked here. [physics judgment]
-- **No UFO.** Not requested (P3 needs L2), and an export would carry a massless pseudoscalar and,
+- **No UFO.** Not requested (P3 needs L2), and an export would carry a pseudoscalar massless at tree level and,
   for the exact model, operators up to dimension 10; the generated pages come from the linearised
   model (`ufo: null`). [physics judgment]
 
